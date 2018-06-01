@@ -98,12 +98,23 @@ declare function binarySubdivide(aX: any, aA: any, aB: any, mX1: any, mX2: any):
  */
 declare function newtonRaphsonIterate(aX: any, aGuessT: any, mX1: any, mX2: any): any;
 declare function createCanvas(x?: number, y?: number, width?: number, height?: number): HTMLCanvasElement;
-declare function getBezierSamples(bezier: Bezier, num?: number): number[][];
-declare class BezierTest {
-    point0: number[];
-    point1: number[];
-    canvas: HTMLCanvasElement;
-    bezier: Bezier;
-    constructor();
-    drawBezier(): void;
-}
+declare function getBezierSamples(bezier: Bezier, num?: number): Point[];
+declare function getCurveSamples(points: Point[], num?: number): Point[];
+/**
+ * 清理画布
+ * @param canvas 画布
+ */
+declare function clearCanvas(canvas: HTMLCanvasElement): void;
+/**
+ * 绘制曲线
+ * @param canvas 画布
+ * @param points 曲线上的点
+ * @param strokeStyle 曲线颜色
+ */
+declare function drawCurve(canvas: HTMLCanvasElement, points: Point[], strokeStyle?: string, lineWidth?: number): void;
+declare var canvas: HTMLCanvasElement;
+declare var point0: number[];
+declare var point1: number[];
+declare var bezier: Bezier;
+declare var points: Point[];
+declare var points1: Point[];

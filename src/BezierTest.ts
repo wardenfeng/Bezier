@@ -24,10 +24,13 @@ function getBezierSamples(bezier: Bezier, num = 100)
 
 function getCurveSamples(points: Point[], num = 100)
 {
+    var xs = points.map((i) => i.x);
+    var ys = points.map((i) => i.y);
+
     var results: Point[] = [];
     for (let i = 0; i <= 1; i += 1 / num)
     {
-        var p = curve(i, points);
+        var p = new Point(curve(i, xs), curve(i, ys));
         results.push(p);
     }
     return results;
@@ -44,29 +47,34 @@ function getCurveAtX(points: Point[], targetX: number)
      */
     var SUBDIVISION_MAX_ITERATIONS = 15;
 
+    var xs = points.map((i) => i.x);
+    var ys = points.map((i) => i.y);
+
     var t0 = 0;
     var t1 = 1;
-    var p0 = points[0];
-    var p1 = points[points.length - 1];
-    console.assert((p0.x - targetX) * (p1.x - targetX) < 0, `targetX 必须在 起点终点之间！`);
+    var x0 = xs[0];
+    var x1 = xs[xs.length - 1];
+    console.assert((x0 - targetX) * (x1 - targetX) < 0, `targetX 必须在 起点终点之间！`);
 
     var i = 0;
-    while (Math.abs(p0.x - p1.x) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS)
+    while (Math.abs(x0 - x1) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS)
     {
         var mt = (t0 + t1) / 2;
-        var mv = curve(mt, points);
-        if ((p0.x - targetX) * (mv.x - targetX) < 0)
+        var mv = curve(mt, xs);
+        if ((x0 - targetX) * (mv - targetX) < 0)
         {
             t1 = mt;
-            p1 = mv;
+            x1 = mv;
         } else
         {
             t0 = mt;
-            p0 = mv;
+            x0 = mv;
         }
     }
 
-    return p0;
+    var y = curve(t0, ys);
+
+    return new Point(x0, y);
 
     // binaryFind(0, p0, 1, p1, targetX);
 

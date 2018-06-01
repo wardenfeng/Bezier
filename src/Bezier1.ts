@@ -21,32 +21,17 @@ class Point
         return this;
     }
 }
-interface Point
-{
-    /**
-     * 克隆
-     */
-    clone(): this;
 
-    /**
-     * 插值到指定向量
-     * @param v 目标向量
-     * @param alpha 插值系数
-     * @return 返回自身
-     */
-    lerpNumber(v: Point, alpha: number): this;
-}
-
-function curve<T>(t: number, points: Point[]): Point
+function curve<T>(t: number, numbers: number[]): number
 {
-    if (points.length == 2)
+    if (numbers.length == 2)
     {
-        return points[0].clone().lerpNumber(points[1], t);
+        return (1 - t) * numbers[0] + t * numbers[1];
     }
-    var newpoints = [];
-    for (let i = 0, end = points.length - 1; i < end; i++)
+    var newpoints: number[] = [];
+    for (let i = 0, end = numbers.length - 1; i < end; i++)
     {
-        newpoints.push(curve(t, [points[i], points[i + 1]]));
+        newpoints.push(curve(t, [numbers[i], numbers[i + 1]]));
     }
     return curve(t, newpoints);
 }

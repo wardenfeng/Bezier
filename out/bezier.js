@@ -13,13 +13,13 @@ var Point = /** @class */ (function () {
     };
     return Point;
 }());
-function curve(t, points) {
-    if (points.length == 2) {
-        return points[0].clone().lerpNumber(points[1], t);
+function curve(t, numbers) {
+    if (numbers.length == 2) {
+        return (1 - t) * numbers[0] + t * numbers[1];
     }
     var newpoints = [];
-    for (var i = 0, end = points.length - 1; i < end; i++) {
-        newpoints.push(curve(t, [points[i], points[i + 1]]));
+    for (var i = 0, end = numbers.length - 1; i < end; i++) {
+        newpoints.push(curve(t, [numbers[i], numbers[i + 1]]));
     }
     return curve(t, newpoints);
 }
@@ -202,9 +202,11 @@ function getBezierSamples(bezier, num) {
 }
 function getCurveSamples(points, num) {
     if (num === void 0) { num = 100; }
+    var xs = points.map(function (i) { return i.x; });
+    var ys = points.map(function (i) { return i.y; });
     var results = [];
     for (var i = 0; i <= 1; i += 1 / num) {
-        var p = curve(i, points);
+        var p = new Point(curve(i, xs), curve(i, ys));
         results.push(p);
     }
     return results;
@@ -218,25 +220,28 @@ function getCurveAtX(points, targetX) {
      * 细分最大迭代次数
      */
     var SUBDIVISION_MAX_ITERATIONS = 15;
+    var xs = points.map(function (i) { return i.x; });
+    var ys = points.map(function (i) { return i.y; });
     var t0 = 0;
     var t1 = 1;
-    var p0 = points[0];
-    var p1 = points[points.length - 1];
-    console.assert((p0.x - targetX) * (p1.x - targetX) < 0, "targetX \u5FC5\u987B\u5728 \u8D77\u70B9\u7EC8\u70B9\u4E4B\u95F4\uFF01");
+    var x0 = xs[0];
+    var x1 = xs[xs.length - 1];
+    console.assert((x0 - targetX) * (x1 - targetX) < 0, "targetX \u5FC5\u987B\u5728 \u8D77\u70B9\u7EC8\u70B9\u4E4B\u95F4\uFF01");
     var i = 0;
-    while (Math.abs(p0.x - p1.x) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS) {
+    while (Math.abs(x0 - x1) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS) {
         var mt = (t0 + t1) / 2;
-        var mv = curve(mt, points);
-        if ((p0.x - targetX) * (mv.x - targetX) < 0) {
+        var mv = curve(mt, xs);
+        if ((x0 - targetX) * (mv - targetX) < 0) {
             t1 = mt;
-            p1 = mv;
+            x1 = mv;
         }
         else {
             t0 = mt;
-            p0 = mv;
+            x0 = mv;
         }
     }
-    return p0;
+    var y = curve(t0, ys);
+    return new Point(x0, y);
     // binaryFind(0, p0, 1, p1, targetX);
     // /**
     //  * 二分插值

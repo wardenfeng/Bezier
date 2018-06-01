@@ -100,6 +100,7 @@ declare function newtonRaphsonIterate(aX: any, aGuessT: any, mX1: any, mX2: any)
 declare function createCanvas(x?: number, y?: number, width?: number, height?: number): HTMLCanvasElement;
 declare function getBezierSamples(bezier: Bezier, num?: number): Point[];
 declare function getCurveSamples(points: Point[], num?: number): Point[];
+declare function getCurveAtX(points: Point[], targetX: number): Point;
 /**
  * 清理画布
  * @param canvas 画布
@@ -118,3 +119,4 @@ declare var point1: number[];
 declare var bezier: Bezier;
 declare var points: Point[];
 declare var points1: Point[];
+declare var x: number;

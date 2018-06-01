@@ -151,18 +151,42 @@ function newtonRaphsonIterate(aX, aGuessT, mX1, mX2) {
     }
     return aGuessT;
 }
+function createCanvas(x, y, width, height) {
+    if (x === void 0) { x = 0; }
+    if (y === void 0) { y = 0; }
+    if (width === void 0) { width = 100; }
+    if (height === void 0) { height = 100; }
+    var canvas = document.createElement("canvas");
+    canvas.style.position = "fixed";
+    canvas.style.left = x + "px";
+    canvas.style.top = y + "px";
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    canvas.width = width;
+    canvas.height = height;
+    document.body.appendChild(canvas);
+    return canvas;
+}
+function getBezierSamples(bezier, num) {
+    if (num === void 0) { num = 100; }
+    var points = [];
+    for (var i = 0; i < 1; i += 1 / num) {
+        points.push([i, bezier.getValue(i)]);
+    }
+    return points;
+}
 var BezierTest = /** @class */ (function () {
     function BezierTest() {
-        var canvas = document.getElementById("viewport"), ctx = canvas.getContext("2d");
-        var bezier = new Bezier(0.44, 0.32, 0.82, 0.56);
-        // var bezier = new Bezier(0.25, 0.1, 0.0, 1.0);
-        var points = [[20, 20], [80, 80], [60, 50]];
-        points.length = 0;
-        for (var i = 0; i < 1; i += 1 / 100) {
-            points.push([i * 100, (1 - bezier.getValue(i)) * 100]);
-        }
+        var canvas = createCanvas(100, 100, 400, 300);
+        var bezier = new Bezier(Math.random(), Math.random(), Math.random(), Math.random());
+        var points = getBezierSamples(bezier, 100);
+        this.drawBezier(canvas, points);
+    }
+    BezierTest.prototype.drawBezier = function (canvas, points) {
+        var ctx = canvas.getContext("2d");
+        points = points.map(function (item) { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; });
         ctx.fillStyle = 'brack';
-        ctx.fillRect(0, 0, 100, 100);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         // First path
         ctx.beginPath();
         ctx.strokeStyle = 'white';
@@ -171,7 +195,7 @@ var BezierTest = /** @class */ (function () {
             ctx.lineTo(points[i][0], points[i][1]);
         }
         ctx.stroke();
-    }
+    };
     return BezierTest;
 }());
 new BezierTest();

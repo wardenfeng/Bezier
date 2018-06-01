@@ -1,22 +1,45 @@
+function createCanvas(x = 0, y = 0, width = 100, height = 100)
+{
+    var canvas = document.createElement("canvas");
+    canvas.style.position = "fixed";
+    canvas.style.left = `${x}px`;
+    canvas.style.top = `${y}px`;
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.width = width;
+    canvas.height = height;
+    document.body.appendChild(canvas);
+    return canvas;
+}
+
+function getBezierSamples(bezier: Bezier, num = 100)
+{
+    var points: number[][] = [];
+    for (let i = 0; i < 1; i += 1 / num)
+    {
+        points.push([i, bezier.getValue(i)]);
+    }
+    return points;
+}
+
 class BezierTest
 {
     constructor()
     {
-        var canvas = <HTMLCanvasElement>document.getElementById("viewport"), ctx = canvas.getContext("2d");
+        var canvas = createCanvas(100, 100, 400, 300);
+        var bezier = new Bezier(Math.random(), Math.random(), Math.random(), Math.random());
+        var points = getBezierSamples(bezier, 100);
+        this.drawBezier(canvas, points);
+    }
 
-        var bezier = new Bezier(0.44, 0.32, 0.82, 0.56);
-        // var bezier = new Bezier(0.25, 0.1, 0.0, 1.0);
+    drawBezier(canvas: HTMLCanvasElement, points: number[][])
+    {
+        var ctx = canvas.getContext("2d");
 
-        var points = [[20, 20], [80, 80], [60, 50]];
-        points.length = 0;
-
-        for (let i = 0; i < 1; i += 1 / 100)
-        {
-            points.push([i * 100, (1 - bezier.getValue(i)) * 100]);
-        }
+        points = points.map(item => { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; })
 
         ctx.fillStyle = 'brack';
-        ctx.fillRect(0, 0, 100, 100);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // First path
         ctx.beginPath();

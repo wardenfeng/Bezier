@@ -78,6 +78,9 @@ declare function binarySubdivide(aX: any, aA: any, aB: any, mX1: any, mX2: any):
  * @param mX2
  */
 declare function newtonRaphsonIterate(aX: any, aGuessT: any, mX1: any, mX2: any): any;
+declare function createCanvas(x?: number, y?: number, width?: number, height?: number): HTMLCanvasElement;
+declare function getBezierSamples(bezier: Bezier, num?: number): number[][];
 declare class BezierTest {
     constructor();
+    drawBezier(canvas: HTMLCanvasElement, points: number[][]): void;
 }

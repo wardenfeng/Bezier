@@ -7,9 +7,13 @@ declare class Point {
 }
 declare class Curve {
     private numbers;
-    private map;
+    n0: any;
+    n1: any;
+    n2: any;
+    n3: any;
     constructor(numbers: number[]);
-    getValue(t: number): any;
+    getValue(t: number): number;
+    curve2(t: number): number;
     findTatValue(targetX: number): number;
 }
 declare function curve1(t: number, p0: number, p1: number, p2: number, p3: number): number;
@@ -100,7 +104,6 @@ declare function createCanvas(x?: number, y?: number, width?: number, height?: n
 declare function getBezierSamples(bezier: Bezier, num?: number): Point[];
 declare function getCurveSamples(points: Point[], num?: number): Point[];
 declare function getCurveSamples1(cx: Curve, cy: Curve, num?: number): Point[];
-declare function getCurveAtX(points: Point[], targetX: number): Point;
 /**
  * 清理画布
  * @param canvas 画布
@@ -119,11 +122,10 @@ declare var point1: number[];
 declare var bezier: Bezier;
 declare var points: Point[];
 declare var points1: Point[];
-declare var points: Point[];
-declare var xs: number[];
-declare var ys: number[];
 declare var cx: Curve;
 declare var cy: Curve;
 declare var points2: Point[];
 declare var x: number;
 declare var num: number;
+declare var xs: number[];
+declare var ys: number[];

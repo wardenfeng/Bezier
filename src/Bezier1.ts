@@ -25,22 +25,39 @@ class Point
 class Curve
 {
     private numbers: number[];
-    private map = {};
+    // private map = {};
+    n0;
+    n1;
+    n2;
+    n3;
 
     constructor(numbers: number[])
     {
         this.numbers = numbers;
-        this.map[0] = numbers[0];
-        this.map[1] = numbers[numbers.length - 1];
+        this.n0 = numbers[0];
+        this.n1 = numbers[1];
+        this.n2 = numbers[2];
+        this.n3 = numbers[3];
+        // this.map[0] = numbers[0];
+        // this.map[1] = numbers[numbers.length - 1];
     }
 
     getValue(t: number)
     {
-        if (this.map[t] != undefined)
-            return this.map[t];
-        var v = curve(t, this.numbers);
-        this.map[t] = v;
+        // if (this.map[t] != undefined)
+        //     return this.map[t];
+        // var v = curve(t, this.numbers);
+        // var v = curve1(t, this.n0, this.n1, this.n2, this.n3);
+        var v = curve2(t, this.numbers);
+        // var v = this.curve2(t);
+        // this.map[t] = v;
         return v;
+    }
+
+    curve2(t: number): number
+    {
+        var t1 = 1 - t;
+        return t1 * t1 * t1 * this.n0 + 3 * t1 * t1 * t * this.n1 + 3 * t1 * t * t * this.n2 + t * t * t * this.n3;
     }
 
     findTatValue(targetX: number)

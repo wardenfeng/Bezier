@@ -84,6 +84,7 @@ declare class BezierTest {
     point0: number[];
     point1: number[];
     canvas: HTMLCanvasElement;
+    bezier: Bezier;
     constructor();
-    drawBezier(canvas: HTMLCanvasElement, points: number[][]): void;
+    drawBezier(): void;
 }

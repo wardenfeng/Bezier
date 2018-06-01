@@ -151,29 +151,28 @@ function newtonRaphsonIterate(aX, aGuessT, mX1, mX2) {
     }
     return aGuessT;
 }
-var canvas = document.getElementById("viewport"), ctx = canvas.getContext("2d");
-setInterval(function () {
-    var bezier = new Bezier(0.25, 0.1, 0.0, 1.0);
-    animate(moveRectangle, 2000, bezier.getValue.bind(bezier));
-}, 2000);
-function moveRectangle(p) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "hsl(" + Math.round(255 * p) + ",80%,50%)";
-    var w = 50;
-    var h = 50 + p * (canvas.height - 50);
-    ctx.fillRect((canvas.width - w) * p, (canvas.height - h) * 0.5, w, h);
-}
-function animate(render, duration, easing) {
-    var start = Date.now();
-    (function loop() {
-        var p = (Date.now() - start) / duration;
-        if (p > 1) {
-            render(1);
+var BezierTest = /** @class */ (function () {
+    function BezierTest() {
+        var canvas = document.getElementById("viewport"), ctx = canvas.getContext("2d");
+        var bezier = new Bezier(0.44, 0.32, 0.82, 0.56);
+        // var bezier = new Bezier(0.25, 0.1, 0.0, 1.0);
+        var points = [[20, 20], [80, 80], [60, 50]];
+        points.length = 0;
+        for (var i = 0; i < 1; i += 1 / 100) {
+            points.push([i * 100, (1 - bezier.getValue(i)) * 100]);
         }
-        else {
-            requestAnimationFrame(loop);
-            render(easing(p));
+        ctx.fillStyle = 'brack';
+        ctx.fillRect(0, 0, 100, 100);
+        // First path
+        ctx.beginPath();
+        ctx.strokeStyle = 'white';
+        ctx.moveTo(points[0][0], points[0][1]);
+        for (var i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i][0], points[i][1]);
         }
-    }());
-}
+        ctx.stroke();
+    }
+    return BezierTest;
+}());
+new BezierTest();
 //# sourceMappingURL=bezier.js.map

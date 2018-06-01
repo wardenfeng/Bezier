@@ -1,34 +1,33 @@
-var canvas = <HTMLCanvasElement>document.getElementById("viewport"), ctx = canvas.getContext("2d");
-
-setInterval(function ()
+class BezierTest
 {
-    var bezier = new Bezier(0.25, 0.1, 0.0, 1.0);
-    animate(moveRectangle, 2000, bezier.getValue.bind(bezier));
-}, 2000);
-
-function moveRectangle(p)
-{ // p move from 0 to 1
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "hsl(" + Math.round(255 * p) + ",80%,50%)";
-    var w = 50;
-    var h = 50 + p * (canvas.height - 50);
-    ctx.fillRect((canvas.width - w) * p, (canvas.height - h) * 0.5, w, h);
-}
-
-function animate(render, duration, easing)
-{
-    var start = Date.now();
-    (function loop()
+    constructor()
     {
-        var p = (Date.now() - start) / duration;
-        if (p > 1)
+        var canvas = <HTMLCanvasElement>document.getElementById("viewport"), ctx = canvas.getContext("2d");
+
+        var bezier = new Bezier(0.44, 0.32, 0.82, 0.56);
+        // var bezier = new Bezier(0.25, 0.1, 0.0, 1.0);
+
+        var points = [[20, 20], [80, 80], [60, 50]];
+        points.length = 0;
+
+        for (let i = 0; i < 1; i += 1 / 100)
         {
-            render(1);
+            points.push([i * 100, (1 - bezier.getValue(i)) * 100]);
         }
-        else
+
+        ctx.fillStyle = 'brack';
+        ctx.fillRect(0, 0, 100, 100);
+
+        // First path
+        ctx.beginPath();
+        ctx.strokeStyle = 'white';
+        ctx.moveTo(points[0][0], points[0][1]);
+        for (let i = 1; i < points.length; i++)
         {
-            requestAnimationFrame(loop);
-            render(easing(p));
+            ctx.lineTo(points[i][0], points[i][1]);
         }
-    }());
+        ctx.stroke();
+    }
 }
+
+new BezierTest();

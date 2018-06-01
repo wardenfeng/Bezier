@@ -78,6 +78,6 @@ declare function binarySubdivide(aX: any, aA: any, aB: any, mX1: any, mX2: any):
  * @param mX2
  */
 declare function newtonRaphsonIterate(aX: any, aGuessT: any, mX1: any, mX2: any): any;
-declare var canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D;
-declare function moveRectangle(p: any): void;
-declare function animate(render: any, duration: any, easing: any): void;
+declare class BezierTest {
+    constructor();
+}

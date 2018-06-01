@@ -12,7 +12,10 @@ declare class Curve {
     getValue(t: number): any;
     findTatValue(targetX: number): number;
 }
-declare function curve<T>(t: number, numbers: number[]): number;
+declare function curve1(t: number, p0: number, p1: number, p2: number, p3: number): number;
+declare function curve2(t: number, ps: number[]): number;
+declare function curve(t: number, numbers: number[]): number;
+declare function findTatValue(targetX: number, numbers: number[]): number;
 /**
  * 贝塞尔曲线
  *
@@ -96,6 +99,7 @@ declare function newtonRaphsonIterate(aX: any, aGuessT: any, mX1: any, mX2: any)
 declare function createCanvas(x?: number, y?: number, width?: number, height?: number): HTMLCanvasElement;
 declare function getBezierSamples(bezier: Bezier, num?: number): Point[];
 declare function getCurveSamples(points: Point[], num?: number): Point[];
+declare function getCurveSamples1(cx: Curve, cy: Curve, num?: number): Point[];
 declare function getCurveAtX(points: Point[], targetX: number): Point;
 /**
  * 清理画布
@@ -115,4 +119,11 @@ declare var point1: number[];
 declare var bezier: Bezier;
 declare var points: Point[];
 declare var points1: Point[];
+declare var points: Point[];
+declare var xs: number[];
+declare var ys: number[];
+declare var cx: Curve;
+declare var cy: Curve;
+declare var points2: Point[];
 declare var x: number;
+declare var num: number;

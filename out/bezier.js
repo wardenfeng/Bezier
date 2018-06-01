@@ -1,3 +1,28 @@
+var Point = /** @class */ (function () {
+    function Point(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    Point.prototype.clone = function () {
+        return new Point(this.x, this.y);
+    };
+    Point.prototype.lerpNumber = function (v, alpha) {
+        this.x = (1 - alpha) * this.x + alpha * v.x;
+        this.y = (1 - alpha) * this.y + alpha * v.y;
+        return this;
+    };
+    return Point;
+}());
+function curve(t, points) {
+    if (points.length == 2) {
+        return points[0].clone().lerpNumber(points[1], t);
+    }
+    var newpoints = [];
+    for (var i = 0, end = points.length - 1; i < end; i++) {
+        newpoints.push(curve(t, [points[i], points[i + 1]]));
+    }
+    return curve(t, newpoints);
+}
 /**
  * 贝塞尔曲线
  *
@@ -197,6 +222,7 @@ var BezierTest = /** @class */ (function () {
         points = points.map(function (item) { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; });
         // First path
         ctx.beginPath();
+        ctx.lineWidth = 3;
         ctx.strokeStyle = 'white';
         ctx.moveTo(points[0][0], points[0][1]);
         for (var i = 1; i < points.length; i++) {
@@ -205,19 +231,39 @@ var BezierTest = /** @class */ (function () {
         ctx.stroke();
         // 使用 CanvasRenderingContext2D.bezierCurveTo
         ctx.beginPath();
+        ctx.lineWidth = 2;
         ctx.strokeStyle = 'red';
         ctx.moveTo(0, canvas.height);
         ctx.bezierCurveTo(this.point0[0] * canvas.width, (1 - this.point0[1]) * canvas.height, this.point1[0] * canvas.width, (1 - this.point1[1]) * canvas.height, canvas.width, 0);
         ctx.stroke();
         // 与 CanvasRenderingContext2D.bezierCurveTo 完全重叠
+        var points1 = [];
+        var num = 100;
+        for (var i = 0; i < num; i++) {
+            var tp = curve(i / num, [new Point(0, 0), new Point(this.point0[0], this.point0[1]), new Point(this.point1[0], this.point1[1]), new Point(1, 1)]);
+            // points1.push([tp.x, tp.y])
+            points1.push([i / num, tp.y]);
+        }
+        points1 = points1.map(function (item) { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; });
         ctx.beginPath();
-        ctx.moveTo(50, 20);
-        ctx.bezierCurveTo(230, 30, 150, 60, 50, 100);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'green';
+        ctx.moveTo(points1[0][0], points1[0][1]);
+        for (var i = 1; i < points1.length; i++) {
+            ctx.lineTo(points1[i][0], points1[i][1]);
+        }
         ctx.stroke();
         // 绘制控制点
         // ctx.bezierCurveTo(this.point0[0],this.point0[1],this.point1[0],this.point1[1],)
     };
     return BezierTest;
 }());
-new BezierTest();
+// new BezierTest();
+// var points = [new Point(0, 0), new Point(Math.random(), Math.random()), new Point(Math.random(), Math.random()), new Point(1, 1)];
+// var bezier = new Bezier(points[1].x, points[1].y, points[2].x, points[2].y);
+// var t = 0.5;
+// var v1 = bezier.getValue(t);
+// var v2 = curve(t, points);
+// v1;
+// v2; 
 //# sourceMappingURL=bezier.js.map

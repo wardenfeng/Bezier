@@ -1,3 +1,22 @@
+declare class Point {
+    x: number;
+    y: number;
+    constructor(x: number, y: number);
+}
+interface Point {
+    /**
+     * 克隆
+     */
+    clone(): this;
+    /**
+     * 插值到指定向量
+     * @param v 目标向量
+     * @param alpha 插值系数
+     * @return 返回自身
+     */
+    lerpNumber(v: Point, alpha: number): this;
+}
+declare function curve<T>(t: number, points: Point[]): Point;
 /**
  * 贝塞尔曲线
  *

@@ -93,7 +93,7 @@ function findTatValue(targetX, numbers) {
     var i = 0;
     while (Math.abs(x0 - x1) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS) {
         var mt = (t0 + t1) / 2;
-        var mv = curve(mt, numbers);
+        var mv = curve2(mt, numbers);
         if ((x0 - targetX) * (mv - targetX) < 0) {
             t1 = mt;
             x1 = mv;
@@ -306,7 +306,7 @@ function getCurveAtX(points, targetX) {
     var xs = points.map(function (i) { return i.x; });
     var ys = points.map(function (i) { return i.y; });
     var t0 = findTatValue(targetX, xs);
-    var y = curve(t0, ys);
+    var y = curve2(t0, ys);
     return new Point(targetX, y);
 }
 /**

@@ -53,7 +53,7 @@ function getCurveAtX(points: Point[], targetX: number)
     var ys = points.map((i) => i.y);
 
     var t0 = findTatValue(targetX, xs);
-    var y = curve(t0, ys);
+    var y = curve2(t0, ys);
 
     return new Point(targetX, y);
 }
@@ -147,7 +147,6 @@ for (let i = 0; i < num; i++)
     var v1 = bezier.getValue(x);
 }
 console.timeEnd("bezier")
-
 
 console.log(v2.x, v2.y);
 console.log(x, v1);

@@ -126,7 +126,7 @@ function findTatValue(targetX: number, numbers: number[])
     while (Math.abs(x0 - x1) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS)
     {
         var mt = (t0 + t1) / 2;
-        var mv = curve(mt, numbers);
+        var mv = curve2(mt, numbers);
         if ((x0 - targetX) * (mv - targetX) < 0)
         {
             t1 = mt;

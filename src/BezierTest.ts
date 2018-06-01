@@ -24,12 +24,17 @@ function getBezierSamples(bezier: Bezier, num = 100)
 
 class BezierTest
 {
+    point0 = [0.5, 0.5];
+    point1 = [0.5, 0.5];
+
+    canvas: HTMLCanvasElement;
+
     constructor()
     {
-        var canvas = createCanvas(100, 100, 400, 300);
+        this.canvas = createCanvas(100, 100, 400, 300);
         var bezier = new Bezier(Math.random(), Math.random(), Math.random(), Math.random());
         var points = getBezierSamples(bezier, 100);
-        this.drawBezier(canvas, points);
+        this.drawBezier(this.canvas, points);
     }
 
     drawBezier(canvas: HTMLCanvasElement, points: number[][])

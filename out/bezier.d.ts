@@ -81,6 +81,9 @@ declare function newtonRaphsonIterate(aX: any, aGuessT: any, mX1: any, mX2: any)
 declare function createCanvas(x?: number, y?: number, width?: number, height?: number): HTMLCanvasElement;
 declare function getBezierSamples(bezier: Bezier, num?: number): number[][];
 declare class BezierTest {
+    point0: number[];
+    point1: number[];
+    canvas: HTMLCanvasElement;
     constructor();
     drawBezier(canvas: HTMLCanvasElement, points: number[][]): void;
 }

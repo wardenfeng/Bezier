@@ -177,10 +177,12 @@ function getBezierSamples(bezier, num) {
 }
 var BezierTest = /** @class */ (function () {
     function BezierTest() {
-        var canvas = createCanvas(100, 100, 400, 300);
+        this.point0 = [0.5, 0.5];
+        this.point1 = [0.5, 0.5];
+        this.canvas = createCanvas(100, 100, 400, 300);
         var bezier = new Bezier(Math.random(), Math.random(), Math.random(), Math.random());
         var points = getBezierSamples(bezier, 100);
-        this.drawBezier(canvas, points);
+        this.drawBezier(this.canvas, points);
     }
     BezierTest.prototype.drawBezier = function (canvas, points) {
         var ctx = canvas.getContext("2d");

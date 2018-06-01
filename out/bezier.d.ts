@@ -5,6 +5,13 @@ declare class Point {
     clone(): Point;
     lerpNumber(v: Point, alpha: number): this;
 }
+declare class Curve {
+    private numbers;
+    private map;
+    constructor(numbers: number[]);
+    getValue(t: number): any;
+    findTatValue(targetX: number): number;
+}
 declare function curve<T>(t: number, numbers: number[]): number;
 /**
  * 贝塞尔曲线

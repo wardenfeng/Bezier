@@ -194,13 +194,15 @@ var BezierCurve = /** @class */ (function () {
      */
     BezierCurve.prototype.bnD = function (t, ps) {
         ps = ps.concat();
-        // n阶Bézier递推
-        for (var i = ps.length - 1; i > 1; i--) {
-            for (var j = 0; j < i; j++) {
-                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
-            }
+        //
+        var factorial = 1;
+        for (var i = 0, n = ps.length - 1; i < n; i++) {
+            ps[i] = ps[i + 1] - ps[i];
+            factorial *= i + 1;
         }
-        return ps[1] - ps[0];
+        ps.length = ps.length - 1;
+        var v = factorial * this.bn(t, ps);
+        return v;
     };
     /**
      * n阶Bézier曲线关于t的导数

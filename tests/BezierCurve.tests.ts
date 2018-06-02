@@ -43,11 +43,15 @@ QUnit.module("BezierCurve", () =>
         var v0 = bezierCurve.cubic(t, ps[0], ps[1], ps[2], ps[3]);
         var v1 = bezierCurve.bn(t, ps);
 
-
         assert.ok(Math.abs(v0 - v1) < deviation);
 
         var v2 = bezierCurve.curve2(t, ps);
         assert.ok(Math.abs(v0 - v2) < deviation);
+
+        // 导数
+        var d0 = bezierCurve.cubicDerivative(t, ps[0], ps[1], ps[2], ps[3]);
+        var d1 = bezierCurve.bnD(t, ps);
+        assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
 

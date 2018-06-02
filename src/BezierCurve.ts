@@ -218,15 +218,16 @@ class BezierCurve
     bnD(t: number, ps: number[])
     {
         ps = ps.concat();
-        // n阶Bézier递推
-        for (let i = ps.length - 1; i > 1; i--)
+        //
+        var factorial = 1;
+        for (let i = 0, n = ps.length - 1; i < n; i++)
         {
-            for (let j = 0; j < i; j++)
-            {
-                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
-            }
+            ps[i] = ps[i + 1] - ps[i];
+            factorial *= i + 1;
         }
-        return ps[1] - ps[0];
+        ps.length = ps.length - 1;
+        var v = factorial * this.bn(t, ps);
+        return v;
     }
 
     /**

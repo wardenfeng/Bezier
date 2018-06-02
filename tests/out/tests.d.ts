@@ -177,18 +177,36 @@ declare class BezierCurve {
      */
     bnND(t: number, dn: number, ps: number[]): number;
     /**
-     * 获取指定插值度上的值
+     * 获取曲线在指定插值度上的值
      * @param t 插值度
      * @param ps 点列表
      */
     getValue(t: number, ps: number[]): number;
     /**
+     * 获取曲线在指定插值度上的斜率
+     * @param t 插值度
+     * @param ps 点列表
+     */
+    getDerivative(t: number, ps: number[]): number;
+    /**
      * 获取目标值所在的插值度T，该方法只适用于在连续递增
      *
      * @param targetV 目标值
      * @param ps 点列表
+     * @param startT 起始插值点
+     * @param endT 终止插值点
+     * @param numSamples 分段数量，用于分段查找，用于解决寻找多个解、是否无解等问题；过少的分段可能会造成找不到存在的解决，过多的分段将会造成性能很差。
+     * @returns 返回解数组
      */
-    getTFromValue(targetV: number, ps: number[], startT?: number, endT?: number): number;
+    getTFromValue(targetV: number, ps: number[], numSamples?: number): number[];
+    /**
+     * 从存在解的区域进行插值值
+     * @param targetV 目标值
+     * @param ps 点列表
+     * @param guessT 预估目标T值
+     * @param maxIterations 最大迭代次数
+     */
+    getTFromValueAtRange(targetV: number, ps: number[], guessT?: number, maxIterations?: number): number;
     /**
      * 获取曲线样本数据
      *

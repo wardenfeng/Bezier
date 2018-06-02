@@ -255,53 +255,95 @@ var BezierCurve = /** @class */ (function () {
         return v;
     };
     /**
-     * 获取指定插值度上的值
+     * 获取曲线在指定插值度上的值
      * @param t 插值度
      * @param ps 点列表
      */
     BezierCurve.prototype.getValue = function (t, ps) {
+        // if (ps.length == 2)
+        // {
+        //     return this.linear(t, ps[0], ps[1]);
+        // }
+        // if (ps.length == 3)
+        // {
+        //     return this.quadratic(t, ps[0], ps[1], ps[2]);
+        // }
+        // if (ps.length == 4)
+        // {
+        //     return this.cubic(t, ps[0], ps[1], ps[2], ps[3]);
+        // }
+        // return this.bn(t, ps);
+        var t1 = 1 - t;
+        return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
+    };
+    /**
+     * 获取曲线在指定插值度上的斜率
+     * @param t 插值度
+     * @param ps 点列表
+     */
+    BezierCurve.prototype.getDerivative = function (t, ps) {
         if (ps.length == 2) {
-            return this.linear(t, ps[0], ps[1]);
+            return this.linearDerivative(t, ps[0], ps[1]);
         }
         if (ps.length == 3) {
-            return this.quadratic(t, ps[0], ps[1], ps[2]);
+            return this.quadraticDerivative(t, ps[0], ps[1], ps[2]);
         }
         if (ps.length == 4) {
-            return this.cubic(t, ps[0], ps[1], ps[2], ps[3]);
+            return this.cubicDerivative(t, ps[0], ps[1], ps[2], ps[3]);
         }
-        return this.bn(t, ps);
-        // var t1 = 1 - t;
-        // return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
+        return this.bnDerivative(t, ps);
+        // return 3 * (1 - t) * (1 - t) * (ps[1] - ps[0]) + 6 * (1 - t) * t * (ps[2] - ps[1]) + 3 * t * t * (ps[3] - ps[2]);
     };
     /**
      * 获取目标值所在的插值度T，该方法只适用于在连续递增
      *
      * @param targetV 目标值
      * @param ps 点列表
+     * @param startT 起始插值点
+     * @param endT 终止插值点
+     * @param numSamples 分段数量，用于分段查找，用于解决寻找多个解、是否无解等问题；过少的分段可能会造成找不到存在的解决，过多的分段将会造成性能很差。
+     * @returns 返回解数组
      */
-    BezierCurve.prototype.getTFromValue = function (targetV, ps, startT, endT) {
-        if (startT === void 0) { startT = 0; }
-        if (endT === void 0) { endT = 1; }
-        var startV = this.getValue(startT, ps);
-        var endV = this.getValue(endT, ps);
-        var middleT = startT + (endT - startT) * (targetV - startV) / (endV - startV);
-        var middleV = this.getValue(middleT, ps);
-        // console.assert((x0 - targetX) * (x1 - targetX) < 0, `targetX 必须在 起点终点之间！`);
-        var i = 0;
-        while (Math.abs(middleV - targetV) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS) {
-            // 进行线性插值预估目标位置
-            middleT = startT + (endT - startT) * (targetV - startV) / (endV - startV);
-            middleV = this.getValue(middleT, ps);
-            if ((startV - targetV) * (middleV - targetV) < 0) {
-                endT = middleT;
-                endV = middleV;
-            }
-            else {
-                startT = middleT;
-                startV = middleV;
+    BezierCurve.prototype.getTFromValue = function (targetV, ps, numSamples) {
+        if (numSamples === void 0) { numSamples = 10; }
+        var samples = this.getSamples(ps, numSamples);
+        // 查找存在解的分段
+        var resultRanges = [];
+        for (var i = 0, n = numSamples; i < n; i++) {
+            if ((samples[i] - targetV) * (samples[i + 1] - targetV) < 0) {
+                resultRanges.push([i / numSamples, (i + 1) / numSamples, samples[i], samples[i + 1]]);
             }
         }
-        return middleT;
+        var results = [];
+        for (var i = 0, n = resultRanges.length; i < n; i++) {
+            var result = this.getTFromValueAtRange(targetV, ps, (resultRanges[i][0] + resultRanges[i][1]) / 2);
+            results.push(result);
+        }
+        return results;
+    };
+    /**
+     * 从存在解的区域进行插值值
+     * @param targetV 目标值
+     * @param ps 点列表
+     * @param guessT 预估目标T值
+     * @param maxIterations 最大迭代次数
+     */
+    BezierCurve.prototype.getTFromValueAtRange = function (targetV, ps, guessT, maxIterations) {
+        if (guessT === void 0) { guessT = 0; }
+        if (maxIterations === void 0) { maxIterations = 4; }
+        var middleV = this.getValue(guessT, ps);
+        // console.assert((x0 - targetX) * (x1 - targetX) < 0, `targetX 必须在 起点终点之间！`);
+        var i = 0;
+        while (Math.abs(middleV - targetV) > SUBDIVISION_PRECISION && i++ < maxIterations) {
+            // 使用斜率进行预估目标位置
+            var slope = this.getDerivative(guessT, ps);
+            if (slope == 0)
+                break;
+            // var slope = this.cubicDerivative(guessT, ps[0], ps[1], ps[2], ps[3]);
+            guessT += (targetV - middleV) / slope;
+            middleV = this.getValue(guessT, ps);
+        }
+        return guessT;
     };
     /**
      * 获取曲线样本数据

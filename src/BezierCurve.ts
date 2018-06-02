@@ -117,7 +117,31 @@ class BezierCurve
     }
 
     /**
-     * 三次Bézier曲线关于t的二阶导数
+     * 立方Bézier曲线
+     * 
+     * 平面中或高维空间中（其实一维也是成立的，这里就是使用一维计算）的四个点P0，P1，P2和P3定义了三次Bézier曲线。
+     * 曲线开始于P0朝向P1并且从P2的方向到达P3。通常不会通过P1或P2; 这些点只是为了提供方向信息。
+     * P1和P2之间的距离在转向P2之前确定曲线向P1移动的“多远”和“多快” 。
+     * 
+     * 对于由点Pi，Pj和Pk定义的二次Bézier曲线，可以将Bpipjpk(t)写成三次Bézier曲线，它可以定义为两条二次Bézier曲线的仿射组合：
+     * ```
+     * B(t) = (1 - t) * Bp0p1p2(t) + t * Bp1p2p3(t) , 0 <= t && t <= 1
+     * ```
+     * 曲线的显式形式是：
+     * ```
+     * B(t) = (1 - t) * (1 - t) * (1 - t) * p0 + 3 * (1 - t) * (1 - t) * t * p1 + 3 * (1 - t) * t * t * p2 + t * t * t * p3 , 0 <= t && t <= 1
+     * ```
+     * 对于P1和P2的一些选择，曲线可以相交，或者包含尖点。
+     * 
+     * 三次Bézier曲线相对于t的导数是
+     * ```
+     * B'(t) = 3 * (1 - t) * (1 - t) * (p1 - p0) + 6 * (1 - t) * t * (p2 - p1) + 3 * t * t * (p3 - p2);
+     * ```
+     * 三次Bézier曲线关于t的二阶导数是
+     * ```
+     * 6 * (1 - t) * (p2 - 2 * p1 + p0) + 6 * t * (p3 - 2 * p2 + p1);
+     * ```
+     * 
      * @param t 插值度
      * @param p0 点0
      * @param p1 点1
@@ -156,6 +180,8 @@ class BezierCurve
         // return 3 * this.linear(t, this.quadraticSecondDerivative(t, p0, p1, p2), this.quadraticSecondDerivative(t, p1, p2, p3));
         return 6 * (1 - t) * (p2 - 2 * p1 + p0) + 6 * t * (p3 - 2 * p2 + p1);
     }
+
+
 
     getValue(t: number, numbers: number[])
     {

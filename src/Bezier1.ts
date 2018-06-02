@@ -48,16 +48,37 @@ class Curve
         //     return this.map[t];
         // var v = curve(t, this.numbers);
         // var v = curve1(t, this.n0, this.n1, this.n2, this.n3);
-        var v = curve2(t, this.numbers);
+        // var v = curve2(t, this.numbers);
+        var v = this.curve2(t, this.numbers);
         // var v = this.curve2(t);
         // this.map[t] = v;
         return v;
     }
 
-    curve2(t: number): number
+    curve(t: number, numbers: number[]): number
+    {
+        if (numbers.length == 2)
+        {
+            return (1 - t) * numbers[0] + t * numbers[1];
+        }
+        var newpoints: number[] = [];
+        for (let i = 0, end = numbers.length - 1; i < end; i++)
+        {
+            newpoints.push(curve(t, [numbers[i], numbers[i + 1]]));
+        }
+        return curve(t, newpoints);
+    }
+
+    // curve2(t: number): number
+    // {
+    //     var t1 = 1 - t;
+    //     return t1 * t1 * t1 * this.n0 + 3 * t1 * t1 * t * this.n1 + 3 * t1 * t * t * this.n2 + t * t * t * this.n3;
+    // }
+
+    curve2(t: number, ps: number[]): number
     {
         var t1 = 1 - t;
-        return t1 * t1 * t1 * this.n0 + 3 * t1 * t1 * t * this.n1 + 3 * t1 * t * t * this.n2 + t * t * t * this.n3;
+        return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
     }
 
     findTatValue(targetX: number)

@@ -13,7 +13,8 @@ declare class Curve {
     n3: any;
     constructor(numbers: number[]);
     getValue(t: number): number;
-    curve2(t: number): number;
+    curve(t: number, numbers: number[]): number;
+    curve2(t: number, ps: number[]): number;
     findTatValue(targetX: number): number;
 }
 declare function curve1(t: number, p0: number, p1: number, p2: number, p3: number): number;

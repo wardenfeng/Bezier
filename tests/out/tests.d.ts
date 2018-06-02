@@ -183,13 +183,27 @@ declare class BezierCurve {
      */
     getValue(t: number, ps: number[]): number;
     /**
-     * 获取曲线在指定插值度上的斜率
+     * 获取曲线在指定插值度上的导数(斜率)
      * @param t 插值度
      * @param ps 点列表
      */
     getDerivative(t: number, ps: number[]): number;
     /**
-     * 获取目标值所在的插值度T，该方法只适用于在连续递增
+     * 获取曲线在指定插值度上的二阶导数
+     * @param t 插值度
+     * @param ps 点列表
+     */
+    getSecondDerivative(t: number, ps: number[]): number;
+    /**
+     * 查找区间内极值所在插值度列表
+     * @param ps 点列表
+     * @param numSamples 采样次数
+     * @param maxIterations 最大迭代次数
+     * @returns 插值度列表
+     */
+    getTAtExtremums(ps: number[], numSamples?: number, maxIterations?: number): number[];
+    /**
+     * 获取目标值所在的插值度T
      *
      * @param targetV 目标值
      * @param ps 点列表

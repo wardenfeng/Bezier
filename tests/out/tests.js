@@ -260,24 +260,21 @@ var BezierCurve = /** @class */ (function () {
      * @param ps 点列表
      */
     BezierCurve.prototype.getValue = function (t, ps) {
-        // if (ps.length == 2)
-        // {
-        //     return this.linear(t, ps[0], ps[1]);
-        // }
-        // if (ps.length == 3)
-        // {
-        //     return this.quadratic(t, ps[0], ps[1], ps[2]);
-        // }
-        // if (ps.length == 4)
-        // {
-        //     return this.cubic(t, ps[0], ps[1], ps[2], ps[3]);
-        // }
-        // return this.bn(t, ps);
-        var t1 = 1 - t;
-        return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
+        if (ps.length == 2) {
+            return this.linear(t, ps[0], ps[1]);
+        }
+        if (ps.length == 3) {
+            return this.quadratic(t, ps[0], ps[1], ps[2]);
+        }
+        if (ps.length == 4) {
+            return this.cubic(t, ps[0], ps[1], ps[2], ps[3]);
+        }
+        return this.bn(t, ps);
+        // var t1 = 1 - t;
+        // return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
     };
     /**
-     * 获取曲线在指定插值度上的斜率
+     * 获取曲线在指定插值度上的导数(斜率)
      * @param t 插值度
      * @param ps 点列表
      */
@@ -295,7 +292,64 @@ var BezierCurve = /** @class */ (function () {
         // return 3 * (1 - t) * (1 - t) * (ps[1] - ps[0]) + 6 * (1 - t) * t * (ps[2] - ps[1]) + 3 * t * t * (ps[3] - ps[2]);
     };
     /**
-     * 获取目标值所在的插值度T，该方法只适用于在连续递增
+     * 获取曲线在指定插值度上的二阶导数
+     * @param t 插值度
+     * @param ps 点列表
+     */
+    BezierCurve.prototype.getSecondDerivative = function (t, ps) {
+        if (ps.length == 2) {
+            return this.linearSecondDerivative(t, ps[0], ps[1]);
+        }
+        if (ps.length == 3) {
+            return this.quadraticSecondDerivative(t, ps[0], ps[1], ps[2]);
+        }
+        if (ps.length == 4) {
+            return this.cubicSecondDerivative(t, ps[0], ps[1], ps[2], ps[3]);
+        }
+        return this.bnSecondDerivative(t, ps);
+        // return 3 * (1 - t) * (1 - t) * (ps[1] - ps[0]) + 6 * (1 - t) * t * (ps[2] - ps[1]) + 3 * t * t * (ps[3] - ps[2]);
+    };
+    /**
+     * 查找区间内极值所在插值度列表
+     * @param ps 点列表
+     * @param numSamples 采样次数
+     * @param maxIterations 最大迭代次数
+     * @returns 插值度列表
+     */
+    BezierCurve.prototype.getTAtExtremums = function (ps, numSamples, maxIterations) {
+        if (numSamples === void 0) { numSamples = 10; }
+        if (maxIterations === void 0) { maxIterations = 4; }
+        var samples = [];
+        for (var i = 0; i <= num; i++) {
+            samples.push(this.getDerivative(i / num, ps));
+        }
+        // 查找存在解的分段
+        var resultRanges = [];
+        for (var i = 0, n = numSamples; i < n; i++) {
+            if (samples[i] * samples[i + 1] < 0) {
+                resultRanges.push(i / numSamples);
+            }
+        }
+        //
+        var results = [];
+        for (var i = 0, n = resultRanges.length; i < n; i++) {
+            var guessT = resultRanges[i];
+            var result = this.getValue(guessT, ps);
+            var j = 0;
+            while (Math.abs(result) > SUBDIVISION_PRECISION && j++ < maxIterations) {
+                // 使用斜率进行预估目标位置
+                var slope = this.getSecondDerivative(guessT, ps);
+                if (slope == 0)
+                    break;
+                guessT += -result / slope;
+                result = this.getValue(guessT, ps);
+            }
+            results.push(result);
+        }
+        return results;
+    };
+    /**
+     * 获取目标值所在的插值度T
      *
      * @param targetV 目标值
      * @param ps 点列表
@@ -311,12 +365,12 @@ var BezierCurve = /** @class */ (function () {
         var resultRanges = [];
         for (var i = 0, n = numSamples; i < n; i++) {
             if ((samples[i] - targetV) * (samples[i + 1] - targetV) < 0) {
-                resultRanges.push([i / numSamples, (i + 1) / numSamples, samples[i], samples[i + 1]]);
+                resultRanges.push(i / numSamples);
             }
         }
         var results = [];
         for (var i = 0, n = resultRanges.length; i < n; i++) {
-            var result = this.getTFromValueAtRange(targetV, ps, (resultRanges[i][0] + resultRanges[i][1]) / 2);
+            var result = this.getTFromValueAtRange(targetV, ps, resultRanges[i]);
             results.push(result);
         }
         return results;

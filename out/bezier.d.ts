@@ -20,11 +20,25 @@ declare class BezierCurve {
      * ```
      * 相当于线性插值
      *
-     * @param t 插值度 0<=t<=1
-     * @param p0 点1
-     * @param p1 点2
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
      */
     linear(t: number, p0: number, p1: number): number;
+    /**
+     * 线性Bézier曲线关于t的导数
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
+     */
+    linearDerivative(t: number, p0: number, p1: number): number;
+    /**
+     * 线性Bézier曲线关于t的二阶导数
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
+     */
+    linearSecondDerivative(t: number, p0: number, p1: number, p2: number): number;
     /**
      * 二次Bézier曲线
      *
@@ -48,27 +62,53 @@ declare class BezierCurve {
      * ```
      *
      * @param t 插值度
-     * @param p0 点1
-     * @param p1 点2
-     * @param p2 点3
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
      */
     quadratic(t: number, p0: number, p1: number, p2: number): number;
     /**
      * 二次Bézier曲线关于t的导数
      * @param t 插值度
-     * @param p0 点1
-     * @param p1 点2
-     * @param p2 点3
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
      */
     quadraticDerivative(t: number, p0: number, p1: number, p2: number): number;
     /**
      * 二次Bézier曲线关于t的二阶导数
      * @param t 插值度
-     * @param p0 点1
-     * @param p1 点2
-     * @param p2 点3
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
      */
     quadraticSecondDerivative(t: number, p0: number, p1: number, p2: number): number;
+    /**
+     * 三次Bézier曲线关于t的二阶导数
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
+     * @param p3 点3
+     */
+    cubic(t: number, p0: number, p1: number, p2: number, p3: number): number;
+    /**
+     * 三次Bézier曲线关于t的导数
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
+     * @param p3 点3
+     */
+    cubicDerivative(t: number, p0: number, p1: number, p2: number, p3: number): number;
+    /**
+     * 三次Bézier曲线关于t的二阶导数
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
+     */
+    cubicSecondDerivative(t: number, p0: number, p1: number, p2: number, p3: number): number;
     getValue(t: number, numbers: number[]): number;
     curve(t: number, numbers: number[]): number;
     curve2(t: number, ps: number[]): number;

@@ -23,14 +23,36 @@ class BezierCurve
      * ```
      * 相当于线性插值
      * 
-     * @param t 插值度 0<=t<=1
-     * @param p0 点1
-     * @param p1 点2
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
      */
     linear(t: number, p0: number, p1: number)
     {
         return p0 + t * (p1 - p0);
         // return (1 - t) * p0 + t * p1;
+    }
+
+    /**
+     * 线性Bézier曲线关于t的导数
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
+     */
+    linearDerivative(t: number, p0: number, p1: number)
+    {
+        return p1 - p0;
+    }
+
+    /**
+     * 线性Bézier曲线关于t的二阶导数
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
+     */
+    linearSecondDerivative(t: number, p0: number, p1: number, p2: number)
+    {
+        return 0;
     }
 
     /**
@@ -56,12 +78,13 @@ class BezierCurve
      * ```
      * 
      * @param t 插值度
-     * @param p0 点1
-     * @param p1 点2
-     * @param p2 点3
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
      */
     quadratic(t: number, p0: number, p1: number, p2: number)
     {
+        // return this.linear(t, this.linear(t, p0, p1), this.linear(t, p1, p2));
         // return (1 - t) * ((1 - t) * p0 + t * p1) + t * ((1 - t) * p1 + t * p2);
         return (1 - t) * (1 - t) * p0 + 2 * (1 - t) * t * p1 + t * t * p2;
     }
@@ -69,29 +92,70 @@ class BezierCurve
     /**
      * 二次Bézier曲线关于t的导数
      * @param t 插值度
-     * @param p0 点1
-     * @param p1 点2
-     * @param p2 点3
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
      */
     quadraticDerivative(t: number, p0: number, p1: number, p2: number)
     {
+        // return 2 * this.linear(t, this.linearDerivative(t, p0, p1), this.linearDerivative(t, p1, p2));
         return 2 * (1 - t) * (p1 - p0) + 2 * t * (p2 - p1);
     }
 
     /**
      * 二次Bézier曲线关于t的二阶导数
      * @param t 插值度
-     * @param p0 点1
-     * @param p1 点2
-     * @param p2 点3
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
      */
     quadraticSecondDerivative(t: number, p0: number, p1: number, p2: number)
     {
+        // return 1 * 2 * this.linearDerivative(t, p1 - p0, p2 - p1)
+        // return 1 * 2 * ((p2 - p1) - (p1 - p0));
         return 2 * (p2 - 2 * p1 + p0);
     }
 
+    /**
+     * 三次Bézier曲线关于t的二阶导数
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
+     * @param p3 点3
+     */
+    cubic(t: number, p0: number, p1: number, p2: number, p3: number)
+    {
+        // return this.linear(t, this.quadratic(t, p0, p1, p2), this.quadratic(t, p1, p2, p3));
+        return (1 - t) * (1 - t) * (1 - t) * p0 + 3 * (1 - t) * (1 - t) * t * p1 + 3 * (1 - t) * t * t * p2 + t * t * t * p3;
+    }
 
+    /**
+     * 三次Bézier曲线关于t的导数
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
+     * @param p3 点3
+     */
+    cubicDerivative(t: number, p0: number, p1: number, p2: number, p3: number)
+    {
+        // return 3 * this.linear(t, this.quadraticDerivative(t, p0, p1, p2), this.quadraticDerivative(t, p1, p2, p3));
+        return 3 * (1 - t) * (1 - t) * (p1 - p0) + 6 * (1 - t) * t * (p2 - p1) + 3 * t * t * (p3 - p2);
+    }
 
+    /**
+     * 三次Bézier曲线关于t的二阶导数
+     * @param t 插值度
+     * @param p0 点0
+     * @param p1 点1
+     * @param p2 点2
+     */
+    cubicSecondDerivative(t: number, p0: number, p1: number, p2: number, p3: number)
+    {
+        // return 3 * this.linear(t, this.quadraticSecondDerivative(t, p0, p1, p2), this.quadraticSecondDerivative(t, p1, p2, p3));
+        return 6 * (1 - t) * (p2 - 2 * p1 + p0) + 6 * t * (p3 - 2 * p2 + p1);
+    }
 
     getValue(t: number, numbers: number[])
     {

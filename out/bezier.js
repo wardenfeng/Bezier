@@ -26,7 +26,7 @@ var Curve = /** @class */ (function () {
     Curve.prototype.getValue = function (t) {
         // if (this.map[t] != undefined)
         //     return this.map[t];
-        // var v = curve(t, this.numbers);
+        // var v = this.curve(t, this.numbers);
         // var v = curve1(t, this.n0, this.n1, this.n2, this.n3);
         // var v = curve2(t, this.numbers);
         var v = this.curve2(t, this.numbers);
@@ -34,6 +34,18 @@ var Curve = /** @class */ (function () {
         // this.map[t] = v;
         return v;
     };
+    // curve(t: number, numbers: number[]): number
+    // {
+    //     numbers = numbers.concat();
+    //     for (let i = numbers.length - 1; i > 1; i--)
+    //     {
+    //         for (let j = 0; j < j; j++)
+    //         {
+    //             numbers[j] = (1 - t) * numbers[j] + t * numbers[j + 1];
+    //         }
+    //     }
+    //     return numbers[0];
+    // }
     Curve.prototype.curve = function (t, numbers) {
         if (numbers.length == 2) {
             return (1 - t) * numbers[0] + t * numbers[1];

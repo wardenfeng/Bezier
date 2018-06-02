@@ -37,7 +37,7 @@ QUnit.module("BezierCurve", () =>
         assert.ok(Math.abs(v0 - v2) < deviation);
     });
 
-    QUnit.test("bnD linear", (assert) =>
+    QUnit.test("bnD linearDerivative", (assert) =>
     {
 
         // 测试线性Bézier曲线
@@ -50,7 +50,7 @@ QUnit.module("BezierCurve", () =>
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
-    QUnit.test("bnD quadratic", (assert) =>
+    QUnit.test("bnD quadraticDerivative", (assert) =>
     {
 
         // 测试线性Bézier曲线
@@ -63,7 +63,7 @@ QUnit.module("BezierCurve", () =>
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
-    QUnit.test("bnD cubic", (assert) =>
+    QUnit.test("bnD cubicDerivative", (assert) =>
     {
         // 测试线性Bézier曲线
         var t = Math.random();
@@ -75,9 +75,8 @@ QUnit.module("BezierCurve", () =>
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
-    QUnit.test("bnSD linear", (assert) =>
+    QUnit.test("bnSD linearSecondDerivative", (assert) =>
     {
-
         // 测试线性Bézier曲线
         var t = Math.random();
         var ps = [Math.random(), Math.random()];
@@ -88,7 +87,7 @@ QUnit.module("BezierCurve", () =>
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
-    QUnit.test("bnSD quadratic", (assert) =>
+    QUnit.test("bnSD quadraticSecondDerivative", (assert) =>
     {
         // 测试线性Bézier曲线
         var t = Math.random();
@@ -100,7 +99,7 @@ QUnit.module("BezierCurve", () =>
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
-    QUnit.test("bnSD cubic", (assert) =>
+    QUnit.test("bnSD cubicSecondDerivative", (assert) =>
     {
         // 测试线性Bézier曲线
         var t = Math.random();
@@ -112,5 +111,75 @@ QUnit.module("BezierCurve", () =>
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
+    QUnit.test("bnND linearDerivative", (assert) =>
+    {
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random()];
 
+        // 导数
+        var d0 = bezierCurve.linearDerivative(t, ps[0], ps[1]);
+        var d1 = bezierCurve.bnND(t, 1, ps);
+        assert.ok(Math.abs(d0 - d1) < deviation);
+    });
+
+    QUnit.test("bnND quadraticDerivative", (assert) =>
+    {
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random(), Math.random()];
+
+        // 导数
+        var d0 = bezierCurve.quadraticDerivative(t, ps[0], ps[1], ps[2]);
+        var d1 = bezierCurve.bnND(t, 1, ps);
+        assert.ok(Math.abs(d0 - d1) < deviation);
+    });
+
+    QUnit.test("bnND cubicDerivative", (assert) =>
+    {
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
+
+        // 导数
+        var d0 = bezierCurve.cubicDerivative(t, ps[0], ps[1], ps[2], ps[3]);
+        var d1 = bezierCurve.bnND(t, 1, ps);
+        assert.ok(Math.abs(d0 - d1) < deviation);
+    });
+
+    QUnit.test("bnND linearSecondDerivative", (assert) =>
+    {
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random()];
+
+        // 导数
+        var d0 = bezierCurve.linearSecondDerivative(t, ps[0], ps[1]);
+        var d1 = bezierCurve.bnND(t, 2, ps);
+        assert.ok(Math.abs(d0 - d1) < deviation);
+    });
+
+    QUnit.test("bnND quadraticSecondDerivative", (assert) =>
+    {
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random(), Math.random()];
+
+        // 导数
+        var d0 = bezierCurve.quadraticSecondDerivative(t, ps[0], ps[1], ps[2]);
+        var d1 = bezierCurve.bnND(t, 2, ps);
+        assert.ok(Math.abs(d0 - d1) < deviation);
+    });
+
+    QUnit.test("bnND cubicSecondDerivative", (assert) =>
+    {
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
+
+        // 导数
+        var d0 = bezierCurve.cubicSecondDerivative(t, ps[0], ps[1], ps[2], ps[3]);
+        var d1 = bezierCurve.bnND(t, 2, ps);
+        assert.ok(Math.abs(d0 - d1) < deviation);
+    });
 });

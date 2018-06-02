@@ -145,7 +145,7 @@ declare class BezierCurve {
      */
     bn(t: number, ps: number[]): number;
     /**
-     * n阶Bézier曲线关于t的二阶导数
+     * n阶Bézier曲线关于t的导数
      *
      * 一般定义
      *
@@ -156,7 +156,7 @@ declare class BezierCurve {
      */
     bnD(t: number, ps: number[]): number;
     /**
-     * n阶Bézier曲线关于t的导数
+     * n阶Bézier曲线关于t的二阶导数
      *
      * 一般定义
      *
@@ -166,6 +166,16 @@ declare class BezierCurve {
      * @param ps 点列表 ps.length == n+1
      */
     bnSD(t: number, ps: number[]): number;
+    /**
+     * n阶Bézier曲线关于t的dn阶导数
+     *
+     * 贝塞尔曲线可以定义为任意度n。
+     *
+     * @param t 插值度
+     * @param dn 求导次数
+     * @param ps 点列表     ps.length == n+1
+     */
+    bnND(t: number, dn: number, ps: number[]): number;
     getValue(t: number, numbers: number[]): number;
     curve2(t: number, ps: number[]): number;
     findTatValue(targetX: number, numbers: number[]): any;

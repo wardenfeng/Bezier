@@ -183,7 +183,7 @@ var BezierCurve = /** @class */ (function () {
         return ps[0];
     };
     /**
-     * n阶Bézier曲线关于t的二阶导数
+     * n阶Bézier曲线关于t的导数
      *
      * 一般定义
      *
@@ -206,7 +206,7 @@ var BezierCurve = /** @class */ (function () {
         return v;
     };
     /**
-     * n阶Bézier曲线关于t的导数
+     * n阶Bézier曲线关于t的二阶导数
      *
      * 一般定义
      *
@@ -226,6 +226,32 @@ var BezierCurve = /** @class */ (function () {
         //
         ps.length = ps.length - 1;
         var v = ps.length * this.bnD(t, ps);
+        return v;
+    };
+    /**
+     * n阶Bézier曲线关于t的dn阶导数
+     *
+     * 贝塞尔曲线可以定义为任意度n。
+     *
+     * @param t 插值度
+     * @param dn 求导次数
+     * @param ps 点列表     ps.length == n+1
+     */
+    BezierCurve.prototype.bnND = function (t, dn, ps) {
+        if (ps.length < dn + 1)
+            return 0;
+        var factorial = 1;
+        ps = ps.concat();
+        for (var j = 0; j < dn; j++) {
+            // 进行
+            for (var i = 0, n = ps.length - 1; i < n; i++) {
+                ps[i] = ps[i + 1] - ps[i];
+            }
+            //
+            ps.length = ps.length - 1;
+            factorial *= ps.length;
+        }
+        var v = factorial * this.bn(t, ps);
         return v;
     };
     BezierCurve.prototype.getValue = function (t, numbers) {

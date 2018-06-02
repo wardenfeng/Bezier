@@ -22,17 +22,6 @@ function getBezierSamples(bezier: Bezier, num = 100)
     return points;
 }
 
-function getCurveSamples1(cx: Curve, cy: Curve, num = 100)
-{
-    var results: number[][] = [];
-    for (let i = 0; i <= num; i++)
-    {
-        var p = [cx.getValue(i / num), cy.getValue(i / num)];
-        results.push(p);
-    }
-    return results;
-}
-
 /**
  * 清理画布
  * @param canvas 画布
@@ -71,6 +60,8 @@ var canvas = createCanvas(100, 100, 400, 300);
 // var point1 = [Math.random(), Math.random()];
 var point0 = [0.25, Math.random()];
 var point1 = [0.75, Math.random()];
+var xs = [0, point0[0], point1[0], 1];
+var ys = [0, point0[1], point1[1], 1];
 
 clearCanvas(canvas);
 //
@@ -80,25 +71,25 @@ points = points.map(item => { return [item[0] * canvas.width, (1 - item[1]) * ca
 drawCurve(canvas, points, 'white', 9)
 
 //
-var cx = new Curve([0, point0[0], point1[0], 1]);
-var cy = new Curve([0, point0[1], point1[1], 1]);
+var xSamples = curve.getCurveSamples1(xs);
+var ySamples = curve.getCurveSamples1(ys);
 
-var points2 = getCurveSamples1(cx, cy);
-points2 = points2.map(item => { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; })
+var points2 = [];
+for (let i = 0; i < xSamples.length; i++)
+{
+    points2[i] = [xSamples[i] * canvas.width, (1 - ySamples[i]) * canvas.height];
+}
 drawCurve(canvas, points2, "green", 3);
 
 var x = Math.random();
 
 var num = 100000;
 
-var xs = points.map((i) => i[0]);
-var ys = points.map((i) => i[1]);
-
 console.time("feng")
 for (let i = 0; i < num; i++)
 {
-    var t = cx.findTatValue(x);
-    var v3 = cy.getValue(t);
+    var t = curve.findTatValue(x, xs);
+    var v3 = curve.getValue(t, ys);
 }
 console.timeEnd("feng")
 

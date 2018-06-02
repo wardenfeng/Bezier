@@ -1,14 +1,18 @@
+/**
+ * 细分精度
+ */
+declare var SUBDIVISION_PRECISION: number;
+/**
+ * 细分最大迭代次数
+ */
+declare var SUBDIVISION_MAX_ITERATIONS: number;
+declare var curve: Curve;
 declare class Curve {
-    private numbers;
-    n0: any;
-    n1: any;
-    n2: any;
-    n3: any;
-    constructor(numbers: number[]);
-    getValue(t: number): number;
+    getValue(t: number, numbers: number[]): number;
     curve(t: number, numbers: number[]): number;
     curve2(t: number, ps: number[]): number;
-    findTatValue(targetX: number): any;
+    findTatValue(targetX: number, numbers: number[]): any;
+    getCurveSamples1(ps: number[], num?: number): number[];
 }
 /**
  * 贝塞尔曲线
@@ -92,7 +96,6 @@ declare function binarySubdivide(aX: any, aA: any, aB: any, mX1: any, mX2: any):
 declare function newtonRaphsonIterate(aX: any, aGuessT: any, mX1: any, mX2: any): any;
 declare function createCanvas(x?: number, y?: number, width?: number, height?: number): HTMLCanvasElement;
 declare function getBezierSamples(bezier: Bezier, num?: number): number[][];
-declare function getCurveSamples1(cx: Curve, cy: Curve, num?: number): number[][];
 /**
  * 清理画布
  * @param canvas 画布
@@ -108,12 +111,12 @@ declare function drawCurve(canvas: HTMLCanvasElement, points: number[][], stroke
 declare var canvas: HTMLCanvasElement;
 declare var point0: number[];
 declare var point1: number[];
-declare var bezier: Bezier;
-declare var points: number[][];
-declare var cx: Curve;
-declare var cy: Curve;
-declare var points2: number[][];
-declare var x: number;
-declare var num: number;
 declare var xs: number[];
 declare var ys: number[];
+declare var bezier: Bezier;
+declare var points: number[][];
+declare var xSamples: number[];
+declare var ySamples: number[];
+declare var points2: any[];
+declare var x: number;
+declare var num: number;

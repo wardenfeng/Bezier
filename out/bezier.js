@@ -1,71 +1,62 @@
+/**
+ * 细分精度
+ */
+var SUBDIVISION_PRECISION = 0.0000001;
+/**
+ * 细分最大迭代次数
+ */
+var SUBDIVISION_MAX_ITERATIONS = 10;
+var curve;
 var Curve = /** @class */ (function () {
-    function Curve(numbers) {
-        this.numbers = numbers;
-        this.n0 = numbers[0];
-        this.n1 = numbers[1];
-        this.n2 = numbers[2];
-        this.n3 = numbers[3];
-        // this.map[0] = numbers[0];
-        // this.map[1] = numbers[numbers.length - 1];
+    function Curve() {
     }
-    Curve.prototype.getValue = function (t) {
+    Curve.prototype.getValue = function (t, numbers) {
         // if (this.map[t] != undefined)
         //     return this.map[t];
         // var v = this.curve(t, this.numbers);
-        // var v = curve1(t, this.n0, this.n1, this.n2, this.n3);
-        // var v = curve2(t, this.numbers);
-        var v = this.curve2(t, this.numbers);
-        // var v = this.curve2(t);
+        var v = this.curve2(t, numbers);
         // this.map[t] = v;
         return v;
     };
+    Curve.prototype.curve = function (t, numbers) {
+        numbers = numbers.concat();
+        for (var i = numbers.length - 1; i > 1; i--) {
+            for (var j = 0; j < j; j++) {
+                numbers[j] = (1 - t) * numbers[j] + t * numbers[j + 1];
+            }
+        }
+        return numbers[0];
+    };
     // curve(t: number, numbers: number[]): number
     // {
-    //     numbers = numbers.concat();
-    //     for (let i = numbers.length - 1; i > 1; i--)
+    //     if (numbers.length == 2)
     //     {
-    //         for (let j = 0; j < j; j++)
-    //         {
-    //             numbers[j] = (1 - t) * numbers[j] + t * numbers[j + 1];
-    //         }
+    //         return (1 - t) * numbers[0] + t * numbers[1];
     //     }
-    //     return numbers[0];
+    //     var newpoints: number[] = [];
+    //     for (let i = 0, end = numbers.length - 1; i < end; i++)
+    //     {
+    //         newpoints.push(this.curve(t, [numbers[i], numbers[i + 1]]));
+    //     }
+    //     return this.curve(t, newpoints);
     // }
-    Curve.prototype.curve = function (t, numbers) {
-        if (numbers.length == 2) {
-            return (1 - t) * numbers[0] + t * numbers[1];
-        }
-        var newpoints = [];
-        for (var i = 0, end = numbers.length - 1; i < end; i++) {
-            newpoints.push(this.curve(t, [numbers[i], numbers[i + 1]]));
-        }
-        return this.curve(t, newpoints);
-    };
     Curve.prototype.curve2 = function (t, ps) {
         var t1 = 1 - t;
         return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
     };
-    Curve.prototype.findTatValue = function (targetX) {
-        /**
-         * 细分精度
-         */
-        var SUBDIVISION_PRECISION = 0.0000001;
-        /**
-         * 细分最大迭代次数
-         */
-        var SUBDIVISION_MAX_ITERATIONS = 10;
+    Curve.prototype.findTatValue = function (targetX, numbers) {
         var t0 = 0;
         var t1 = 1;
-        var x0 = this.getValue(0);
-        var x1 = this.getValue(1);
+        var x0 = numbers[0];
+        var x1 = numbers[numbers.length - 1];
         var mt = mt = t0 + (t1 - t0) * (targetX - x0) / (x1 - x0);
-        var mv = this.getValue(mt);
+        var mv = this.getValue(mt, numbers);
         // console.assert((x0 - targetX) * (x1 - targetX) < 0, `targetX 必须在 起点终点之间！`);
         var i = 0;
         while (Math.abs(mv - targetX) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS) {
             // 进行线性插值预估目标位置
             mt = t0 + (t1 - t0) * (targetX - x0) / (x1 - x0);
-            mv = this.getValue(mt);
+            mv = this.getValue(mt, numbers);
             if ((x0 - targetX) * (mv - targetX) < 0) {
                 t1 = mt;
                 x1 = mv;
@@ -77,8 +68,18 @@ var Curve = /** @class */ (function () {
         }
         return mt;
     };
+    Curve.prototype.getCurveSamples1 = function (ps, num) {
+        if (num === void 0) { num = 100; }
+        var results = [];
+        for (var i = 0; i <= num; i++) {
+            var p = this.curve2(i / num, ps);
+            results.push(p);
+        }
+        return results;
+    };
     return Curve;
 }());
+curve = new Curve();
 /**
  * 贝塞尔曲线
  *
@@ -256,15 +257,6 @@ function getBezierSamples(bezier, num) {
     }
     return points;
 }
-function getCurveSamples1(cx, cy, num) {
-    if (num === void 0) { num = 100; }
-    var results = [];
-    for (var i = 0; i <= num; i++) {
-        var p = [cx.getValue(i / num), cy.getValue(i / num)];
-        results.push(p);
-    }
-    return results;
-}
 /**
  * 清理画布
  * @param canvas 画布
@@ -300,6 +292,8 @@ var canvas = createCanvas(100, 100, 400, 300);
 // var point1 = [Math.random(), Math.random()];
 var point0 = [0.25, Math.random()];
 var point1 = [0.75, Math.random()];
+var xs = [0, point0[0], point1[0], 1];
+var ys = [0, point0[1], point1[1], 1];
 clearCanvas(canvas);
 //
 var bezier = new Bezier(point0[0], point0[1], point1[0], point1[1]);
@@ -307,19 +301,19 @@ var points = getBezierSamples(bezier, 100);
 points = points.map(function (item) { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; });
 drawCurve(canvas, points, 'white', 9);
 //
-var cx = new Curve([0, point0[0], point1[0], 1]);
-var cy = new Curve([0, point0[1], point1[1], 1]);
-var points2 = getCurveSamples1(cx, cy);
-points2 = points2.map(function (item) { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; });
+var xSamples = curve.getCurveSamples1(xs);
+var ySamples = curve.getCurveSamples1(ys);
+var points2 = [];
+for (var i = 0; i < xSamples.length; i++) {
+    points2[i] = [xSamples[i] * canvas.width, (1 - ySamples[i]) * canvas.height];
+}
 drawCurve(canvas, points2, "green", 3);
 var x = Math.random();
 var num = 100000;
-var xs = points.map(function (i) { return i[0]; });
-var ys = points.map(function (i) { return i[1]; });
 console.time("feng");
 for (var i = 0; i < num; i++) {
-    var t = cx.findTatValue(x);
-    var v3 = cy.getValue(t);
+    var t = curve.findTatValue(x, xs);
+    var v3 = curve.getValue(t, ys);
 }
 console.timeEnd("feng");
 console.time("bezier");

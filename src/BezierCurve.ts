@@ -217,6 +217,8 @@ class BezierCurve
      */
     bnD(t: number, ps: number[])
     {
+        if (ps.length < 2)
+            return 0;
         ps = ps.concat();
         // 进行
         for (let i = 0, n = ps.length - 1; i < n; i++)
@@ -225,14 +227,7 @@ class BezierCurve
         }
         //
         ps.length = ps.length - 1;
-        for (let i = ps.length - 1; i > 0; i--)
-        {
-            for (let j = 0; j < i; j++)
-            {
-                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
-            }
-        }
-        var v = ps.length * ps[0];
+        var v = ps.length * this.bn(t, ps);
         return v;
     }
 
@@ -248,7 +243,7 @@ class BezierCurve
      */
     bnSD(t: number, ps: number[])
     {
-        if (ps.length == 2)
+        if (ps.length < 3)
             return 0;
         ps = ps.concat();
         // 进行

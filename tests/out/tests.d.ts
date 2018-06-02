@@ -176,7 +176,26 @@ declare class BezierCurve {
      * @param ps 点列表     ps.length == n+1
      */
     bnND(t: number, dn: number, ps: number[]): number;
-    curve2(t: number, ps: number[]): number;
-    findTatValue(targetX: number, numbers: number[]): any;
-    getCurveSamples1(ps: number[], num?: number): number[];
+    /**
+     * 获取指定插值度上的值
+     * @param t 插值度
+     * @param ps 点列表
+     */
+    getValue(t: number, ps: number[]): number;
+    /**
+     * 获取目标值所在的插值度T，该方法只适用于在连续递增
+     *
+     * @param targetV 目标值
+     * @param ps 点列表
+     */
+    getTFromValue(targetV: number, ps: number[], startT?: number, endT?: number): number;
+    /**
+     * 获取曲线样本数据
+     *
+     * 这些点可用于连线来拟合曲线。
+     *
+     * @param ps 点列表
+     * @param num 采样次数 ，采样点分别为[0,1/num,2/num,....,(num-1)/num,1]
+     */
+    getSamples(ps: number[], num?: number): number[];
 }

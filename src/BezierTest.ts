@@ -71,8 +71,8 @@ points = points.map(item => { return [item[0] * canvas.width, (1 - item[1]) * ca
 drawCurve(canvas, points, 'white', 9)
 
 //
-var xSamples = bezierCurve.getCurveSamples1(xs);
-var ySamples = bezierCurve.getCurveSamples1(ys);
+var xSamples = bezierCurve.getSamples(xs);
+var ySamples = bezierCurve.getSamples(ys);
 
 var points2 = [];
 for (let i = 0; i < xSamples.length; i++)
@@ -88,8 +88,8 @@ var num = 100000;
 console.time("feng")
 for (let i = 0; i < num; i++)
 {
-    var t = bezierCurve.findTatValue(x, xs);
-    var v3 = bezierCurve.curve2(t, ys);
+    var t = bezierCurve.getTFromValue(x, xs);
+    var v3 = bezierCurve.getValue(t, ys);
 }
 console.timeEnd("feng")
 

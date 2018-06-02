@@ -33,7 +33,7 @@ QUnit.module("BezierCurve", () =>
 
         assert.ok(Math.abs(v0 - v1) < deviation);
 
-        var v2 = bezierCurve.curve2(t, ps);
+        var v2 = bezierCurve.getValue(t, ps);
         assert.ok(Math.abs(v0 - v2) < deviation);
     });
 

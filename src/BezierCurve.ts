@@ -287,49 +287,78 @@ class BezierCurve
         return v;
     }
 
-    curve2(t: number, ps: number[]): number
+    /**
+     * 获取指定插值度上的值
+     * @param t 插值度
+     * @param ps 点列表
+     */
+    getValue(t: number, ps: number[]): number
     {
-        return this.cubic(t, ps[0], ps[1], ps[2], ps[3]);
+        if (ps.length == 2)
+        {
+            return this.linear(t, ps[0], ps[1]);
+        }
+        if (ps.length == 3)
+        {
+            return this.quadratic(t, ps[0], ps[1], ps[2]);
+        }
+        if (ps.length == 4)
+        {
+            return this.cubic(t, ps[0], ps[1], ps[2], ps[3]);
+        }
+        return this.bn(t, ps);
         // var t1 = 1 - t;
         // return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
     }
 
-    findTatValue(targetX: number, numbers: number[])
+    /**
+     * 获取目标值所在的插值度T，该方法只适用于在连续递增
+     * 
+     * @param targetV 目标值
+     * @param ps 点列表
+     */
+    getTFromValue(targetV: number, ps: number[], startT = 0, endT = 1)
     {
-        var t0 = 0;
-        var t1 = 1;
-        var x0 = numbers[0];
-        var x1 = numbers[numbers.length - 1];
+        var startV = this.getValue(startT, ps);
+        var endV = this.getValue(endT, ps);
 
-        var mt = mt = t0 + (t1 - t0) * (targetX - x0) / (x1 - x0);
-        var mv = this.curve2(mt, numbers);
+        var middleT = startT + (endT - startT) * (targetV - startV) / (endV - startV);
+        var middleV = this.getValue(middleT, ps);
         // console.assert((x0 - targetX) * (x1 - targetX) < 0, `targetX 必须在 起点终点之间！`);
 
         var i = 0;
-        while (Math.abs(mv - targetX) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS)
+        while (Math.abs(middleV - targetV) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS)
         {
             // 进行线性插值预估目标位置
-            mt = t0 + (t1 - t0) * (targetX - x0) / (x1 - x0);
-            mv = this.curve2(mt, numbers);
-            if ((x0 - targetX) * (mv - targetX) < 0)
+            middleT = startT + (endT - startT) * (targetV - startV) / (endV - startV);
+            middleV = this.getValue(middleT, ps);
+            if ((startV - targetV) * (middleV - targetV) < 0)
             {
-                t1 = mt;
-                x1 = mv;
+                endT = middleT;
+                endV = middleV;
             } else
             {
-                t0 = mt;
-                x0 = mv;
+                startT = middleT;
+                startV = middleV;
             }
         }
-        return mt;
+        return middleT;
     }
 
-    getCurveSamples1(ps: number[], num = 100)
+    /**
+     * 获取曲线样本数据
+     * 
+     * 这些点可用于连线来拟合曲线。
+     * 
+     * @param ps 点列表
+     * @param num 采样次数 ，采样点分别为[0,1/num,2/num,....,(num-1)/num,1]
+     */
+    getSamples(ps: number[], num = 100)
     {
         var results: number[] = [];
         for (let i = 0; i <= num; i++)
         {
-            var p = this.curve2(i / num, ps)
+            var p = this.getValue(i / num, ps)
             results.push(p);
         }
         return results;

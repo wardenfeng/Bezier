@@ -219,14 +219,12 @@ class BezierCurve
     {
         ps = ps.concat();
         //
-        var factorial = 1;
         for (let i = 0, n = ps.length - 1; i < n; i++)
         {
             ps[i] = ps[i + 1] - ps[i];
-            factorial *= i + 1;
         }
         ps.length = ps.length - 1;
-        var v = factorial * this.bn(t, ps);
+        var v = ps.length * this.bn(t, ps);
         return v;
     }
 

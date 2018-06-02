@@ -38,7 +38,7 @@ declare class BezierCurve {
      * @param p0 点0
      * @param p1 点1
      */
-    linearSecondDerivative(t: number, p0: number, p1: number, p2: number): number;
+    linearSecondDerivative(t: number, p0: number, p1: number): number;
     /**
      * 二次Bézier曲线
      *

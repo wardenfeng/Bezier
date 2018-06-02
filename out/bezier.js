@@ -45,7 +45,7 @@ var BezierCurve = /** @class */ (function () {
      * @param p0 点0
      * @param p1 点1
      */
-    BezierCurve.prototype.linearSecondDerivative = function (t, p0, p1, p2) {
+    BezierCurve.prototype.linearSecondDerivative = function (t, p0, p1) {
         return 0;
     };
     /**
@@ -219,20 +219,16 @@ var BezierCurve = /** @class */ (function () {
      * @param ps 点列表 ps.length == n+1
      */
     BezierCurve.prototype.bnSD = function (t, ps) {
+        if (ps.length == 2)
+            return 0;
         ps = ps.concat();
         // 进行
         for (var i = 0, n = ps.length - 1; i < n; i++) {
-            ps[i] = 2 * (ps[2] - 2 * ps[1] + ps[0]);
-            // ps[i] = ps[i + 1] - ps[i];
+            ps[i] = ps[i + 1] - ps[i];
         }
         //
         ps.length = ps.length - 1;
-        for (var i = ps.length - 1; i > 0; i--) {
-            for (var j = 0; j < i; j++) {
-                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
-            }
-        }
-        var v = ps.length * ps[0];
+        var v = ps.length * this.bnD(t, ps);
         return v;
     };
     BezierCurve.prototype.getValue = function (t, numbers) {

@@ -50,7 +50,7 @@ class BezierCurve
      * @param p0 点0
      * @param p1 点1
      */
-    linearSecondDerivative(t: number, p0: number, p1: number, p2: number)
+    linearSecondDerivative(t: number, p0: number, p1: number)
     {
         return 0;
     }
@@ -248,27 +248,19 @@ class BezierCurve
      */
     bnSD(t: number, ps: number[])
     {
+        if (ps.length == 2)
+            return 0;
         ps = ps.concat();
         // 进行
         for (let i = 0, n = ps.length - 1; i < n; i++)
         {
-            ps[i] = 2 * (ps[2] - 2 * ps[1] + ps[0]);
-            // ps[i] = ps[i + 1] - ps[i];
+            ps[i] = ps[i + 1] - ps[i];
         }
         //
         ps.length = ps.length - 1;
-        for (let i = ps.length - 1; i > 0; i--)
-        {
-            for (let j = 0; j < i; j++)
-            {
-                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
-            }
-        }
-        var v = ps.length * ps[0];
+        var v = ps.length * this.bnD(t, ps);
         return v;
     }
-
-
 
     getValue(t: number, numbers: number[])
     {

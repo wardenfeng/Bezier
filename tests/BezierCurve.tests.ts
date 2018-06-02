@@ -75,5 +75,43 @@ QUnit.module("BezierCurve", () =>
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
+    QUnit.test("bnSD linear", (assert) =>
+    {
+
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random()];
+
+        // 导数
+        var d0 = bezierCurve.linearSecondDerivative(t, ps[0], ps[1]);
+        var d1 = bezierCurve.bnSD(t, ps);
+        assert.ok(Math.abs(d0 - d1) < deviation);
+    });
+
+    QUnit.test("bnSD quadratic", (assert) =>
+    {
+
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random(), Math.random()];
+
+        // 导数
+        var d0 = bezierCurve.quadraticSecondDerivative(t, ps[0], ps[1], ps[2]);
+        var d1 = bezierCurve.bnSD(t, ps);
+        assert.ok(Math.abs(d0 - d1) < deviation);
+    });
+
+    QUnit.test("bnD cubic", (assert) =>
+    {
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
+
+        // 导数
+        var d0 = bezierCurve.cubicDerivative(t, ps[0], ps[1], ps[2], ps[3]);
+        var d1 = bezierCurve.bnD(t, ps);
+        assert.ok(Math.abs(d0 - d1) < deviation);
+    });
+
 
 });

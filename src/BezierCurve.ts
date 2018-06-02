@@ -182,7 +182,7 @@ class BezierCurve
     }
 
     /**
-     * n阶Bézier曲线
+     * n次Bézier曲线
      * 
      * 一般定义
      * 
@@ -194,7 +194,7 @@ class BezierCurve
     bn(t: number, ps: number[])
     {
         ps = ps.concat();
-        // n阶Bézier递推
+        // n次Bézier递推
         for (let i = ps.length - 1; i > 0; i--)
         {
             for (let j = 0; j < i; j++)
@@ -206,7 +206,7 @@ class BezierCurve
     }
 
     /**
-     * n阶Bézier曲线关于t的导数
+     * n次Bézier曲线关于t的导数
      * 
      * 一般定义
      * 
@@ -215,7 +215,7 @@ class BezierCurve
      * @param t 插值度
      * @param ps 点列表 ps.length == n+1
      */
-    bnD(t: number, ps: number[])
+    bnDerivative(t: number, ps: number[])
     {
         if (ps.length < 2)
             return 0;
@@ -232,7 +232,7 @@ class BezierCurve
     }
 
     /**
-     * n阶Bézier曲线关于t的二阶导数
+     * n次Bézier曲线关于t的二阶导数
      * 
      * 一般定义
      * 
@@ -241,7 +241,7 @@ class BezierCurve
      * @param t 插值度
      * @param ps 点列表 ps.length == n+1
      */
-    bnSD(t: number, ps: number[])
+    bnSecondDerivative(t: number, ps: number[])
     {
         if (ps.length < 3)
             return 0;
@@ -253,12 +253,12 @@ class BezierCurve
         }
         //
         ps.length = ps.length - 1;
-        var v = ps.length * this.bnD(t, ps);
+        var v = ps.length * this.bnDerivative(t, ps);
         return v;
     }
 
     /**
-     * n阶Bézier曲线关于t的dn阶导数
+     * n次Bézier曲线关于t的dn阶导数
      * 
      * 贝塞尔曲线可以定义为任意度n。
      * 

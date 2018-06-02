@@ -46,7 +46,7 @@ QUnit.module("BezierCurve", () =>
 
         // 导数
         var d0 = bezierCurve.linearDerivative(t, ps[0], ps[1]);
-        var d1 = bezierCurve.bnD(t, ps);
+        var d1 = bezierCurve.bnDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
@@ -59,7 +59,7 @@ QUnit.module("BezierCurve", () =>
 
         // 导数
         var d0 = bezierCurve.quadraticDerivative(t, ps[0], ps[1], ps[2]);
-        var d1 = bezierCurve.bnD(t, ps);
+        var d1 = bezierCurve.bnDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
@@ -71,7 +71,7 @@ QUnit.module("BezierCurve", () =>
 
         // 导数
         var d0 = bezierCurve.cubicDerivative(t, ps[0], ps[1], ps[2], ps[3]);
-        var d1 = bezierCurve.bnD(t, ps);
+        var d1 = bezierCurve.bnDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
@@ -83,7 +83,7 @@ QUnit.module("BezierCurve", () =>
 
         // 导数
         var d0 = bezierCurve.linearSecondDerivative(t, ps[0], ps[1]);
-        var d1 = bezierCurve.bnSD(t, ps);
+        var d1 = bezierCurve.bnSecondDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
@@ -95,7 +95,7 @@ QUnit.module("BezierCurve", () =>
 
         // 导数
         var d0 = bezierCurve.quadraticSecondDerivative(t, ps[0], ps[1], ps[2]);
-        var d1 = bezierCurve.bnSD(t, ps);
+        var d1 = bezierCurve.bnSecondDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
@@ -107,7 +107,7 @@ QUnit.module("BezierCurve", () =>
 
         // 导数
         var d0 = bezierCurve.cubicSecondDerivative(t, ps[0], ps[1], ps[2], ps[3]);
-        var d1 = bezierCurve.bnSD(t, ps);
+        var d1 = bezierCurve.bnSecondDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 

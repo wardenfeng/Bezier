@@ -367,9 +367,9 @@ class BezierCurve
     getTAtExtremums(ps: number[], numSamples = 10, maxIterations = 4)
     {
         var samples: number[] = [];
-        for (let i = 0; i <= num; i++)
+        for (let i = 0; i <= numSamples; i++)
         {
-            samples.push(this.getDerivative(i / num, ps));
+            samples.push(this.getDerivative(i / numSamples, ps));
         }
         // 查找存在解的分段
         var resultRanges: number[] = [];
@@ -385,18 +385,18 @@ class BezierCurve
         for (let i = 0, n = resultRanges.length; i < n; i++)
         {
             var guessT = resultRanges[i];
-            var result = this.getValue(guessT, ps);
+            var derivative = this.getDerivative(guessT, ps);
             var j = 0;
-            while (Math.abs(result) > SUBDIVISION_PRECISION && j++ < maxIterations)
+            while (Math.abs(derivative) > SUBDIVISION_PRECISION && j++ < maxIterations)
             {
                 // 使用斜率进行预估目标位置
                 var slope = this.getSecondDerivative(guessT, ps);
                 if (slope == 0)
                     break;
-                guessT += - result / slope;
-                result = this.getValue(guessT, ps);
+                guessT += - derivative / slope;
+                derivative = this.getDerivative(guessT, ps);
             }
-            results.push(result);
+            results.push(guessT);
         }
         return results;
     }

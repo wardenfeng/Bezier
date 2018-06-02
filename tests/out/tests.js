@@ -320,8 +320,8 @@ var BezierCurve = /** @class */ (function () {
         if (numSamples === void 0) { numSamples = 10; }
         if (maxIterations === void 0) { maxIterations = 4; }
         var samples = [];
-        for (var i = 0; i <= num; i++) {
-            samples.push(this.getDerivative(i / num, ps));
+        for (var i = 0; i <= numSamples; i++) {
+            samples.push(this.getDerivative(i / numSamples, ps));
         }
         // 查找存在解的分段
         var resultRanges = [];
@@ -334,17 +334,17 @@ var BezierCurve = /** @class */ (function () {
         var results = [];
         for (var i = 0, n = resultRanges.length; i < n; i++) {
             var guessT = resultRanges[i];
-            var result = this.getValue(guessT, ps);
+            var derivative = this.getDerivative(guessT, ps);
             var j = 0;
-            while (Math.abs(result) > SUBDIVISION_PRECISION && j++ < maxIterations) {
+            while (Math.abs(derivative) > SUBDIVISION_PRECISION && j++ < maxIterations) {
                 // 使用斜率进行预估目标位置
                 var slope = this.getSecondDerivative(guessT, ps);
                 if (slope == 0)
                     break;
-                guessT += -result / slope;
-                result = this.getValue(guessT, ps);
+                guessT += -derivative / slope;
+                derivative = this.getDerivative(guessT, ps);
             }
-            results.push(result);
+            results.push(guessT);
         }
         return results;
     };
@@ -558,6 +558,35 @@ QUnit.module("BezierCurve", function () {
         var d0 = bezierCurve.cubicSecondDerivative(t, ps[0], ps[1], ps[2], ps[3]);
         var d1 = bezierCurve.bnND(t, 2, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
+    });
+    QUnit.test("getTAtExtremums", function (assert) {
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
+        // 查找区间内极值所在插值度列表
+        var extremumXs = bezierCurve.getTAtExtremums(ps);
+        for (var i = 0, n = extremumXs.length; i < n; i++) {
+            // 极值
+            var extremum = bezierCurve.getValue(extremumXs[i], ps);
+            // 极值前面的数据
+            var prex = extremumXs[i] - 0.001;
+            if (0 < i)
+                prex = bezierCurve.linear(0.999, extremumXs[i - 1], extremumXs[i]);
+            var prev = bezierCurve.getValue(prex, ps);
+            // 极值后面面的数据
+            var nextx = extremumXs[i] + 0.001;
+            if (i < n - 1)
+                nextx = bezierCurve.linear(0.001, extremumXs[i], extremumXs[i + 1]);
+            var nextv = bezierCurve.getValue(nextx, ps);
+            // 
+            var sign = (prev - extremum) * (nextv - extremum);
+            // 斜率
+            var derivative = bezierCurve.getDerivative(extremumXs[i], ps);
+            assert.ok(sign >= 0, "\u659C\u7387\uFF1A " + derivative + " \n \u524D\u9762\u503C\uFF1A " + prev + " \n \u6781\u503C\uFF1A " + extremum + " \n \u540E\u9762\u7684\u503C " + nextv);
+        }
+        if (extremumXs.length == 0) {
+            assert.ok(true, "该区间内没有极值");
+        }
     });
 });
 //# sourceMappingURL=tests.js.map

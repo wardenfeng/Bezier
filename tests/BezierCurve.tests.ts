@@ -182,4 +182,36 @@ QUnit.module("BezierCurve", () =>
         var d1 = bezierCurve.bnND(t, 2, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
+
+    QUnit.test("getTAtExtremums", (assert) =>
+    {
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
+
+        // 查找区间内极值所在插值度列表
+        var extremumXs = bezierCurve.getTAtExtremums(ps);
+        for (let i = 0, n = extremumXs.length; i < n; i++)
+        {
+            // 极值
+            var extremum = bezierCurve.getValue(extremumXs[i], ps);
+            // 极值前面的数据
+            var prex = extremumXs[i] - 0.001;
+            if (0 < i) prex = bezierCurve.linear(0.999, extremumXs[i - 1], extremumXs[i]);
+            var prev = bezierCurve.getValue(prex, ps);
+            // 极值后面面的数据
+            var nextx = extremumXs[i] + 0.001;
+            if (i < n - 1) nextx = bezierCurve.linear(0.001, extremumXs[i], extremumXs[i + 1]);
+            var nextv = bezierCurve.getValue(nextx, ps);
+            // 
+            var sign = (prev - extremum) * (nextv - extremum);
+            // 斜率
+            var derivative = bezierCurve.getDerivative(extremumXs[i], ps);
+            assert.ok(sign >= 0, `斜率： ${derivative} \n 前面值： ${prev} \n 极值： ${extremum} \n 后面的值 ${nextv}`);
+        }
+        if (extremumXs.length == 0)
+        {
+            assert.ok(true, "该区间内没有极值")
+        }
+    });
 });

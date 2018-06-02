@@ -320,8 +320,8 @@ var BezierCurve = /** @class */ (function () {
         if (numSamples === void 0) { numSamples = 10; }
         if (maxIterations === void 0) { maxIterations = 4; }
         var samples = [];
-        for (var i = 0; i <= num; i++) {
-            samples.push(this.getDerivative(i / num, ps));
+        for (var i = 0; i <= numSamples; i++) {
+            samples.push(this.getDerivative(i / numSamples, ps));
         }
         // 查找存在解的分段
         var resultRanges = [];
@@ -334,17 +334,17 @@ var BezierCurve = /** @class */ (function () {
         var results = [];
         for (var i = 0, n = resultRanges.length; i < n; i++) {
             var guessT = resultRanges[i];
-            var result = this.getValue(guessT, ps);
+            var derivative = this.getDerivative(guessT, ps);
             var j = 0;
-            while (Math.abs(result) > SUBDIVISION_PRECISION && j++ < maxIterations) {
+            while (Math.abs(derivative) > SUBDIVISION_PRECISION && j++ < maxIterations) {
                 // 使用斜率进行预估目标位置
                 var slope = this.getSecondDerivative(guessT, ps);
                 if (slope == 0)
                     break;
-                guessT += -result / slope;
-                result = this.getValue(guessT, ps);
+                guessT += -derivative / slope;
+                derivative = this.getDerivative(guessT, ps);
             }
-            results.push(result);
+            results.push(guessT);
         }
         return results;
     };

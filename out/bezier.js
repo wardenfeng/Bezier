@@ -175,8 +175,8 @@ var BezierCurve = /** @class */ (function () {
     BezierCurve.prototype.bn = function (t, ps) {
         ps = ps.concat();
         // n阶Bézier递推
-        for (var i = ps.length - 1; i > 1; i--) {
-            for (var j = 0; j < j; j++) {
+        for (var i = ps.length - 1; i > 0; i--) {
+            for (var j = 0; j < i; j++) {
                 ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
             }
         }
@@ -195,8 +195,8 @@ var BezierCurve = /** @class */ (function () {
     BezierCurve.prototype.bnD = function (t, ps) {
         ps = ps.concat();
         // n阶Bézier递推
-        for (var i = ps.length - 2; i > 1; i--) {
-            for (var j = 0; j < j; j++) {
+        for (var i = ps.length - 1; i > 1; i--) {
+            for (var j = 0; j < i; j++) {
                 ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
             }
         }
@@ -215,8 +215,8 @@ var BezierCurve = /** @class */ (function () {
     BezierCurve.prototype.bnSD = function (t, ps) {
         ps = ps.concat();
         // n阶Bézier递推
-        for (var i = ps.length - 3; i > 1; i--) {
-            for (var j = 0; j < j; j++) {
+        for (var i = ps.length - 1; i > 2; i--) {
+            for (var j = 0; j < i; j++) {
                 ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
             }
         }

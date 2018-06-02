@@ -175,8 +175,8 @@ var BezierCurve = /** @class */ (function () {
     BezierCurve.prototype.bn = function (t, ps) {
         ps = ps.concat();
         // n阶Bézier递推
-        for (var i = ps.length - 1; i > 1; i--) {
-            for (var j = 0; j < j; j++) {
+        for (var i = ps.length - 1; i > 0; i--) {
+            for (var j = 0; j < i; j++) {
                 ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
             }
         }
@@ -195,8 +195,8 @@ var BezierCurve = /** @class */ (function () {
     BezierCurve.prototype.bnD = function (t, ps) {
         ps = ps.concat();
         // n阶Bézier递推
-        for (var i = ps.length - 2; i > 1; i--) {
-            for (var j = 0; j < j; j++) {
+        for (var i = ps.length - 1; i > 1; i--) {
+            for (var j = 0; j < i; j++) {
                 ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
             }
         }
@@ -215,8 +215,8 @@ var BezierCurve = /** @class */ (function () {
     BezierCurve.prototype.bnSD = function (t, ps) {
         ps = ps.concat();
         // n阶Bézier递推
-        for (var i = ps.length - 3; i > 1; i--) {
-            for (var j = 0; j < j; j++) {
+        for (var i = ps.length - 1; i > 2; i--) {
+            for (var j = 0; j < i; j++) {
                 ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
             }
         }
@@ -285,12 +285,23 @@ var BezierCurve = /** @class */ (function () {
 }());
 bezierCurve = new BezierCurve();
 QUnit.module("BezierCurve", function () {
-    QUnit.test("bn", function (assert) {
+    // 允许误差
+    var deviation = 0.0000001;
+    QUnit.test("bn linear", function (assert) {
+        // 测试线性Bézier曲线
         var t = Math.random();
         var ps = [Math.random(), Math.random()];
         var v0 = bezierCurve.linear(t, ps[0], ps[1]);
         var v1 = bezierCurve.bn(t, ps);
-        assert.equal(v0, v1);
+        assert.ok(Math.abs(v0 - v1) < deviation);
+    });
+    QUnit.test("bn quadratic", function (assert) {
+        // 测试线性Bézier曲线
+        var t = Math.random();
+        var ps = [Math.random(), Math.random(), Math.random()];
+        var v0 = bezierCurve.quadratic(t, ps[0], ps[1], ps[2]);
+        var v1 = bezierCurve.bn(t, ps);
+        assert.ok(Math.abs(v0 - v1) < deviation);
     });
 });
 //# sourceMappingURL=tests.js.map

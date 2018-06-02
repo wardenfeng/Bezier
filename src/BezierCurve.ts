@@ -195,9 +195,9 @@ class BezierCurve
     {
         ps = ps.concat();
         // n阶Bézier递推
-        for (let i = ps.length - 1; i > 1; i--)
+        for (let i = ps.length - 1; i > 0; i--)
         {
-            for (let j = 0; j < j; j++)
+            for (let j = 0; j < i; j++)
             {
                 ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
             }
@@ -219,9 +219,9 @@ class BezierCurve
     {
         ps = ps.concat();
         // n阶Bézier递推
-        for (let i = ps.length - 2; i > 1; i--)
+        for (let i = ps.length - 1; i > 1; i--)
         {
-            for (let j = 0; j < j; j++)
+            for (let j = 0; j < i; j++)
             {
                 ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
             }
@@ -243,9 +243,9 @@ class BezierCurve
     {
         ps = ps.concat();
         // n阶Bézier递推
-        for (let i = ps.length - 3; i > 1; i--)
+        for (let i = ps.length - 1; i > 2; i--)
         {
-            for (let j = 0; j < j; j++)
+            for (let j = 0; j < i; j++)
             {
                 ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
             }

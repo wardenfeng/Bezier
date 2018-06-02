@@ -35,8 +35,25 @@ class BezierCurve
 
     /**
      * 二次Bézier曲线
-     * 二次Bézier曲线是由函数B（t）跟踪的路径，给定点P0，P1和P2，
      * 
+     * 二次Bézier曲线是由函数B（t）跟踪的路径，给定点P0，P1和P2，
+     * ```
+     * B(t) = (1 - t) * ((1 - t) * p0 + t * p1) + t * ((1 - t) * p1 + t * p2) , 0 <= t && t <= 1
+     * ```
+     * 这可以解释为分别从P0到P1和从P1到P2的线性Bézier曲线上相应点的线性插值。重新排列前面的等式得出：
+     * ```
+     * B(t) = (1 - t) * (1 - t) * p0 + 2 * (1 - t) * t * p1 + t * t * p2 , 0 <= t && t <= 1
+     * ```
+     * Bézier曲线关于t的导数是
+     * ```
+     * B'(t) = 2 * (1 - t) * (p1 - p0) + 2 * t * (p2 - p1)
+     * ```
+     * 从中可以得出结论：在P0和P2处曲线的切线在P 1处相交。随着t从0增加到1，曲线沿P1的方向从P0偏离，然后从P1的方向弯曲到P2。
+     * 
+     * Bézier曲线关于t的二阶导数是
+     * ```
+     * B''(t) = 2 * (p2 - 2 * p1 + p0)
+     * ```
      * 
      * @param t 插值度
      * @param p0 点1
@@ -45,8 +62,36 @@ class BezierCurve
      */
     quadratic(t: number, p0: number, p1: number, p2: number)
     {
-
+        // return (1 - t) * ((1 - t) * p0 + t * p1) + t * ((1 - t) * p1 + t * p2);
+        return (1 - t) * (1 - t) * p0 + 2 * (1 - t) * t * p1 + t * t * p2;
     }
+
+    /**
+     * 二次Bézier曲线关于t的导数
+     * @param t 插值度
+     * @param p0 点1
+     * @param p1 点2
+     * @param p2 点3
+     */
+    quadraticDerivative(t: number, p0: number, p1: number, p2: number)
+    {
+        return 2 * (1 - t) * (p1 - p0) + 2 * t * (p2 - p1);
+    }
+
+    /**
+     * 二次Bézier曲线关于t的二阶导数
+     * @param t 插值度
+     * @param p0 点1
+     * @param p1 点2
+     * @param p2 点3
+     */
+    quadraticSecondDerivative(t: number, p0: number, p1: number, p2: number)
+    {
+        return 2 * (p2 - 2 * p1 + p0);
+    }
+
+
+
 
     getValue(t: number, numbers: number[])
     {

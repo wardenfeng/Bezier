@@ -1,18 +1,3 @@
-var Point = /** @class */ (function () {
-    function Point(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    Point.prototype.clone = function () {
-        return new Point(this.x, this.y);
-    };
-    Point.prototype.lerpNumber = function (v, alpha) {
-        this.x = (1 - alpha) * this.x + alpha * v.x;
-        this.y = (1 - alpha) * this.y + alpha * v.y;
-        return this;
-    };
-    return Point;
-}());
 var Curve = /** @class */ (function () {
     function Curve(numbers) {
         this.numbers = numbers;
@@ -52,15 +37,10 @@ var Curve = /** @class */ (function () {
         }
         var newpoints = [];
         for (var i = 0, end = numbers.length - 1; i < end; i++) {
-            newpoints.push(curve(t, [numbers[i], numbers[i + 1]]));
+            newpoints.push(this.curve(t, [numbers[i], numbers[i + 1]]));
         }
-        return curve(t, newpoints);
+        return this.curve(t, newpoints);
     };
-    // curve2(t: number): number
-    // {
-    //     var t1 = 1 - t;
-    //     return t1 * t1 * t1 * this.n0 + 3 * t1 * t1 * t * this.n1 + 3 * t1 * t * t * this.n2 + t * t * t * this.n3;
-    // }
     Curve.prototype.curve2 = function (t, ps) {
         var t1 = 1 - t;
         return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
@@ -99,53 +79,6 @@ var Curve = /** @class */ (function () {
     };
     return Curve;
 }());
-function curve1(t, p0, p1, p2, p3) {
-    var t1 = 1 - t;
-    return t1 * t1 * t1 * p0 + 3 * t1 * t1 * t * p1 + 3 * t1 * t * t * p2 + t * t * t * p3;
-}
-function curve2(t, ps) {
-    var t1 = 1 - t;
-    return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
-}
-function curve(t, numbers) {
-    if (numbers.length == 2) {
-        return (1 - t) * numbers[0] + t * numbers[1];
-    }
-    var newpoints = [];
-    for (var i = 0, end = numbers.length - 1; i < end; i++) {
-        newpoints.push(curve(t, [numbers[i], numbers[i + 1]]));
-    }
-    return curve(t, newpoints);
-}
-function findTatValue(targetX, numbers) {
-    /**
-     * 细分精度
-     */
-    var SUBDIVISION_PRECISION = 0.0000001;
-    /**
-     * 细分最大迭代次数
-     */
-    var SUBDIVISION_MAX_ITERATIONS = 10;
-    var t0 = 0;
-    var t1 = 1;
-    var x0 = numbers[0];
-    var x1 = numbers[numbers.length - 1];
-    // console.assert((x0 - targetX) * (x1 - targetX) < 0, `targetX 必须在 起点终点之间！`);
-    var i = 0;
-    while (Math.abs(x0 - x1) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS) {
-        var mt = (t0 + t1) / 2;
-        var mv = curve2(mt, numbers);
-        if ((x0 - targetX) * (mv - targetX) < 0) {
-            t1 = mt;
-            x1 = mv;
-        }
-        else {
-            t0 = mt;
-            x0 = mv;
-        }
-    }
-    return (t0 + t1) / 2;
-}
 /**
  * 贝塞尔曲线
  *
@@ -319,26 +252,15 @@ function getBezierSamples(bezier, num) {
     if (num === void 0) { num = 100; }
     var points = [];
     for (var i = 0, step = 1 / num; i <= 1; i += step) {
-        points.push(new Point(i, bezier.getValue(i)));
+        points.push([i, bezier.getValue(i)]);
     }
     return points;
-}
-function getCurveSamples(points, num) {
-    if (num === void 0) { num = 100; }
-    var xs = points.map(function (i) { return i.x; });
-    var ys = points.map(function (i) { return i.y; });
-    var results = [];
-    for (var i = 0, step = 1 / num; i <= 1; i += step) {
-        var p = new Point(curve(i, xs), curve(i, ys));
-        results.push(p);
-    }
-    return results;
 }
 function getCurveSamples1(cx, cy, num) {
     if (num === void 0) { num = 100; }
     var results = [];
     for (var i = 0; i <= num; i++) {
-        var p = new Point(cx.getValue(i / num), cy.getValue(i / num));
+        var p = [cx.getValue(i / num), cy.getValue(i / num)];
         results.push(p);
     }
     return results;
@@ -367,9 +289,9 @@ function drawCurve(canvas, points, strokeStyle, lineWidth) {
     ctx.beginPath();
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = strokeStyle;
-    ctx.moveTo(points[0].x, points[0].y);
+    ctx.moveTo(points[0][0], points[0][1]);
     for (var i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x, points[i].y);
+        ctx.lineTo(points[i][0], points[i][1]);
     }
     ctx.stroke();
 }
@@ -382,48 +304,29 @@ clearCanvas(canvas);
 //
 var bezier = new Bezier(point0[0], point0[1], point1[0], point1[1]);
 var points = getBezierSamples(bezier, 100);
-points = points.map(function (item) { return new Point(item.x * canvas.width, (1 - item.y) * canvas.height); ; });
+points = points.map(function (item) { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; });
 drawCurve(canvas, points, 'white', 9);
-//
-var points1 = getCurveSamples([new Point(0, 0), new Point(point0[0], point0[1]), new Point(point1[0], point1[1]), new Point(1, 1)]);
-points1 = points1.map(function (item) { return new Point(item.x * canvas.width, (1 - item.y) * canvas.height); });
-drawCurve(canvas, points1, "red", 6);
 //
 var cx = new Curve([0, point0[0], point1[0], 1]);
 var cy = new Curve([0, point0[1], point1[1], 1]);
 var points2 = getCurveSamples1(cx, cy);
-points2 = points2.map(function (item) { return new Point(item.x * canvas.width, (1 - item.y) * canvas.height); });
+points2 = points2.map(function (item) { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; });
 drawCurve(canvas, points2, "green", 3);
 var x = Math.random();
 var num = 100000;
-var xs = points.map(function (i) { return i.x; });
-var ys = points.map(function (i) { return i.y; });
+var xs = points.map(function (i) { return i[0]; });
+var ys = points.map(function (i) { return i[1]; });
 console.time("feng");
-for (var i = 0; i < num; i++) {
-    var t0 = findTatValue(x, xs);
-    var v2 = curve2(t0, ys);
-}
-console.timeEnd("feng");
-console.time("feng1");
 for (var i = 0; i < num; i++) {
     var t = cx.findTatValue(x);
     var v3 = cy.getValue(t);
 }
-console.timeEnd("feng1");
+console.timeEnd("feng");
 console.time("bezier");
 for (var i = 0; i < num; i++) {
     var v1 = bezier.getValue(x);
 }
 console.timeEnd("bezier");
-console.log(x, v2);
 console.log(x, v1);
 console.log(x, v3);
-// new BezierTest();
-// var points = [new Point(0, 0), new Point(Math.random(), Math.random()), new Point(Math.random(), Math.random()), new Point(1, 1)];
-// var bezier = new Bezier(points[1].x, points[1].y, points[2].x, points[2].y);
-// var t = 0.5;
-// var v1 = bezier.getValue(t);
-// var v2 = curve(t, points);
-// v1;
-// v2; 
 //# sourceMappingURL=bezier.js.map

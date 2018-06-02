@@ -1,10 +1,3 @@
-declare class Point {
-    x: number;
-    y: number;
-    constructor(x: number, y: number);
-    clone(): Point;
-    lerpNumber(v: Point, alpha: number): this;
-}
 declare class Curve {
     private numbers;
     n0: any;
@@ -17,10 +10,6 @@ declare class Curve {
     curve2(t: number, ps: number[]): number;
     findTatValue(targetX: number): any;
 }
-declare function curve1(t: number, p0: number, p1: number, p2: number, p3: number): number;
-declare function curve2(t: number, ps: number[]): number;
-declare function curve(t: number, numbers: number[]): number;
-declare function findTatValue(targetX: number, numbers: number[]): number;
 /**
  * 贝塞尔曲线
  *
@@ -102,9 +91,8 @@ declare function binarySubdivide(aX: any, aA: any, aB: any, mX1: any, mX2: any):
  */
 declare function newtonRaphsonIterate(aX: any, aGuessT: any, mX1: any, mX2: any): any;
 declare function createCanvas(x?: number, y?: number, width?: number, height?: number): HTMLCanvasElement;
-declare function getBezierSamples(bezier: Bezier, num?: number): Point[];
-declare function getCurveSamples(points: Point[], num?: number): Point[];
-declare function getCurveSamples1(cx: Curve, cy: Curve, num?: number): Point[];
+declare function getBezierSamples(bezier: Bezier, num?: number): number[][];
+declare function getCurveSamples1(cx: Curve, cy: Curve, num?: number): number[][];
 /**
  * 清理画布
  * @param canvas 画布
@@ -116,16 +104,15 @@ declare function clearCanvas(canvas: HTMLCanvasElement): void;
  * @param points 曲线上的点
  * @param strokeStyle 曲线颜色
  */
-declare function drawCurve(canvas: HTMLCanvasElement, points: Point[], strokeStyle?: string, lineWidth?: number): void;
+declare function drawCurve(canvas: HTMLCanvasElement, points: number[][], strokeStyle?: string, lineWidth?: number): void;
 declare var canvas: HTMLCanvasElement;
 declare var point0: number[];
 declare var point1: number[];
 declare var bezier: Bezier;
-declare var points: Point[];
-declare var points1: Point[];
+declare var points: number[][];
 declare var cx: Curve;
 declare var cy: Curve;
-declare var points2: Point[];
+declare var points2: number[][];
 declare var x: number;
 declare var num: number;
 declare var xs: number[];

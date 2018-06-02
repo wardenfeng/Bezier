@@ -96,13 +96,17 @@ class Curve
         var t1 = 1;
         var x0 = this.getValue(0);
         var x1 = this.getValue(1);
+
+        var mt = mt = t0 + (t1 - t0) * (targetX - x0) / (x1 - x0);
+        var mv = this.getValue(mt);
         // console.assert((x0 - targetX) * (x1 - targetX) < 0, `targetX 必须在 起点终点之间！`);
 
         var i = 0;
-        while (Math.abs(x0 - x1) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS)
+        while (Math.abs(mv - targetX) > SUBDIVISION_PRECISION && i++ < SUBDIVISION_MAX_ITERATIONS)
         {
-            var mt = (t0 + t1) / 2;
-            var mv = this.getValue(mt);
+            // 进行线性插值预估目标位置
+            mt = t0 + (t1 - t0) * (targetX - x0) / (x1 - x0);
+            mv = this.getValue(mt);
             if ((x0 - targetX) * (mv - targetX) < 0)
             {
                 t1 = mt;
@@ -113,7 +117,7 @@ class Curve
                 x0 = mv;
             }
         }
-        return (t0 + t1) / 2;
+        return mt;
     }
 }
 

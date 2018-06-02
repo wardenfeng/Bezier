@@ -28,18 +28,36 @@ class CubicBezierCurve
     private p3: number;
 
     /**
-     * 采样次数，用于查找与加速运算
-     */
-    private numSamples = 10;
-    /**
-     * 采样步长
-     */
-    private sampleSetp = 0.1;
-    /**
      * 最大迭代次数
      */
     private maxIterations = 4;
 
+    // cache
+    /**
+     * 极值插值度列表
+     */
+    private extremumTs: number[] = [];
+    /**
+     * 极值列表
+     */
+    private extremumVs: number[] = [];
+
+    /**
+     * 单调区间插值点列表
+     */
+    private monotoneIntervalTs: number[] = [];
+    /**
+     * 单调区间值列表
+     */
+    private monotoneIntervalVs: number[] = [];
+
+    /**
+     * 创建立方Bézier曲线
+     * @param p0 起始点
+     * @param p1 控制点1
+     * @param p2 控制点2
+     * @param p3 终止点
+     */
     constructor(p0: number, p1: number, p2: number, p3: number)
     {
         this.p0 = p0;
@@ -47,9 +65,20 @@ class CubicBezierCurve
         this.p2 = p2;
         this.p3 = p3;
 
+        // 区间内的单调区间
+        this.monotoneIntervalTs = [0, 1];
+        this.monotoneIntervalVs = [p0, p3];
         // 预先计算好极值
-        this.getTAtExtremums()
-        // 预先计算好分段
+        var results: number[] = this.getTAtExtremums();
+        this.extremumTs = results;
+        this.extremumVs = [];
+        for (let i = 0; i < results.length; i++)
+        {
+            this.extremumVs[i] = this.getValue(results[i]);
+            // 增加单调区间
+            this.monotoneIntervalTs.splice(i, 0, results[i]);
+            this.monotoneIntervalVs.splice(i, 0, this.extremumVs[i]);
+        }
 
     }
 
@@ -83,22 +112,24 @@ class CubicBezierCurve
     /**
      * 查找区间内极值所在插值度列表
      * @param ps 点列表
+     * @param numSamples 采样次数，用于分段查找极值
      * @returns 插值度列表
      */
-    getTAtExtremums()
+    getTAtExtremums(numSamples = 10)
     {
-        var samples: number[] = [];
-        for (let i = 0; i <= this.numSamples; i++)
+        // 预先计算分段斜率值
+        var sampleDerivatives = [];
+        for (let i = 0; i <= numSamples; i++)
         {
-            samples.push(this.getDerivative(i * this.sampleSetp));
+            sampleDerivatives[i] = this.getDerivative(i / numSamples);
         }
         // 查找存在解的分段
         var resultRanges: number[] = [];
-        for (let i = 0, n = this.numSamples; i < n; i++)
+        for (let i = 0, n = numSamples; i < n; i++)
         {
-            if (samples[i] * samples[i + 1] < 0)
+            if (sampleDerivatives[i] * sampleDerivatives[i + 1] < 0)
             {
-                resultRanges.push(i * this.sampleSetp);
+                resultRanges.push(i / numSamples);
             }
         }
         //
@@ -126,26 +157,27 @@ class CubicBezierCurve
      * 获取目标值所在的插值度T
      * 
      * @param targetV 目标值
-     * @param numSamples 分段数量，用于分段查找，用于解决寻找多个解、是否无解等问题；过少的分段可能会造成找不到存在的解决，过多的分段将会造成性能很差。
      * @returns 返回解数组
      */
-    getTFromValue(targetV: number, numSamples = 10)
+    getTFromValue(targetV: number)
     {
-        var samples = this.getSamples(numSamples);
-        // 查找存在解的分段
-        var resultRanges: number[] = [];
-        for (let i = 0, n = numSamples; i < n; i++)
+        var monotoneIntervalTs = this.monotoneIntervalTs;
+        var monotoneIntervalVs = this.monotoneIntervalVs;
+        // 目标估计值列表
+        var guessTs: number[] = [];
+        // 遍历单调区间
+        for (let i = 0, n = monotoneIntervalVs.length - 1; i < n; i++)
         {
-            if ((samples[i] - targetV) * (samples[i + 1] - targetV) < 0)
+            if ((monotoneIntervalVs[i] - targetV) * (monotoneIntervalVs[i + 1] - targetV) < 0)
             {
-                resultRanges.push(i / numSamples);
+                guessTs.push((monotoneIntervalTs[i] + monotoneIntervalTs[i + 1]) / 2);
             }
         }
 
         var results: number[] = [];
-        for (let i = 0, n = resultRanges.length; i < n; i++)
+        for (let i = 0, n = guessTs.length; i < n; i++)
         {
-            var result = this.getTFromValueAtRange(targetV, resultRanges[i]);
+            var result = this.getTFromValueAtRange(targetV, guessTs[i]);
             results.push(result);
         }
         return results;

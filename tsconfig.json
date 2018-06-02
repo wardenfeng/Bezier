@@ -12,6 +12,7 @@
     //
     "src/BezierCurve.ts",
     "src/Bezier.ts",
+    "src/CubicBezierCurve.ts",
     "src/BezierTest.ts"
   ]
 }

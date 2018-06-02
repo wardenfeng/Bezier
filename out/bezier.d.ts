@@ -314,6 +314,109 @@ declare function binarySubdivide(aX: any, aA: any, aB: any, mX1: any, mX2: any):
  * @param mX2
  */
 declare function newtonRaphsonIterate(aX: any, aGuessT: any, mX1: any, mX2: any): any;
+/**
+ * 立方Bézier曲线
+ *
+ * 为了提升性能以及简化单独从BezierCurve提取出来。
+ */
+declare class CubicBezierCurve {
+    /**
+     * 细分精度
+     */
+    private SUBDIVISION_PRECISION;
+    /**
+     * 起始点
+     */
+    private p0;
+    /**
+     * 控制点1
+     */
+    private p1;
+    /**
+     * 控制点2
+     */
+    private p2;
+    /**
+     * 终止点
+     */
+    private p3;
+    /**
+     * 最大迭代次数
+     */
+    private maxIterations;
+    /**
+     * 极值插值度列表
+     */
+    private extremumTs;
+    /**
+     * 极值列表
+     */
+    private extremumVs;
+    /**
+     * 单调区间插值点列表
+     */
+    private monotoneIntervalTs;
+    /**
+     * 单调区间值列表
+     */
+    private monotoneIntervalVs;
+    /**
+     * 创建立方Bézier曲线
+     * @param p0 起始点
+     * @param p1 控制点1
+     * @param p2 控制点2
+     * @param p3 终止点
+     */
+    constructor(p0: number, p1: number, p2: number, p3: number);
+    /**
+     *
+     * @param t 插值度
+     */
+    getValue(t: number): number;
+    /**
+     * 三次Bézier曲线关于t的导数
+     * @param t 插值度
+     */
+    getDerivative(t: number): number;
+    /**
+     * 三次Bézier曲线关于t的二阶导数
+     * @param t 插值度
+     */
+    getSecondDerivative(t: number): number;
+    /**
+     * 查找区间内极值所在插值度列表
+     * @param ps 点列表
+     * @param numSamples 采样次数，用于分段查找极值
+     * @returns 插值度列表
+     */
+    getTAtExtremums(numSamples?: number): number[];
+    /**
+     * 获取目标值所在的插值度T
+     *
+     * @param targetV 目标值
+     * @returns 返回解数组
+     */
+    getTFromValue(targetV: number): number[];
+    /**
+     * 从存在解的区域进行插值值
+     *
+     * 该函数只能从单调区间内查找值，并且 targetV 处于该区间内
+     *
+     * @param targetV 目标值
+     * @param ps 点列表
+     * @param guessT 预估目标T值，单调区间内的一个预估值
+     * @param maxIterations 最大迭代次数
+     */
+    getTFromValueAtRange(targetV: number, guessT?: number, maxIterations?: number): number;
+    /**
+     * 获取曲线样本数据
+     *
+     * 这些点可用于连线来拟合曲线。
+     *
+     * @param num 采样次数 ，采样点分别为[0,1/num,2/num,....,(num-1)/num,1]
+     */
+    getSamples(num?: number): number[];
+}
 declare function createCanvas(x?: number, y?: number, width?: number, height?: number): HTMLCanvasElement;
 declare function getBezierSamples(bezier: Bezier, num?: number): number[][];
 /**
@@ -340,3 +443,5 @@ declare var ySamples: number[];
 declare var points2: any[];
 declare var x: number;
 declare var num: number;
+declare var cubicX: CubicBezierCurve;
+declare var cubicY: CubicBezierCurve;

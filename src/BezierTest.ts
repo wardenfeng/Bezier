@@ -85,14 +85,25 @@ var x = Math.random();
 
 var num = 100000;
 
-console.time("feng")
+console.time("bezierCurve")
 for (let i = 0; i < num; i++)
 {
     // var t = bezierCurve.getTFromValue(x, xs)[0];
     var t = bezierCurve.getTFromValueAtRange(x, xs);
     var v3 = bezierCurve.getValue(t, ys);
 }
-console.timeEnd("feng")
+console.timeEnd("bezierCurve")
+
+var cubicX = new CubicBezierCurve(xs[0], xs[1], xs[2], xs[3]);
+var cubicY = new CubicBezierCurve(ys[0], ys[1], ys[2], ys[3]);
+console.time("CubicBezierCurve")
+for (let i = 0; i < num; i++)
+{
+    // var t = cubicX.getTFromValue(x)[0];
+    var t = cubicX.getTFromValueAtRange(x);
+    var v4 = cubicY.getValue(t);
+}
+console.timeEnd("CubicBezierCurve")
 
 console.time("bezier")
 for (let i = 0; i < num; i++)
@@ -103,3 +114,4 @@ console.timeEnd("bezier")
 
 console.log(x, v1);
 console.log(x, v3);
+console.log(x, v4);

@@ -88,8 +88,8 @@ var num = 100000;
 console.time("feng")
 for (let i = 0; i < num; i++)
 {
-    // var t = bezierCurve.getTFromValue(x, xs)[0];
-    var t = bezierCurve.getTFromValueAtRange(x, xs);
+    var t = bezierCurve.getTFromValue(x, xs)[0];
+    // var t = bezierCurve.getTFromValueAtRange(x, xs);
     var v3 = bezierCurve.getValue(t, ys);
 }
 console.timeEnd("feng")

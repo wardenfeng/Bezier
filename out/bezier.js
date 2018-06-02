@@ -323,9 +323,12 @@ var BezierCurve = /** @class */ (function () {
     };
     /**
      * 从存在解的区域进行插值值
+     *
+     * 该函数只能从单调区间内查找值，并且 targetV 处于该区间内
+     *
      * @param targetV 目标值
      * @param ps 点列表
-     * @param guessT 预估目标T值
+     * @param guessT 预估目标T值，单调区间内的一个预估值
      * @param maxIterations 最大迭代次数
      */
     BezierCurve.prototype.getTFromValueAtRange = function (targetV, ps, guessT, maxIterations) {
@@ -597,8 +600,8 @@ var x = Math.random();
 var num = 100000;
 console.time("feng");
 for (var i = 0; i < num; i++) {
-    // var t = bezierCurve.getTFromValue(x, xs)[0];
-    var t = bezierCurve.getTFromValueAtRange(x, xs);
+    var t = bezierCurve.getTFromValue(x, xs)[0];
+    // var t = bezierCurve.getTFromValueAtRange(x, xs);
     var v3 = bezierCurve.getValue(t, ys);
 }
 console.timeEnd("feng");

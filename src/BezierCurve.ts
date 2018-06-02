@@ -368,9 +368,12 @@ class BezierCurve
 
     /**
      * 从存在解的区域进行插值值
+     * 
+     * 该函数只能从单调区间内查找值，并且 targetV 处于该区间内
+     * 
      * @param targetV 目标值
      * @param ps 点列表
-     * @param guessT 预估目标T值
+     * @param guessT 预估目标T值，单调区间内的一个预估值
      * @param maxIterations 最大迭代次数
      */
     getTFromValueAtRange(targetV: number, ps: number[], guessT: number = 0, maxIterations = 4)

@@ -287,32 +287,6 @@ class BezierCurve
         return v;
     }
 
-    getValue(t: number, numbers: number[])
-    {
-        // if (this.map[t] != undefined)
-        //     return this.map[t];
-        // var v = this.curve(t, this.numbers);
-        var v = this.curve2(t, numbers);
-        // this.map[t] = v;
-        return v;
-    }
-
-
-
-    // curve(t: number, numbers: number[]): number
-    // {
-    //     if (numbers.length == 2)
-    //     {
-    //         return (1 - t) * numbers[0] + t * numbers[1];
-    //     }
-    //     var newpoints: number[] = [];
-    //     for (let i = 0, end = numbers.length - 1; i < end; i++)
-    //     {
-    //         newpoints.push(this.curve(t, [numbers[i], numbers[i + 1]]));
-    //     }
-    //     return this.curve(t, newpoints);
-    // }
-
     curve2(t: number, ps: number[]): number
     {
         return this.cubic(t, ps[0], ps[1], ps[2], ps[3]);
@@ -328,7 +302,7 @@ class BezierCurve
         var x1 = numbers[numbers.length - 1];
 
         var mt = mt = t0 + (t1 - t0) * (targetX - x0) / (x1 - x0);
-        var mv = this.getValue(mt, numbers);
+        var mv = this.curve2(mt, numbers);
         // console.assert((x0 - targetX) * (x1 - targetX) < 0, `targetX 必须在 起点终点之间！`);
 
         var i = 0;
@@ -336,7 +310,7 @@ class BezierCurve
         {
             // 进行线性插值预估目标位置
             mt = t0 + (t1 - t0) * (targetX - x0) / (x1 - x0);
-            mv = this.getValue(mt, numbers);
+            mv = this.curve2(mt, numbers);
             if ((x0 - targetX) * (mv - targetX) < 0)
             {
                 t1 = mt;

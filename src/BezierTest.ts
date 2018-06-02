@@ -89,7 +89,7 @@ console.time("feng")
 for (let i = 0; i < num; i++)
 {
     var t = bezierCurve.findTatValue(x, xs);
-    var v3 = bezierCurve.getValue(t, ys);
+    var v3 = bezierCurve.curve2(t, ys);
 }
 console.timeEnd("feng")
 

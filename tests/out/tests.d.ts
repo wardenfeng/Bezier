@@ -176,7 +176,6 @@ declare class BezierCurve {
      * @param ps 点列表     ps.length == n+1
      */
     bnND(t: number, dn: number, ps: number[]): number;
-    getValue(t: number, numbers: number[]): number;
     curve2(t: number, ps: number[]): number;
     findTatValue(targetX: number, numbers: number[]): any;
     getCurveSamples1(ps: number[], num?: number): number[];

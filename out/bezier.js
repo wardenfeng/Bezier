@@ -6,11 +6,43 @@ var SUBDIVISION_PRECISION = 0.0000001;
  * 细分最大迭代次数
  */
 var SUBDIVISION_MAX_ITERATIONS = 10;
-var curve;
-var Curve = /** @class */ (function () {
-    function Curve() {
+var bezierCurve;
+/**
+ * 贝塞尔曲线
+ * @see https://en.wikipedia.org/wiki/B%C3%A9zier_curve
+ */
+var BezierCurve = /** @class */ (function () {
+    function BezierCurve() {
     }
-    Curve.prototype.getValue = function (t, numbers) {
+    /**
+     * 线性Bézier曲线
+     * 给定不同的点P0和P1，线性Bézier曲线就是这两个点之间的直线。曲线由下式给出
+     * ```
+     * B(t) = p0 + t * (p1 - p0) = (1 - t) * p0 + t * p1 , 0 <= t && t <= 1
+     * ```
+     * 相当于线性插值
+     *
+     * @param t 插值度 0<=t<=1
+     * @param p0 点1
+     * @param p1 点2
+     */
+    BezierCurve.prototype.linear = function (t, p0, p1) {
+        return p0 + t * (p1 - p0);
+        // return (1 - t) * p0 + t * p1;
+    };
+    /**
+     * 二次Bézier曲线
+     * 二次Bézier曲线是由函数B（t）跟踪的路径，给定点P0，P1和P2，
+     *
+     *
+     * @param t 插值度
+     * @param p0 点1
+     * @param p1 点2
+     * @param p2 点3
+     */
+    BezierCurve.prototype.quadratic = function (t, p0, p1, p2) {
+    };
+    BezierCurve.prototype.getValue = function (t, numbers) {
         // if (this.map[t] != undefined)
         //     return this.map[t];
         // var v = this.curve(t, this.numbers);
@@ -18,7 +50,7 @@ var Curve = /** @class */ (function () {
         // this.map[t] = v;
         return v;
     };
-    Curve.prototype.curve = function (t, numbers) {
+    BezierCurve.prototype.curve = function (t, numbers) {
         numbers = numbers.concat();
         for (var i = numbers.length - 1; i > 1; i--) {
             for (var j = 0; j < j; j++) {
@@ -40,11 +72,11 @@ var Curve = /** @class */ (function () {
     //     }
     //     return this.curve(t, newpoints);
     // }
-    Curve.prototype.curve2 = function (t, ps) {
+    BezierCurve.prototype.curve2 = function (t, ps) {
         var t1 = 1 - t;
         return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
     };
-    Curve.prototype.findTatValue = function (targetX, numbers) {
+    BezierCurve.prototype.findTatValue = function (targetX, numbers) {
         var t0 = 0;
         var t1 = 1;
         var x0 = numbers[0];
@@ -68,7 +100,7 @@ var Curve = /** @class */ (function () {
         }
         return mt;
     };
-    Curve.prototype.getCurveSamples1 = function (ps, num) {
+    BezierCurve.prototype.getCurveSamples1 = function (ps, num) {
         if (num === void 0) { num = 100; }
         var results = [];
         for (var i = 0; i <= num; i++) {
@@ -77,9 +109,9 @@ var Curve = /** @class */ (function () {
         }
         return results;
     };
-    return Curve;
+    return BezierCurve;
 }());
-curve = new Curve();
+bezierCurve = new BezierCurve();
 /**
  * 贝塞尔曲线
  *
@@ -301,8 +333,8 @@ var points = getBezierSamples(bezier, 100);
 points = points.map(function (item) { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; });
 drawCurve(canvas, points, 'white', 9);
 //
-var xSamples = curve.getCurveSamples1(xs);
-var ySamples = curve.getCurveSamples1(ys);
+var xSamples = bezierCurve.getCurveSamples1(xs);
+var ySamples = bezierCurve.getCurveSamples1(ys);
 var points2 = [];
 for (var i = 0; i < xSamples.length; i++) {
     points2[i] = [xSamples[i] * canvas.width, (1 - ySamples[i]) * canvas.height];
@@ -312,8 +344,8 @@ var x = Math.random();
 var num = 100000;
 console.time("feng");
 for (var i = 0; i < num; i++) {
-    var t = curve.findTatValue(x, xs);
-    var v3 = curve.getValue(t, ys);
+    var t = bezierCurve.findTatValue(x, xs);
+    var v3 = bezierCurve.getValue(t, ys);
 }
 console.timeEnd("feng");
 console.time("bezier");

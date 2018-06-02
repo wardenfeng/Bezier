@@ -7,10 +7,47 @@ var SUBDIVISION_PRECISION = 0.0000001;
  */
 var SUBDIVISION_MAX_ITERATIONS = 10;
 
-var curve: Curve;
+var bezierCurve: BezierCurve;
 
-class Curve
+/**
+ * 贝塞尔曲线
+ * @see https://en.wikipedia.org/wiki/B%C3%A9zier_curve
+ */
+class BezierCurve
 {
+    /**
+     * 线性Bézier曲线
+     * 给定不同的点P0和P1，线性Bézier曲线就是这两个点之间的直线。曲线由下式给出
+     * ```
+     * B(t) = p0 + t * (p1 - p0) = (1 - t) * p0 + t * p1 , 0 <= t && t <= 1
+     * ```
+     * 相当于线性插值
+     * 
+     * @param t 插值度 0<=t<=1
+     * @param p0 点1
+     * @param p1 点2
+     */
+    linear(t: number, p0: number, p1: number)
+    {
+        return p0 + t * (p1 - p0);
+        // return (1 - t) * p0 + t * p1;
+    }
+
+    /**
+     * 二次Bézier曲线
+     * 二次Bézier曲线是由函数B（t）跟踪的路径，给定点P0，P1和P2，
+     * 
+     * 
+     * @param t 插值度
+     * @param p0 点1
+     * @param p1 点2
+     * @param p2 点3
+     */
+    quadratic(t: number, p0: number, p1: number, p2: number)
+    {
+
+    }
+
     getValue(t: number, numbers: number[])
     {
         // if (this.map[t] != undefined)
@@ -96,4 +133,4 @@ class Curve
     }
 }
 
-curve = new Curve();
+bezierCurve = new BezierCurve();

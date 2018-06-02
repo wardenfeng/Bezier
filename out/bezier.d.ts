@@ -6,8 +6,36 @@ declare var SUBDIVISION_PRECISION: number;
  * 细分最大迭代次数
  */
 declare var SUBDIVISION_MAX_ITERATIONS: number;
-declare var curve: Curve;
-declare class Curve {
+declare var bezierCurve: BezierCurve;
+/**
+ * 贝塞尔曲线
+ * @see https://en.wikipedia.org/wiki/B%C3%A9zier_curve
+ */
+declare class BezierCurve {
+    /**
+     * 线性Bézier曲线
+     * 给定不同的点P0和P1，线性Bézier曲线就是这两个点之间的直线。曲线由下式给出
+     * ```
+     * B(t) = p0 + t * (p1 - p0) = (1 - t) * p0 + t * p1 , 0 <= t && t <= 1
+     * ```
+     * 相当于线性插值
+     *
+     * @param t 插值度 0<=t<=1
+     * @param p0 点1
+     * @param p1 点2
+     */
+    linear(t: number, p0: number, p1: number): number;
+    /**
+     * 二次Bézier曲线
+     * 二次Bézier曲线是由函数B（t）跟踪的路径，给定点P0，P1和P2，
+     *
+     *
+     * @param t 插值度
+     * @param p0 点1
+     * @param p1 点2
+     * @param p2 点3
+     */
+    quadratic(t: number, p0: number, p1: number, p2: number): void;
     getValue(t: number, numbers: number[]): number;
     curve(t: number, numbers: number[]): number;
     curve2(t: number, ps: number[]): number;

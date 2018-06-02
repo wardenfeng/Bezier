@@ -194,12 +194,18 @@ var BezierCurve = /** @class */ (function () {
      */
     BezierCurve.prototype.bnD = function (t, ps) {
         ps = ps.concat();
-        //
+        // 进行
         for (var i = 0, n = ps.length - 1; i < n; i++) {
             ps[i] = ps[i + 1] - ps[i];
         }
+        //
         ps.length = ps.length - 1;
-        var v = ps.length * this.bn(t, ps);
+        for (var i = ps.length - 1; i > 0; i--) {
+            for (var j = 0; j < i; j++) {
+                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
+            }
+        }
+        var v = ps.length * ps[0];
         return v;
     };
     /**
@@ -214,13 +220,20 @@ var BezierCurve = /** @class */ (function () {
      */
     BezierCurve.prototype.bnSD = function (t, ps) {
         ps = ps.concat();
-        // n阶Bézier递推
-        for (var i = ps.length - 1; i > 2; i--) {
+        // 进行
+        for (var i = 0, n = ps.length - 1; i < n; i++) {
+            ps[i] = 2 * (ps[2] - 2 * ps[1] + ps[0]);
+            // ps[i] = ps[i + 1] - ps[i];
+        }
+        //
+        ps.length = ps.length - 1;
+        for (var i = ps.length - 1; i > 0; i--) {
             for (var j = 0; j < i; j++) {
                 ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
             }
         }
-        return 2 * (1 - t) * (ps[1] - ps[0]) + 2 * t * (ps[2] - ps[1]);
+        var v = ps.length * ps[0];
+        return v;
     };
     BezierCurve.prototype.getValue = function (t, numbers) {
         // if (this.map[t] != undefined)

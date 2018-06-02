@@ -181,6 +181,78 @@ class BezierCurve
         return 6 * (1 - t) * (p2 - 2 * p1 + p0) + 6 * t * (p3 - 2 * p2 + p1);
     }
 
+    /**
+     * n阶Bézier曲线
+     * 
+     * 一般定义
+     * 
+     * 贝塞尔曲线可以定义为任意度n。
+     * 
+     * @param t 插值度
+     * @param ps 点列表 ps.length == n+1
+     */
+    bn(t: number, ps: number[])
+    {
+        ps = ps.concat();
+        // n阶Bézier递推
+        for (let i = ps.length - 1; i > 1; i--)
+        {
+            for (let j = 0; j < j; j++)
+            {
+                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
+            }
+        }
+        return ps[0];
+    }
+
+    /**
+     * n阶Bézier曲线关于t的二阶导数
+     * 
+     * 一般定义
+     * 
+     * 贝塞尔曲线可以定义为任意度n。
+     * 
+     * @param t 插值度
+     * @param ps 点列表 ps.length == n+1
+     */
+    bnD(t: number, ps: number[])
+    {
+        ps = ps.concat();
+        // n阶Bézier递推
+        for (let i = ps.length - 2; i > 1; i--)
+        {
+            for (let j = 0; j < j; j++)
+            {
+                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
+            }
+        }
+        return ps[1] - ps[0];
+    }
+
+    /**
+     * n阶Bézier曲线关于t的导数
+     * 
+     * 一般定义
+     * 
+     * 贝塞尔曲线可以定义为任意度n。
+     * 
+     * @param t 插值度
+     * @param ps 点列表 ps.length == n+1
+     */
+    bnSD(t: number, ps: number[])
+    {
+        ps = ps.concat();
+        // n阶Bézier递推
+        for (let i = ps.length - 3; i > 1; i--)
+        {
+            for (let j = 0; j < j; j++)
+            {
+                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
+            }
+        }
+        return 2 * (1 - t) * (ps[1] - ps[0]) + 2 * t * (ps[2] - ps[1]);
+    }
+
 
 
     getValue(t: number, numbers: number[])
@@ -193,18 +265,7 @@ class BezierCurve
         return v;
     }
 
-    curve(t: number, numbers: number[]): number
-    {
-        numbers = numbers.concat();
-        for (let i = numbers.length - 1; i > 1; i--)
-        {
-            for (let j = 0; j < j; j++)
-            {
-                numbers[j] = (1 - t) * numbers[j] + t * numbers[j + 1];
-            }
-        }
-        return numbers[0];
-    }
+
 
     // curve(t: number, numbers: number[]): number
     // {
@@ -222,8 +283,9 @@ class BezierCurve
 
     curve2(t: number, ps: number[]): number
     {
-        var t1 = 1 - t;
-        return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
+        return this.cubic(t, ps[0], ps[1], ps[2], ps[3]);
+        // var t1 = 1 - t;
+        // return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
     }
 
     findTatValue(targetX: number, numbers: number[])

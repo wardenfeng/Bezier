@@ -133,8 +133,40 @@ declare class BezierCurve {
      * @param p2 点2
      */
     cubicSecondDerivative(t: number, p0: number, p1: number, p2: number, p3: number): number;
+    /**
+     * n阶Bézier曲线
+     *
+     * 一般定义
+     *
+     * 贝塞尔曲线可以定义为任意度n。
+     *
+     * @param t 插值度
+     * @param ps 点列表 ps.length == n+1
+     */
+    bn(t: number, ps: number[]): number;
+    /**
+     * n阶Bézier曲线关于t的二阶导数
+     *
+     * 一般定义
+     *
+     * 贝塞尔曲线可以定义为任意度n。
+     *
+     * @param t 插值度
+     * @param ps 点列表 ps.length == n+1
+     */
+    bnD(t: number, ps: number[]): number;
+    /**
+     * n阶Bézier曲线关于t的导数
+     *
+     * 一般定义
+     *
+     * 贝塞尔曲线可以定义为任意度n。
+     *
+     * @param t 插值度
+     * @param ps 点列表 ps.length == n+1
+     */
+    bnSD(t: number, ps: number[]): number;
     getValue(t: number, numbers: number[]): number;
-    curve(t: number, numbers: number[]): number;
     curve2(t: number, ps: number[]): number;
     findTatValue(targetX: number, numbers: number[]): any;
     getCurveSamples1(ps: number[], num?: number): number[];

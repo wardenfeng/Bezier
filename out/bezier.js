@@ -162,6 +162,66 @@ var BezierCurve = /** @class */ (function () {
         // return 3 * this.linear(t, this.quadraticSecondDerivative(t, p0, p1, p2), this.quadraticSecondDerivative(t, p1, p2, p3));
         return 6 * (1 - t) * (p2 - 2 * p1 + p0) + 6 * t * (p3 - 2 * p2 + p1);
     };
+    /**
+     * n阶Bézier曲线
+     *
+     * 一般定义
+     *
+     * 贝塞尔曲线可以定义为任意度n。
+     *
+     * @param t 插值度
+     * @param ps 点列表 ps.length == n+1
+     */
+    BezierCurve.prototype.bn = function (t, ps) {
+        ps = ps.concat();
+        // n阶Bézier递推
+        for (var i = ps.length - 1; i > 1; i--) {
+            for (var j = 0; j < j; j++) {
+                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
+            }
+        }
+        return ps[0];
+    };
+    /**
+     * n阶Bézier曲线关于t的二阶导数
+     *
+     * 一般定义
+     *
+     * 贝塞尔曲线可以定义为任意度n。
+     *
+     * @param t 插值度
+     * @param ps 点列表 ps.length == n+1
+     */
+    BezierCurve.prototype.bnD = function (t, ps) {
+        ps = ps.concat();
+        // n阶Bézier递推
+        for (var i = ps.length - 2; i > 1; i--) {
+            for (var j = 0; j < j; j++) {
+                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
+            }
+        }
+        return ps[1] - ps[0];
+    };
+    /**
+     * n阶Bézier曲线关于t的导数
+     *
+     * 一般定义
+     *
+     * 贝塞尔曲线可以定义为任意度n。
+     *
+     * @param t 插值度
+     * @param ps 点列表 ps.length == n+1
+     */
+    BezierCurve.prototype.bnSD = function (t, ps) {
+        ps = ps.concat();
+        // n阶Bézier递推
+        for (var i = ps.length - 3; i > 1; i--) {
+            for (var j = 0; j < j; j++) {
+                ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
+            }
+        }
+        return 2 * (1 - t) * (ps[1] - ps[0]) + 2 * t * (ps[2] - ps[1]);
+    };
     BezierCurve.prototype.getValue = function (t, numbers) {
         // if (this.map[t] != undefined)
         //     return this.map[t];
@@ -169,15 +229,6 @@ var BezierCurve = /** @class */ (function () {
         var v = this.curve2(t, numbers);
         // this.map[t] = v;
         return v;
-    };
-    BezierCurve.prototype.curve = function (t, numbers) {
-        numbers = numbers.concat();
-        for (var i = numbers.length - 1; i > 1; i--) {
-            for (var j = 0; j < j; j++) {
-                numbers[j] = (1 - t) * numbers[j] + t * numbers[j + 1];
-            }
-        }
-        return numbers[0];
     };
     // curve(t: number, numbers: number[]): number
     // {
@@ -193,8 +244,9 @@ var BezierCurve = /** @class */ (function () {
     //     return this.curve(t, newpoints);
     // }
     BezierCurve.prototype.curve2 = function (t, ps) {
-        var t1 = 1 - t;
-        return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
+        return this.cubic(t, ps[0], ps[1], ps[2], ps[3]);
+        // var t1 = 1 - t;
+        // return t1 * t1 * t1 * ps[0] + 3 * t1 * t1 * t * ps[1] + 3 * t1 * t * t * ps[2] + t * t * t * ps[3];
     };
     BezierCurve.prototype.findTatValue = function (targetX, numbers) {
         var t0 = 0;

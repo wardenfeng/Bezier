@@ -45,8 +45,46 @@
         var x = ev.clientX - rect.left;
         var y = ev.clientY - rect.top;
 
-        xs[editIndex] = x;
-        ys[editIndex] = y;
+        if (editIndex % 3 == 0) // 关键点
+        {
+            var offsetx = x - xs[editIndex];
+            var offsety = y - ys[editIndex];
+
+            xs[editIndex] = x;
+            ys[editIndex] = y;
+            // 同时以移动左边控制点
+            if (editIndex > 0)
+            {
+                xs[editIndex - 1] += offsetx;
+                ys[editIndex - 1] += offsety;
+            }
+            // 同时以移动右边控制点
+            if (editIndex + 1 < xs.length)
+            {
+                xs[editIndex + 1] += offsetx;
+                ys[editIndex + 1] += offsety;
+            }
+        } else if (editIndex % 3 == 1) // 右边控制点
+        {
+            xs[editIndex] = x;
+            ys[editIndex] = y;
+            // 改变左边控制点
+            if (editIndex - 2 > -1)
+            {
+                xs[editIndex - 2] = 2 * xs[editIndex - 1] - x;
+                ys[editIndex - 2] = 2 * ys[editIndex - 1] - y;
+            }
+        } else if (editIndex % 3 == 2) // 左边控制点
+        {
+            xs[editIndex] = x;
+            ys[editIndex] = y;
+            // 改变右边控制点
+            if (editIndex + 2 < xs.length)
+            {
+                xs[editIndex + 2] = 2 * xs[editIndex + 1] - x;
+                ys[editIndex + 2] = 2 * ys[editIndex + 1] - y;
+            }
+        }
     }
 
     function onMouseUp(ev: MouseEvent)
@@ -120,6 +158,11 @@
             // 自动新增两个控制点
             var cx0 = bezier.linear(1 / 3, lastx, x);
             var cy0 = bezier.linear(1 / 3, lasty, y);
+            if (xs.length - 2 > -1)
+            {
+                cx0 = lastx * 2 - xs[xs.length - 2];
+                cy0 = lasty * 2 - ys[ys.length - 2];
+            }
             var cx1 = bezier.linear(2 / 3, lastx, x);
             var cy1 = bezier.linear(2 / 3, lasty, y);
             //

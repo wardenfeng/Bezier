@@ -142,8 +142,8 @@ class CubicBezierCurve
         {
             extremumVs[i] = this.getValue(extremumTs[i]);
             // 增加单调区间
-            monotoneIntervalTs.splice(i, 0, extremumTs[i]);
-            monotoneIntervalVs.splice(i, 0, extremumVs[i]);
+            monotoneIntervalTs.splice(i + 1, 0, extremumTs[i]);
+            monotoneIntervalVs.splice(i + 2, 0, extremumVs[i]);
         }
         return { ts: monotoneIntervalTs, vs: monotoneIntervalVs };
     }

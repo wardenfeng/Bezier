@@ -1,9 +1,9 @@
 /**
- * 贝塞尔曲线
+ * Bézier曲线
  */
 declare var bezierCurve: BezierCurve;
 /**
- * 贝塞尔曲线
+ * Bézier曲线
  * @see https://en.wikipedia.org/wiki/B%C3%A9zier_curve
  *
  * @author feng / http://feng3d.com 03/06/2018
@@ -135,7 +135,7 @@ declare class BezierCurve {
      *
      * 一般定义
      *
-     * 贝塞尔曲线可以定义为任意度n。
+     * Bézier曲线可以定义为任意度n。
      *
      * @param t 插值度
      * @param ps 点列表 ps.length == n+1
@@ -146,7 +146,7 @@ declare class BezierCurve {
      *
      * 一般定义
      *
-     * 贝塞尔曲线可以定义为任意度n。
+     * Bézier曲线可以定义为任意度n。
      *
      * @param t 插值度
      * @param ps 点列表 ps.length == n+1
@@ -157,7 +157,7 @@ declare class BezierCurve {
      *
      * 一般定义
      *
-     * 贝塞尔曲线可以定义为任意度n。
+     * Bézier曲线可以定义为任意度n。
      *
      * @param t 插值度
      * @param ps 点列表 ps.length == n+1
@@ -166,7 +166,7 @@ declare class BezierCurve {
     /**
      * n次Bézier曲线关于t的dn阶导数
      *
-     * 贝塞尔曲线可以定义为任意度n。
+     * Bézier曲线可以定义为任意度n。
      *
      * @param t 插值度
      * @param dn 求导次数

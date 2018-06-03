@@ -1,15 +1,12 @@
 /**
- * 细分精度
+ * 贝塞尔曲线
  */
-declare var SUBDIVISION_PRECISION: number;
-/**
- * 细分最大迭代次数
- */
-declare var SUBDIVISION_MAX_ITERATIONS: number;
 declare var bezierCurve: BezierCurve;
 /**
  * 贝塞尔曲线
  * @see https://en.wikipedia.org/wiki/B%C3%A9zier_curve
+ *
+ * @author feng / http://feng3d.com 03/06/2018
  */
 declare class BezierCurve {
     /**
@@ -196,23 +193,35 @@ declare class BezierCurve {
     getSecondDerivative(t: number, ps: number[]): number;
     /**
      * 查找区间内极值所在插值度列表
+     *
      * @param ps 点列表
-     * @param numSamples 采样次数
-     * @param maxIterations 最大迭代次数
+     * @param numSamples 采样次数，用于分段查找极值
+     * @param precision  查找精度
+     * @param maxIterations  最大迭代次数
+     *
      * @returns 插值度列表
      */
-    getTAtExtremums(ps: number[], numSamples?: number, maxIterations?: number): number[];
+    getTAtExtremums(ps: number[], numSamples?: number, precision?: number, maxIterations?: number): number[];
+    /**
+     * 获取单调区间列表
+     * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
+     */
+    getMonotoneIntervals(ps: number[], numSamples?: number, precision?: number, maxIterations?: number): {
+        ts: number[];
+        vs: number[];
+    };
     /**
      * 获取目标值所在的插值度T
      *
      * @param targetV 目标值
      * @param ps 点列表
-     * @param startT 起始插值点
-     * @param endT 终止插值点
      * @param numSamples 分段数量，用于分段查找，用于解决寻找多个解、是否无解等问题；过少的分段可能会造成找不到存在的解决，过多的分段将会造成性能很差。
+     * @param precision  查找精度
+     * @param maxIterations  最大迭代次数
+     *
      * @returns 返回解数组
      */
-    getTFromValue(targetV: number, ps: number[], numSamples?: number): number[];
+    getTFromValue(targetV: number, ps: number[], numSamples?: number, precision?: number, maxIterations?: number): number[];
     /**
      * 从存在解的区域进行插值值
      *
@@ -221,9 +230,10 @@ declare class BezierCurve {
      * @param targetV 目标值
      * @param ps 点列表
      * @param guessT 预估目标T值，单调区间内的一个预估值
-     * @param maxIterations 最大迭代次数
+     * @param precision  查找精度
+     * @param maxIterations  最大迭代次数
      */
-    getTFromValueAtRange(targetV: number, ps: number[], guessT?: number, maxIterations?: number): number;
+    getTFromValueAtRange(targetV: number, ps: number[], guessT?: number, precision?: number, maxIterations?: number): number;
     /**
      * 获取曲线样本数据
      *
@@ -318,12 +328,10 @@ declare function newtonRaphsonIterate(aX: any, aGuessT: any, mX1: any, mX2: any)
  * 立方Bézier曲线
  *
  * 为了提升性能以及简化单独从BezierCurve提取出来。
+ *
+ * @author feng / http://feng3d.com 03/06/2018
  */
 declare class CubicBezierCurve {
-    /**
-     * 细分精度
-     */
-    private SUBDIVISION_PRECISION;
     /**
      * 起始点
      */
@@ -340,18 +348,6 @@ declare class CubicBezierCurve {
      * 终止点
      */
     private p3;
-    /**
-     * 最大迭代次数
-     */
-    private maxIterations;
-    /**
-     * 极值插值度列表
-     */
-    private extremumTs;
-    /**
-     * 极值列表
-     */
-    private extremumVs;
     /**
      * 单调区间插值点列表
      */
@@ -385,29 +381,45 @@ declare class CubicBezierCurve {
     getSecondDerivative(t: number): number;
     /**
      * 查找区间内极值所在插值度列表
-     * @param ps 点列表
+     *
      * @param numSamples 采样次数，用于分段查找极值
-     * @returns 插值度列表
+     * @param precision  查找精度
+     * @param maxIterations  最大迭代次数
+     *
+     * @returns 极值所在插值度列表
      */
-    getTAtExtremums(numSamples?: number): number[];
+    getTAtExtremums(numSamples?: number, precision?: number, maxIterations?: number): number[];
+    /**
+     * 获取单调区间列表
+     * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
+     */
+    getMonotoneIntervals(numSamples?: number, precision?: number, maxIterations?: number): {
+        ts: number[];
+        vs: number[];
+    };
     /**
      * 获取目标值所在的插值度T
      *
      * @param targetV 目标值
+     * @param precision  查找精度
+     * @param maxIterations  最大迭代次数
+     *
      * @returns 返回解数组
      */
-    getTFromValue(targetV: number): number[];
+    getTFromValue(targetV: number, precision?: number, maxIterations?: number): number[];
     /**
-     * 从存在解的区域进行插值值
+     * 从存在解的区域进行查找目标值的插值度
      *
      * 该函数只能从单调区间内查找值，并且 targetV 处于该区间内
      *
      * @param targetV 目标值
-     * @param ps 点列表
      * @param guessT 预估目标T值，单调区间内的一个预估值
-     * @param maxIterations 最大迭代次数
+     * @param precision  查找精度
+     * @param maxIterations  最大迭代次数
+     *
+     * @returns 目标值所在插值度
      */
-    getTFromValueAtRange(targetV: number, guessT?: number, maxIterations?: number): number;
+    getTFromValueAtRange(targetV: number, guessT?: number, precision?: number, maxIterations?: number): number;
     /**
      * 获取曲线样本数据
      *

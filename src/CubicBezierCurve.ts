@@ -2,14 +2,11 @@
  * 立方Bézier曲线
  * 
  * 为了提升性能以及简化单独从BezierCurve提取出来。
+ * 
+ * @author feng / http://feng3d.com 03/06/2018
  */
 class CubicBezierCurve
 {
-    /**
-     * 细分精度
-     */
-    private SUBDIVISION_PRECISION = 0.0000001;
-
     /**
      * 起始点
      */
@@ -27,21 +24,7 @@ class CubicBezierCurve
      */
     private p3: number;
 
-    /**
-     * 最大迭代次数
-     */
-    private maxIterations = 4;
-
     // cache
-    /**
-     * 极值插值度列表
-     */
-    private extremumTs: number[] = [];
-    /**
-     * 极值列表
-     */
-    private extremumVs: number[] = [];
-
     /**
      * 单调区间插值点列表
      */
@@ -65,21 +48,10 @@ class CubicBezierCurve
         this.p2 = p2;
         this.p3 = p3;
 
-        // 区间内的单调区间
-        this.monotoneIntervalTs = [0, 1];
-        this.monotoneIntervalVs = [p0, p3];
-        // 预先计算好极值
-        var results: number[] = this.getTAtExtremums();
-        this.extremumTs = results;
-        this.extremumVs = [];
-        for (let i = 0; i < results.length; i++)
-        {
-            this.extremumVs[i] = this.getValue(results[i]);
-            // 增加单调区间
-            this.monotoneIntervalTs.splice(i, 0, results[i]);
-            this.monotoneIntervalVs.splice(i, 0, this.extremumVs[i]);
-        }
-
+        // 缓存单调区间
+        var monotoneIntervals = this.getMonotoneIntervals();
+        this.monotoneIntervalTs = monotoneIntervals.ts;
+        this.monotoneIntervalVs = monotoneIntervals.vs;
     }
 
     /**
@@ -111,11 +83,14 @@ class CubicBezierCurve
 
     /**
      * 查找区间内极值所在插值度列表
-     * @param ps 点列表
+     * 
      * @param numSamples 采样次数，用于分段查找极值
-     * @returns 插值度列表
+     * @param precision  查找精度
+     * @param maxIterations  最大迭代次数
+     * 
+     * @returns 极值所在插值度列表
      */
-    getTAtExtremums(numSamples = 10)
+    getTAtExtremums(numSamples = 10, precision = 0.0000001, maxIterations = 4)
     {
         // 预先计算分段斜率值
         var sampleDerivatives = [];
@@ -139,7 +114,7 @@ class CubicBezierCurve
             var guessT = resultRanges[i];
             var derivative = this.getDerivative(guessT);
             var j = 0;
-            while (Math.abs(derivative) > this.SUBDIVISION_PRECISION && j++ < this.maxIterations)
+            while (Math.abs(derivative) > precision && j++ < maxIterations)
             {
                 // 使用斜率进行预估目标位置
                 var slope = this.getSecondDerivative(guessT);
@@ -154,12 +129,37 @@ class CubicBezierCurve
     }
 
     /**
+     * 获取单调区间列表
+     * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
+     */
+    getMonotoneIntervals(numSamples = 10, precision = 0.0000001, maxIterations = 4)
+    {
+        // 区间内的单调区间
+        var monotoneIntervalTs = [0, 1];
+        var monotoneIntervalVs = [this.p0, this.p3];
+        // 预先计算好极值
+        var extremumTs = this.getTAtExtremums(numSamples, precision, maxIterations);
+        var extremumVs: number[] = [];
+        for (let i = 0; i < extremumTs.length; i++)
+        {
+            extremumVs[i] = this.getValue(extremumTs[i]);
+            // 增加单调区间
+            monotoneIntervalTs.splice(i, 0, extremumTs[i]);
+            monotoneIntervalVs.splice(i, 0, extremumVs[i]);
+        }
+        return { ts: monotoneIntervalTs, vs: monotoneIntervalVs };
+    }
+
+    /**
      * 获取目标值所在的插值度T
      * 
      * @param targetV 目标值
+     * @param precision  查找精度
+     * @param maxIterations  最大迭代次数
+     * 
      * @returns 返回解数组
      */
-    getTFromValue(targetV: number)
+    getTFromValue(targetV: number, precision = 0.0000001, maxIterations = 4)
     {
         var monotoneIntervalTs = this.monotoneIntervalTs;
         var monotoneIntervalVs = this.monotoneIntervalVs;
@@ -177,28 +177,30 @@ class CubicBezierCurve
         var results: number[] = [];
         for (let i = 0, n = guessTs.length; i < n; i++)
         {
-            var result = this.getTFromValueAtRange(targetV, guessTs[i]);
+            var result = this.getTFromValueAtRange(targetV, guessTs[i], precision, maxIterations);
             results.push(result);
         }
         return results;
     }
 
     /**
-     * 从存在解的区域进行插值值
+     * 从存在解的区域进行查找目标值的插值度
      * 
      * 该函数只能从单调区间内查找值，并且 targetV 处于该区间内
      * 
      * @param targetV 目标值
-     * @param ps 点列表
      * @param guessT 预估目标T值，单调区间内的一个预估值
-     * @param maxIterations 最大迭代次数
+     * @param precision  查找精度
+     * @param maxIterations  最大迭代次数
+     * 
+     * @returns 目标值所在插值度
      */
-    getTFromValueAtRange(targetV: number, guessT: number = 0, maxIterations = 4)
+    getTFromValueAtRange(targetV: number, guessT: number = 0, precision = 0.0000001, maxIterations = 4)
     {
         var middleV = this.getValue(guessT);
 
         var i = 0;
-        while (Math.abs(middleV - targetV) > this.SUBDIVISION_PRECISION && i++ < maxIterations)
+        while (Math.abs(middleV - targetV) > precision && i++ < maxIterations)
         {
             // 使用斜率进行预估目标位置
             var slope = this.getDerivative(guessT);

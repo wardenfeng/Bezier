@@ -5,18 +5,10 @@
     window.addEventListener("mousedown", onMouseDown);
     // 第一条曲线  [0,3] 
     // 第二条曲线  [3,6] 
-    var xs = [
-        Math.random() * canvas.width,
-        Math.random() * canvas.width,
-        Math.random() * canvas.width,
-        Math.random() * canvas.width,
-    ];
-    var ys = [
-        Math.random() * canvas.height,
-        Math.random() * canvas.height,
-        Math.random() * canvas.height,
-        Math.random() * canvas.height,
-    ];
+    var xs = [];
+    var ys = [];
+    addPoint(Math.random() * canvas.width, Math.random() * canvas.height);
+    addPoint(Math.random() * canvas.width, Math.random() * canvas.height);
     var editIndex = -1;
     var editing = false;
     var mousedownxy = { x: -1, y: -1 };
@@ -60,10 +52,10 @@
             return;
         }
         var index = findPoint(x, y);
-        if (index != -1) {
+        if (index % 3 == 0) {
             deletePoint(index);
         }
-        else {
+        else if (index == -1) {
             addPoint(x, y);
         }
         window.removeEventListener("mousemove", onMouseMove);
@@ -71,19 +63,43 @@
     }
     function findPoint(x, y) {
         for (var i = 0; i < xs.length; i++) {
-            if (Math.abs(xs[i] - x) < 5 && Math.abs(ys[i] - y) < 20) {
+            if (Math.abs(xs[i] - x) < 16 && Math.abs(ys[i] - y) < 16) {
                 return i;
             }
         }
         return -1;
     }
     function deletePoint(index) {
-        xs.splice(index, 1);
-        ys.splice(index, 1);
+        if (index == 0) {
+            xs.splice(index, 3);
+            ys.splice(index, 3);
+        }
+        else if (index == xs.length - 1) {
+            xs.splice(index - 2, 3);
+            ys.splice(index - 2, 3);
+        }
+        else {
+            xs.splice(index - 1, 3);
+            ys.splice(index - 1, 3);
+        }
     }
     function addPoint(x, y) {
-        xs.push(x);
-        ys.push(y);
+        if (xs.length > 0) {
+            var lastx = xs[xs.length - 1];
+            var lasty = ys[ys.length - 1];
+            // 自动新增两个控制点
+            var cx0 = bezier.linear(1 / 3, lastx, x);
+            var cy0 = bezier.linear(1 / 3, lasty, y);
+            var cx1 = bezier.linear(2 / 3, lastx, x);
+            var cy1 = bezier.linear(2 / 3, lasty, y);
+            //
+            xs.push(cx0, cx1, x);
+            ys.push(cy0, cy1, y);
+        }
+        else {
+            xs.push(x);
+            ys.push(y);
+        }
     }
     requestAnimationFrame(draw);
     function draw() {

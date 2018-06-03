@@ -1,15 +1,15 @@
 /**
  * Bézier曲线
  */
-var bezierCurve;
+var bezier;
 /**
  * Bézier曲线
  * @see https://en.wikipedia.org/wiki/B%C3%A9zier_curve
  *
  * @author feng / http://feng3d.com 03/06/2018
  */
-var BezierCurve = /** @class */ (function () {
-    function BezierCurve() {
+var Bezier = /** @class */ (function () {
+    function Bezier() {
     }
     /**
      * 线性Bézier曲线
@@ -23,7 +23,7 @@ var BezierCurve = /** @class */ (function () {
      * @param p0 点0
      * @param p1 点1
      */
-    BezierCurve.prototype.linear = function (t, p0, p1) {
+    Bezier.prototype.linear = function (t, p0, p1) {
         return p0 + t * (p1 - p0);
         // return (1 - t) * p0 + t * p1;
     };
@@ -33,7 +33,7 @@ var BezierCurve = /** @class */ (function () {
      * @param p0 点0
      * @param p1 点1
      */
-    BezierCurve.prototype.linearDerivative = function (t, p0, p1) {
+    Bezier.prototype.linearDerivative = function (t, p0, p1) {
         return p1 - p0;
     };
     /**
@@ -42,7 +42,7 @@ var BezierCurve = /** @class */ (function () {
      * @param p0 点0
      * @param p1 点1
      */
-    BezierCurve.prototype.linearSecondDerivative = function (t, p0, p1) {
+    Bezier.prototype.linearSecondDerivative = function (t, p0, p1) {
         return 0;
     };
     /**
@@ -72,7 +72,7 @@ var BezierCurve = /** @class */ (function () {
      * @param p1 点1
      * @param p2 点2
      */
-    BezierCurve.prototype.quadratic = function (t, p0, p1, p2) {
+    Bezier.prototype.quadratic = function (t, p0, p1, p2) {
         // return this.linear(t, this.linear(t, p0, p1), this.linear(t, p1, p2));
         // return (1 - t) * ((1 - t) * p0 + t * p1) + t * ((1 - t) * p1 + t * p2);
         return (1 - t) * (1 - t) * p0 + 2 * (1 - t) * t * p1 + t * t * p2;
@@ -84,7 +84,7 @@ var BezierCurve = /** @class */ (function () {
      * @param p1 点1
      * @param p2 点2
      */
-    BezierCurve.prototype.quadraticDerivative = function (t, p0, p1, p2) {
+    Bezier.prototype.quadraticDerivative = function (t, p0, p1, p2) {
         // return 2 * this.linear(t, this.linearDerivative(t, p0, p1), this.linearDerivative(t, p1, p2));
         return 2 * (1 - t) * (p1 - p0) + 2 * t * (p2 - p1);
     };
@@ -95,7 +95,7 @@ var BezierCurve = /** @class */ (function () {
      * @param p1 点1
      * @param p2 点2
      */
-    BezierCurve.prototype.quadraticSecondDerivative = function (t, p0, p1, p2) {
+    Bezier.prototype.quadraticSecondDerivative = function (t, p0, p1, p2) {
         // return 1 * 2 * this.linearDerivative(t, p1 - p0, p2 - p1)
         // return 1 * 2 * ((p2 - p1) - (p1 - p0));
         return 2 * (p2 - 2 * p1 + p0);
@@ -132,7 +132,7 @@ var BezierCurve = /** @class */ (function () {
      * @param p2 点2
      * @param p3 点3
      */
-    BezierCurve.prototype.cubic = function (t, p0, p1, p2, p3) {
+    Bezier.prototype.cubic = function (t, p0, p1, p2, p3) {
         // return this.linear(t, this.quadratic(t, p0, p1, p2), this.quadratic(t, p1, p2, p3));
         return (1 - t) * (1 - t) * (1 - t) * p0 + 3 * (1 - t) * (1 - t) * t * p1 + 3 * (1 - t) * t * t * p2 + t * t * t * p3;
     };
@@ -144,7 +144,7 @@ var BezierCurve = /** @class */ (function () {
      * @param p2 点2
      * @param p3 点3
      */
-    BezierCurve.prototype.cubicDerivative = function (t, p0, p1, p2, p3) {
+    Bezier.prototype.cubicDerivative = function (t, p0, p1, p2, p3) {
         // return 3 * this.linear(t, this.quadraticDerivative(t, p0, p1, p2), this.quadraticDerivative(t, p1, p2, p3));
         return 3 * (1 - t) * (1 - t) * (p1 - p0) + 6 * (1 - t) * t * (p2 - p1) + 3 * t * t * (p3 - p2);
     };
@@ -155,7 +155,7 @@ var BezierCurve = /** @class */ (function () {
      * @param p1 点1
      * @param p2 点2
      */
-    BezierCurve.prototype.cubicSecondDerivative = function (t, p0, p1, p2, p3) {
+    Bezier.prototype.cubicSecondDerivative = function (t, p0, p1, p2, p3) {
         // return 3 * this.linear(t, this.quadraticSecondDerivative(t, p0, p1, p2), this.quadraticSecondDerivative(t, p1, p2, p3));
         return 6 * (1 - t) * (p2 - 2 * p1 + p0) + 6 * t * (p3 - 2 * p2 + p1);
     };
@@ -169,7 +169,7 @@ var BezierCurve = /** @class */ (function () {
      * @param t 插值度
      * @param ps 点列表 ps.length == n+1
      */
-    BezierCurve.prototype.bn = function (t, ps) {
+    Bezier.prototype.bn = function (t, ps) {
         ps = ps.concat();
         // n次Bézier递推
         for (var i = ps.length - 1; i > 0; i--) {
@@ -189,7 +189,7 @@ var BezierCurve = /** @class */ (function () {
      * @param t 插值度
      * @param ps 点列表 ps.length == n+1
      */
-    BezierCurve.prototype.bnDerivative = function (t, ps) {
+    Bezier.prototype.bnDerivative = function (t, ps) {
         if (ps.length < 2)
             return 0;
         ps = ps.concat();
@@ -212,7 +212,7 @@ var BezierCurve = /** @class */ (function () {
      * @param t 插值度
      * @param ps 点列表 ps.length == n+1
      */
-    BezierCurve.prototype.bnSecondDerivative = function (t, ps) {
+    Bezier.prototype.bnSecondDerivative = function (t, ps) {
         if (ps.length < 3)
             return 0;
         ps = ps.concat();
@@ -234,7 +234,7 @@ var BezierCurve = /** @class */ (function () {
      * @param dn 求导次数
      * @param ps 点列表     ps.length == n+1
      */
-    BezierCurve.prototype.bnND = function (t, dn, ps) {
+    Bezier.prototype.bnND = function (t, dn, ps) {
         if (ps.length < dn + 1)
             return 0;
         var factorial = 1;
@@ -256,7 +256,7 @@ var BezierCurve = /** @class */ (function () {
      * @param t 插值度
      * @param ps 点列表
      */
-    BezierCurve.prototype.getValue = function (t, ps) {
+    Bezier.prototype.getValue = function (t, ps) {
         if (ps.length == 2) {
             return this.linear(t, ps[0], ps[1]);
         }
@@ -275,7 +275,7 @@ var BezierCurve = /** @class */ (function () {
      * @param t 插值度
      * @param ps 点列表
      */
-    BezierCurve.prototype.getDerivative = function (t, ps) {
+    Bezier.prototype.getDerivative = function (t, ps) {
         if (ps.length == 2) {
             return this.linearDerivative(t, ps[0], ps[1]);
         }
@@ -293,7 +293,7 @@ var BezierCurve = /** @class */ (function () {
      * @param t 插值度
      * @param ps 点列表
      */
-    BezierCurve.prototype.getSecondDerivative = function (t, ps) {
+    Bezier.prototype.getSecondDerivative = function (t, ps) {
         if (ps.length == 2) {
             return this.linearSecondDerivative(t, ps[0], ps[1]);
         }
@@ -315,7 +315,7 @@ var BezierCurve = /** @class */ (function () {
      *
      * @returns 插值度列表
      */
-    BezierCurve.prototype.getTAtExtremums = function (ps, numSamples, precision) {
+    Bezier.prototype.getTAtExtremums = function (ps, numSamples, precision) {
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
         var samples = [];
@@ -353,7 +353,7 @@ var BezierCurve = /** @class */ (function () {
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
      */
-    BezierCurve.prototype.getMonotoneIntervals = function (ps, numSamples, precision) {
+    Bezier.prototype.getMonotoneIntervals = function (ps, numSamples, precision) {
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
         // 区间内的单调区间
@@ -380,7 +380,7 @@ var BezierCurve = /** @class */ (function () {
      *
      * @returns 返回解数组
      */
-    BezierCurve.prototype.getTFromValue = function (targetV, ps, numSamples, precision) {
+    Bezier.prototype.getTFromValue = function (targetV, ps, numSamples, precision) {
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
         // 获取单调区间
@@ -412,7 +412,7 @@ var BezierCurve = /** @class */ (function () {
      * @param guessT 预估目标T值，单调区间内的一个预估值
      * @param precision  查找精度
      */
-    BezierCurve.prototype.getTFromValueAtRange = function (targetV, ps, guessT, precision) {
+    Bezier.prototype.getTFromValueAtRange = function (targetV, ps, guessT, precision) {
         if (guessT === void 0) { guessT = 0; }
         if (precision === void 0) { precision = 0.0000001; }
         var middleV = this.getValue(guessT, ps);
@@ -434,7 +434,7 @@ var BezierCurve = /** @class */ (function () {
      * @param ps 点列表
      * @param num 采样次数 ，采样点分别为[0,1/num,2/num,....,(num-1)/num,1]
      */
-    BezierCurve.prototype.getSamples = function (ps, num) {
+    Bezier.prototype.getSamples = function (ps, num) {
         if (num === void 0) { num = 100; }
         var results = [];
         for (var i = 0; i <= num; i++) {
@@ -443,129 +443,129 @@ var BezierCurve = /** @class */ (function () {
         }
         return results;
     };
-    return BezierCurve;
+    return Bezier;
 }());
-bezierCurve = new BezierCurve();
+bezier = new Bezier();
 QUnit.module("BezierCurve", function () {
     // 允许误差
     var deviation = 0.0000001;
     QUnit.test("bn linear ，使用n次Bézier计算一次Bézier曲线", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random()];
-        var v0 = bezierCurve.linear(t, ps[0], ps[1]);
-        var v1 = bezierCurve.bn(t, ps);
+        var v0 = bezier.linear(t, ps[0], ps[1]);
+        var v1 = bezier.bn(t, ps);
         assert.ok(Math.abs(v0 - v1) < deviation);
     });
     QUnit.test("bn quadratic ，使用n次Bézier计算二次Bézier曲线", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random(), Math.random()];
-        var v0 = bezierCurve.quadratic(t, ps[0], ps[1], ps[2]);
-        var v1 = bezierCurve.bn(t, ps);
+        var v0 = bezier.quadratic(t, ps[0], ps[1], ps[2]);
+        var v1 = bezier.bn(t, ps);
         assert.ok(Math.abs(v0 - v1) < deviation);
     });
     QUnit.test("bn cubic ，使用n次Bézier计算三次Bézier曲线", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
-        var v0 = bezierCurve.cubic(t, ps[0], ps[1], ps[2], ps[3]);
-        var v1 = bezierCurve.bn(t, ps);
+        var v0 = bezier.cubic(t, ps[0], ps[1], ps[2], ps[3]);
+        var v1 = bezier.bn(t, ps);
         assert.ok(Math.abs(v0 - v1) < deviation);
-        var v2 = bezierCurve.getValue(t, ps);
+        var v2 = bezier.getValue(t, ps);
         assert.ok(Math.abs(v0 - v2) < deviation);
     });
     QUnit.test("bnD linearDerivative ，使用n次Bézier导数计算一次Bézier曲线导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.linearDerivative(t, ps[0], ps[1]);
-        var d1 = bezierCurve.bnDerivative(t, ps);
+        var d0 = bezier.linearDerivative(t, ps[0], ps[1]);
+        var d1 = bezier.bnDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("bnD quadraticDerivative ，使用n次Bézier导数计算二次Bézier曲线导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.quadraticDerivative(t, ps[0], ps[1], ps[2]);
-        var d1 = bezierCurve.bnDerivative(t, ps);
+        var d0 = bezier.quadraticDerivative(t, ps[0], ps[1], ps[2]);
+        var d1 = bezier.bnDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("bnD cubicDerivative ，使用n次Bézier导数计算三次Bézier曲线导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.cubicDerivative(t, ps[0], ps[1], ps[2], ps[3]);
-        var d1 = bezierCurve.bnDerivative(t, ps);
+        var d0 = bezier.cubicDerivative(t, ps[0], ps[1], ps[2], ps[3]);
+        var d1 = bezier.bnDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("bnSD linearSecondDerivative ，使用n次Bézier二阶导数计算一次Bézier曲线二阶导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.linearSecondDerivative(t, ps[0], ps[1]);
-        var d1 = bezierCurve.bnSecondDerivative(t, ps);
+        var d0 = bezier.linearSecondDerivative(t, ps[0], ps[1]);
+        var d1 = bezier.bnSecondDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("bnSD quadraticSecondDerivative ，使用n次Bézier二阶导数计算二次Bézier曲线二阶导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.quadraticSecondDerivative(t, ps[0], ps[1], ps[2]);
-        var d1 = bezierCurve.bnSecondDerivative(t, ps);
+        var d0 = bezier.quadraticSecondDerivative(t, ps[0], ps[1], ps[2]);
+        var d1 = bezier.bnSecondDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("bnSD cubicSecondDerivative ，使用n次Bézier二阶导数计算三次Bézier曲线二阶导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.cubicSecondDerivative(t, ps[0], ps[1], ps[2], ps[3]);
-        var d1 = bezierCurve.bnSecondDerivative(t, ps);
+        var d0 = bezier.cubicSecondDerivative(t, ps[0], ps[1], ps[2], ps[3]);
+        var d1 = bezier.bnSecondDerivative(t, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("bnND linearDerivative ，使用n次BézierN阶导数计算一次Bézier曲线导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.linearDerivative(t, ps[0], ps[1]);
-        var d1 = bezierCurve.bnND(t, 1, ps);
+        var d0 = bezier.linearDerivative(t, ps[0], ps[1]);
+        var d1 = bezier.bnND(t, 1, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("bnND quadraticDerivative ，使用n次BézierN阶导数计算二次Bézier曲线导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.quadraticDerivative(t, ps[0], ps[1], ps[2]);
-        var d1 = bezierCurve.bnND(t, 1, ps);
+        var d0 = bezier.quadraticDerivative(t, ps[0], ps[1], ps[2]);
+        var d1 = bezier.bnND(t, 1, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("bnND cubicDerivative ，使用n次BézierN阶导数计算三次Bézier曲线导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.cubicDerivative(t, ps[0], ps[1], ps[2], ps[3]);
-        var d1 = bezierCurve.bnND(t, 1, ps);
+        var d0 = bezier.cubicDerivative(t, ps[0], ps[1], ps[2], ps[3]);
+        var d1 = bezier.bnND(t, 1, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("bnND linearSecondDerivative ，使用n次BézierN阶导数计算一次Bézier曲线二阶导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.linearSecondDerivative(t, ps[0], ps[1]);
-        var d1 = bezierCurve.bnND(t, 2, ps);
+        var d0 = bezier.linearSecondDerivative(t, ps[0], ps[1]);
+        var d1 = bezier.bnND(t, 2, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("bnND quadraticSecondDerivative ，使用n次BézierN阶导数计算二次Bézier曲线二阶导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.quadraticSecondDerivative(t, ps[0], ps[1], ps[2]);
-        var d1 = bezierCurve.bnND(t, 2, ps);
+        var d0 = bezier.quadraticSecondDerivative(t, ps[0], ps[1], ps[2]);
+        var d1 = bezier.bnND(t, 2, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("bnND cubicSecondDerivative ，使用n次BézierN阶导数计算三次Bézier曲线二阶导数", function (assert) {
         var t = Math.random();
         var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
         // 导数
-        var d0 = bezierCurve.cubicSecondDerivative(t, ps[0], ps[1], ps[2], ps[3]);
-        var d1 = bezierCurve.bnND(t, 2, ps);
+        var d0 = bezier.cubicSecondDerivative(t, ps[0], ps[1], ps[2], ps[3]);
+        var d1 = bezier.bnND(t, 2, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
     QUnit.test("getTAtExtremums ，查找区间内极值所在插值度列表 ", function (assert) {
@@ -577,22 +577,22 @@ QUnit.module("BezierCurve", function () {
                 ps.push(Math.random());
             }
             // 查找区间内极值所在插值度列表
-            var extremumXs = bezierCurve.getTAtExtremums(ps, 20, deviation);
+            var extremumXs = bezier.getTAtExtremums(ps, 20, deviation);
             for (var i = 0, n_1 = extremumXs.length; i < n_1; i++) {
                 // 极值
-                var extremum = bezierCurve.getValue(extremumXs[i], ps);
+                var extremum = bezier.getValue(extremumXs[i], ps);
                 // 极值前面的数据
                 var prex = extremumXs[i] - 0.001;
                 if (0 < i)
-                    prex = bezierCurve.linear(0.999, extremumXs[i - 1], extremumXs[i]);
-                var prev = bezierCurve.getValue(prex, ps);
+                    prex = bezier.linear(0.999, extremumXs[i - 1], extremumXs[i]);
+                var prev = bezier.getValue(prex, ps);
                 // 极值后面面的数据
                 var nextx = extremumXs[i] + 0.001;
                 if (i < n_1 - 1)
-                    nextx = bezierCurve.linear(0.001, extremumXs[i], extremumXs[i + 1]);
-                var nextv = bezierCurve.getValue(nextx, ps);
+                    nextx = bezier.linear(0.001, extremumXs[i], extremumXs[i + 1]);
+                var nextv = bezier.getValue(nextx, ps);
                 // 斜率
-                var derivative = bezierCurve.getDerivative(extremumXs[i], ps);
+                var derivative = bezier.getDerivative(extremumXs[i], ps);
                 assert.ok(Math.abs(derivative) < deviation, ps.length - 1 + "\u6B21B\u00E9zier\u66F2\u7EBF \u7B2C" + i + "\u4E2A\u89E3 \u6781\u503C\u4F4D\u7F6E\uFF1A" + extremumXs[i] + " \u659C\u7387\uFF1A " + derivative + " \n \u524D\u9762\u503C\uFF1A " + prev + " \n \u6781\u503C\uFF1A " + extremum + " \n \u540E\u9762\u7684\u503C " + nextv);
             }
         }
@@ -608,10 +608,10 @@ QUnit.module("BezierCurve", function () {
             }
             // 为了确保有解，去平均值
             var targetV = ps.reduce(function (pre, item) { return pre + item; }, 0) / ps.length;
-            var ts = bezierCurve.getTFromValue(targetV, ps, 10, deviation);
+            var ts = bezier.getTFromValue(targetV, ps, 10, deviation);
             if (ts.length > 0) {
                 for (var i = 0; i < ts.length; i++) {
-                    var tv = bezierCurve.getValue(ts[i], ps);
+                    var tv = bezier.getValue(ts[i], ps);
                     assert.ok(Math.abs(tv - targetV) < deviation, ps.length - 1 + "\u6B21B\u00E9zier\u66F2\u7EBF \u7B2C" + i + "\u4E2A\u89E3 \u76EE\u6807\u503C\uFF1A" + targetV + " \u67E5\u627E\u5230\u7684\u503C\uFF1A" + tv + " \u67E5\u627E\u5230\u7684\u4F4D\u7F6E\uFF1A" + ts[i]);
                 }
             }

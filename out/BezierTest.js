@@ -13,7 +13,7 @@ var xSamples = xBezier.getSamples();
 var ySamples = yBezier.getSamples();
 drawPointsCurve(canvas, xSamples, ySamples, "blue", 10);
 // 使用 bezierCurve 进行采样曲线点
-var xSamples = bezierCurve.getSamples(xs);
-var ySamples = bezierCurve.getSamples(ys);
+var xSamples = bezier.getSamples(xs);
+var ySamples = bezier.getSamples(ys);
 drawPointsCurve(canvas, xSamples, ySamples, "green", 5);
 //# sourceMappingURL=BezierTest.js.map

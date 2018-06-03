@@ -12,7 +12,7 @@
     //
     "libs/qunit/qunit.d.ts",
     //
-    "../src/math/BezierCurve.ts",
-    "BezierCurve.tests.ts"
+    "../src/math/Bezier.ts",
+    "Bezier.tests.ts"
   ]
 }

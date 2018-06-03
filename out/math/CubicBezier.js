@@ -184,4 +184,4 @@ var CubicBezierCurve = /** @class */ (function () {
     };
     return CubicBezierCurve;
 }());
-//# sourceMappingURL=CubicBezierCurve.js.map
+//# sourceMappingURL=CubicBezier.js.map

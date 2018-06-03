@@ -1,14 +1,14 @@
 /**
  * Bézier曲线
  */
-declare var bezierCurve: BezierCurve;
+declare var bezier: Bezier;
 /**
  * Bézier曲线
  * @see https://en.wikipedia.org/wiki/B%C3%A9zier_curve
  *
  * @author feng / http://feng3d.com 03/06/2018
  */
-declare class BezierCurve {
+declare class Bezier {
     /**
      * 线性Bézier曲线
      * 给定不同的点P0和P1，线性Bézier曲线就是这两个点之间的直线。曲线由下式给出

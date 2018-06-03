@@ -342,30 +342,48 @@ var Bezier = /** @class */ (function () {
         var resultVs = [];
         for (var i = 0, n = resultRanges.length; i < n; i++) {
             var range = resultRanges[i];
-            var startT = range[0];
-            var endT = range[1];
-            var startV = range[2];
-            var endV = range[3];
-            var dir = endV - startV;
-            //
-            var guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
-            var guessV = this.getDerivative(guessT, ps);
-            while (Math.abs(guessV) > precision) {
-                if (guessV * dir > 0) {
-                    endT = guessT;
-                    endV = guessV;
-                }
-                else {
-                    startT = guessT;
-                    startV = guessV;
-                }
-                guessT = guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
-                guessV = this.getDerivative(guessT, ps);
-            }
+            var guessT = this.getExtremumAtRange(0, ps, range[0], range[1], range[2], range[3], precision);
             resultTs.push(guessT);
             resultVs.push(this.getValue(guessT, ps));
         }
         return { ts: resultTs, vs: resultVs };
+    };
+    /**
+     * 在导数曲线单调区间内查找指定导数所在插值度
+     *
+     * @param targetD 目标斜率
+     * @param ps 点列表
+     * @param startT 起始插值点
+     * @param endT 终止插值点
+     * @param startV 起始值
+     * @param endV 终止值
+     * @param precision 插值精度
+     */
+    Bezier.prototype.getExtremumAtRange = function (targetD, ps, startT, endT, startV, endV, precision) {
+        if (precision === void 0) { precision = 0.0000001; }
+        var dir = endV - startV;
+        //
+        var guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
+        var guessV = this.getDerivative(guessT, ps);
+        var numTteration = 0;
+        while (Math.abs(guessV) > precision) {
+            if (guessV * dir > 0) {
+                endT = guessT;
+                endV = guessV;
+            }
+            else {
+                startT = guessT;
+                startV = guessV;
+            }
+            guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
+            guessV = this.getDerivative(guessT, ps);
+            numTteration++;
+            // if (numTteration > 5)
+            // {
+            //     debugger;
+            // }
+        }
+        return guessT;
     };
     /**
      * 获取单调区间列表
@@ -436,6 +454,7 @@ var Bezier = /** @class */ (function () {
         var dir = endv - startv;
         var guessT = start + (targetV - startv) / (endv - startv) * (end - start);
         var guessV = this.getValue(guessT, ps);
+        var numTteration = 0;
         while (Math.abs(guessV - targetV) > precision) {
             if ((guessV - targetV) * dir > 0) {
                 end = guessT;
@@ -448,6 +467,11 @@ var Bezier = /** @class */ (function () {
             // 使用斜率进行预估目标位置
             guessT = start + (targetV - startv) / (endv - startv) * (end - start);
             guessV = this.getValue(guessT, ps);
+            numTteration++;
+            // if (numTteration > 5)
+            // {
+            //     debugger;
+            // }
         }
         return guessT;
     };

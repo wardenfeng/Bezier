@@ -206,6 +206,18 @@ declare class Bezier {
         vs: number[];
     };
     /**
+     * 在导数曲线单调区间内查找指定导数所在插值度
+     *
+     * @param targetD 目标斜率
+     * @param ps 点列表
+     * @param startT 起始插值点
+     * @param endT 终止插值点
+     * @param startV 起始值
+     * @param endV 终止值
+     * @param precision 插值精度
+     */
+    getExtremumAtRange(targetD: number, ps: number[], startT: number, endT: number, startV: number, endV: number, precision?: number): number;
+    /**
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
      */

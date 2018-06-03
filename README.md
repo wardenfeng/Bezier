@@ -32,8 +32,9 @@ CubicBezier是最常用到的Bézier曲线，为了提升性能以及简化接�
 #### [单元测试](tests/index.html)
 
 #### [示例]
-1. [使用BezierCurve进行模拟canvas提供的 bezierCurveTo方法](BezierTest.html)
-```
+1. [使用BezierCurve进行模拟canvas提供的 bezierCurveTo方法](BezierCurveTo.html)
+
+``` typescript
 // 创建画布
 var canvas = createCanvas(100, 100, 400, 300);
 
@@ -58,3 +59,4 @@ var xSamples = bezier.getSamples(xs);
 var ySamples = bezier.getSamples(ys);
 drawPointsCurve(canvas, xSamples, ySamples, "green", 5);
 ```
+

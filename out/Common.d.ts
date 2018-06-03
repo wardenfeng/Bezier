@@ -3,7 +3,7 @@ declare function createCanvas(x?: number, y?: number, width?: number, height?: n
  * 清理画布
  * @param canvas 画布
  */
-declare function clearCanvas(canvas: HTMLCanvasElement): void;
+declare function clearCanvas(canvas: HTMLCanvasElement, fillStyle?: string): void;
 /**
  * 绘制曲线
  * @param canvas 画布

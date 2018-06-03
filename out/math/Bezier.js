@@ -168,13 +168,21 @@ var Bezier = /** @class */ (function () {
      *
      * @param t 插值度
      * @param ps 点列表 ps.length == n+1
+     * @param processs 收集中间过程数据，可用作Bézier曲线动画数据
      */
-    Bezier.prototype.bn = function (t, ps) {
+    Bezier.prototype.bn = function (t, ps, processs) {
+        if (processs === void 0) { processs = null; }
         ps = ps.concat();
+        if (processs)
+            processs.push(ps.concat());
         // n次Bézier递推
         for (var i = ps.length - 1; i > 0; i--) {
             for (var j = 0; j < i; j++) {
                 ps[j] = (1 - t) * ps[j] + t * ps[j + 1];
+            }
+            if (processs) {
+                ps.length = ps.length - 1;
+                processs.push(ps.concat());
             }
         }
         return ps[0];

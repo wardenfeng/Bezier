@@ -139,8 +139,9 @@ declare class Bezier {
      *
      * @param t 插值度
      * @param ps 点列表 ps.length == n+1
+     * @param processs 收集中间过程数据，可用作Bézier曲线动画数据
      */
-    bn(t: number, ps: number[]): number;
+    bn(t: number, ps: number[], processs?: number[][]): number;
     /**
      * n次Bézier曲线关于t的导数
      *

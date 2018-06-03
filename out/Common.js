@@ -18,11 +18,12 @@ function createCanvas(x, y, width, height) {
  * 清理画布
  * @param canvas 画布
  */
-function clearCanvas(canvas) {
+function clearCanvas(canvas, fillStyle) {
+    if (fillStyle === void 0) { fillStyle = 'brack'; }
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // 绘制背景
-    ctx.fillStyle = 'brack';
+    ctx.fillStyle = fillStyle;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 /**

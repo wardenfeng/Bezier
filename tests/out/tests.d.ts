@@ -237,7 +237,7 @@ declare class Bezier {
      * @param endv 终止值
      * @param precision  查找精度
      */
-    private getTFromValueAtRange(targetV, ps, start, end, startv, endv, precision?);
+    getTFromValueAtRange(targetV: number, ps: number[], start: number, end: number, startv: number, endv: number, precision?: number): number;
     /**
      * 获取曲线样本数据
      *

@@ -348,7 +348,7 @@ var Bezier = /** @class */ (function () {
             var endV = range[3];
             var dir = endV - startV;
             //
-            var guessT = bezier.linear((0 - startV) / (endV - startV), startT, endT);
+            var guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
             var guessV = this.getDerivative(guessT, ps);
             while (Math.abs(guessV) > precision) {
                 if (guessV * dir > 0) {
@@ -359,7 +359,7 @@ var Bezier = /** @class */ (function () {
                     startT = guessT;
                     startV = guessV;
                 }
-                guessT = bezier.linear(-startV / (endV - startV), startT, endT);
+                guessT = guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
                 guessV = this.getDerivative(guessT, ps);
             }
             resultTs.push(guessT);
@@ -434,7 +434,7 @@ var Bezier = /** @class */ (function () {
     Bezier.prototype.getTFromValueAtRange = function (targetV, ps, start, end, startv, endv, precision) {
         if (precision === void 0) { precision = 0.0000001; }
         var dir = endv - startv;
-        var guessT = this.linear((targetV - startv) / (endv - startv), start, end);
+        var guessT = start + (targetV - startv) / (endv - startv) * (end - start);
         var guessV = this.getValue(guessT, ps);
         while (Math.abs(guessV - targetV) > precision) {
             if ((guessV - targetV) * dir > 0) {
@@ -446,7 +446,7 @@ var Bezier = /** @class */ (function () {
                 startv = guessV;
             }
             // 使用斜率进行预估目标位置
-            guessT = this.linear((targetV - startv) / (endv - startv), start, end);
+            guessT = start + (targetV - startv) / (endv - startv) * (end - start);
             guessV = this.getValue(guessT, ps);
         }
         return guessT;

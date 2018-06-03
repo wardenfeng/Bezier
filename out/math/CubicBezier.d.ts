@@ -77,23 +77,25 @@ declare class CubicBezier {
      * 获取目标值所在的插值度T
      *
      * @param targetV 目标值
+     * @param numSamples 分段数量，用于分段查找，用于解决寻找多个解、是否无解等问题；过少的分段可能会造成找不到存在的解决，过多的分段将会造成性能很差。
      * @param precision  查找精度
      *
      * @returns 返回解数组
      */
-    getTFromValue(targetV: number, precision?: number): number[];
+    getTFromValue(targetV: number, numSamples?: number, precision?: number): number[];
     /**
-     * 从存在解的区域进行查找目标值的插值度
+     * 从存在解的区域进行插值值
      *
      * 该函数只能从单调区间内查找值，并且 targetV 处于该区间内
      *
      * @param targetV 目标值
-     * @param guessT 预估目标T值，单调区间内的一个预估值
+     * @param start 起始插值度
+     * @param end 终止插值度
+     * @param startv 起始值
+     * @param endv 终止值
      * @param precision  查找精度
-     *
-     * @returns 目标值所在插值度
      */
-    getTFromValueAtRange(targetV: number, guessT?: number, precision?: number): number;
+    getTFromValueAtRange(targetV: number, start: number, end: number, startv: number, endv: number, precision?: number): number;
     /**
      * 获取曲线样本数据
      *

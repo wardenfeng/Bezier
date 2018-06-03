@@ -64,31 +64,41 @@ var CubicBezier = /** @class */ (function () {
     CubicBezier.prototype.getExtremums = function (numSamples, precision) {
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
-        // 预先计算分段斜率值
-        var sampleDerivatives = [];
+        var samples = [];
         for (var i = 0; i <= numSamples; i++) {
-            sampleDerivatives[i] = this.getDerivative(i / numSamples);
+            samples.push(this.getDerivative(i / numSamples));
         }
         // 查找存在解的分段
         var resultRanges = [];
         for (var i = 0, n = numSamples; i < n; i++) {
-            if (sampleDerivatives[i] * sampleDerivatives[i + 1] < 0) {
-                resultRanges.push(i / numSamples);
+            if (samples[i] * samples[i + 1] < 0) {
+                resultRanges.push([i / numSamples, (i + 1) / numSamples, samples[i], samples[i + 1]]);
             }
         }
         //
         var resultTs = [];
         var resultVs = [];
         for (var i = 0, n = resultRanges.length; i < n; i++) {
-            var guessT = resultRanges[i];
-            var derivative = this.getDerivative(guessT);
-            while (Math.abs(derivative) > precision) {
-                // 使用斜率进行预估目标位置
-                var slope = this.getSecondDerivative(guessT);
-                if (slope == 0)
-                    break;
-                guessT += -derivative / slope;
-                derivative = this.getDerivative(guessT);
+            var range = resultRanges[i];
+            var startT = range[0];
+            var endT = range[1];
+            var startV = range[2];
+            var endV = range[3];
+            var dir = endV - startV;
+            //
+            var guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
+            var guessV = this.getDerivative(guessT);
+            while (Math.abs(guessV) > precision) {
+                if (guessV * dir > 0) {
+                    endT = guessT;
+                    endV = guessV;
+                }
+                else {
+                    startT = guessT;
+                    startV = guessV;
+                }
+                guessT = guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
+                guessV = this.getDerivative(guessT);
             }
             resultTs.push(guessT);
             resultVs.push(this.getValue(guessT));
@@ -118,51 +128,62 @@ var CubicBezier = /** @class */ (function () {
      * 获取目标值所在的插值度T
      *
      * @param targetV 目标值
+     * @param numSamples 分段数量，用于分段查找，用于解决寻找多个解、是否无解等问题；过少的分段可能会造成找不到存在的解决，过多的分段将会造成性能很差。
      * @param precision  查找精度
      *
      * @returns 返回解数组
      */
-    CubicBezier.prototype.getTFromValue = function (targetV, precision) {
+    CubicBezier.prototype.getTFromValue = function (targetV, numSamples, precision) {
+        if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
-        var monotoneIntervalTs = this.monotoneIntervalTs;
-        var monotoneIntervalVs = this.monotoneIntervalVs;
-        // 目标估计值列表
-        var guessTs = [];
+        // 获取单调区间
+        var monotoneIntervals = this.getMonotoneIntervals(numSamples, precision);
+        var monotoneIntervalTs = monotoneIntervals.ts;
+        var monotoneIntervalVs = monotoneIntervals.vs;
+        // 存在解的单调区间
+        var resultRanges = [];
         // 遍历单调区间
         for (var i = 0, n = monotoneIntervalVs.length - 1; i < n; i++) {
-            if ((monotoneIntervalVs[i] - targetV) * (monotoneIntervalVs[i + 1] - targetV) < 0) {
-                guessTs.push((monotoneIntervalTs[i] + monotoneIntervalTs[i + 1]) / 2);
+            if ((monotoneIntervalVs[i] - targetV) * (monotoneIntervalVs[i + 1] - targetV) <= 0) {
+                resultRanges.push([monotoneIntervalTs[i], monotoneIntervalTs[i + 1], monotoneIntervalVs[i], monotoneIntervalVs[i + 1]]);
             }
         }
         var results = [];
-        for (var i = 0, n = guessTs.length; i < n; i++) {
-            var result = this.getTFromValueAtRange(targetV, guessTs[i], precision);
+        for (var i = 0, n = resultRanges.length; i < n; i++) {
+            var result = this.getTFromValueAtRange(targetV, resultRanges[i][0], resultRanges[i][1], resultRanges[i][2], resultRanges[i][3], precision);
             results.push(result);
         }
         return results;
     };
     /**
-     * 从存在解的区域进行查找目标值的插值度
+     * 从存在解的区域进行插值值
      *
      * 该函数只能从单调区间内查找值，并且 targetV 处于该区间内
      *
      * @param targetV 目标值
-     * @param guessT 预估目标T值，单调区间内的一个预估值
+     * @param start 起始插值度
+     * @param end 终止插值度
+     * @param startv 起始值
+     * @param endv 终止值
      * @param precision  查找精度
-     *
-     * @returns 目标值所在插值度
      */
-    CubicBezier.prototype.getTFromValueAtRange = function (targetV, guessT, precision) {
-        if (guessT === void 0) { guessT = 0; }
+    CubicBezier.prototype.getTFromValueAtRange = function (targetV, start, end, startv, endv, precision) {
         if (precision === void 0) { precision = 0.0000001; }
-        var middleV = this.getValue(guessT);
-        while (Math.abs(middleV - targetV) > precision) {
+        var dir = endv - startv;
+        var guessT = start + (targetV - startv) / (endv - startv) * (end - start);
+        var guessV = this.getValue(guessT);
+        while (Math.abs(guessV - targetV) > precision) {
+            if ((guessV - targetV) * dir > 0) {
+                end = guessT;
+                endv = guessV;
+            }
+            else {
+                start = guessT;
+                startv = guessV;
+            }
             // 使用斜率进行预估目标位置
-            var slope = this.getDerivative(guessT);
-            if (slope == 0)
-                break;
-            guessT += (targetV - middleV) / slope;
-            middleV = this.getValue(guessT);
+            guessT = start + (targetV - startv) / (endv - startv) * (end - start);
+            guessV = this.getValue(guessT);
         }
         return guessT;
     };

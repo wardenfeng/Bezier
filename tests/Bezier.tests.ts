@@ -185,6 +185,7 @@ QUnit.module("BezierCurve", () =>
             var vs = extremums.vs;
             for (let i = 0, n = ts.length; i < n; i++)
             {
+                assert.ok(0 <= ts[i] && ts[i] <= 1, `极值位置 ${ts[i]} 必须在区域 [0,1] 内`);
                 // 极值
                 var extremum = vs[i];
                 // 极值前面的数据
@@ -225,6 +226,7 @@ QUnit.module("BezierCurve", () =>
                 {
                     var tv = bezier.getValue(ts[i], ps);
                     assert.ok(Math.abs(tv - targetV) < deviation, `${ps.length - 1}次Bézier曲线 第${i}个解 目标值：${targetV} 查找到的值：${tv} 查找到的位置：${ts[i]}`);
+                    assert.ok(0 <= ts[i] && ts[i] <= 1, `${ts[i]} 解必须在 [0,1] 区间内 `);
                 }
             }
         }

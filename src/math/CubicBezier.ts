@@ -125,7 +125,7 @@ class CubicBezier
             resultTs.push(guessT);
             resultVs.push(this.getValue(guessT));
         }
-        return { ts: resultTs, vs: resultTs };
+        return { ts: resultTs, vs: resultVs };
     }
 
     /**

@@ -231,10 +231,13 @@ declare class Bezier {
      *
      * @param targetV 目标值
      * @param ps 点列表
-     * @param guessT 预估目标T值，单调区间内的一个预估值
+     * @param start 起始插值度
+     * @param end 终止插值度
+     * @param startv 起始值
+     * @param endv 终止值
      * @param precision  查找精度
      */
-    getTFromValueAtRange(targetV: number, ps: number[], guessT?: number, precision?: number): number;
+    private getTFromValueAtRange(targetV, ps, start, end, startv, endv, precision?);
     /**
      * 获取曲线样本数据
      *

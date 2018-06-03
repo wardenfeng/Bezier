@@ -120,10 +120,10 @@
         } else if (index == -1)
         {
             // 没有选中关键与控制点时，检查是否点击到曲线
-            var curveIndex = findCurve(x, y);
-            if (curveIndex != -1)
+            var result = findCurve(x, y);
+            if (result != null)
             {
-                addPointAtCurve(curveIndex, x, y);
+                addPointAtCurve(result.index, result.t);
             } else
             {
                 addPoint(x, y);
@@ -167,7 +167,7 @@
                     var xv = bezier.getValue(yTs[j], sxs);
                     if (Math.abs(xv - x) < pointSize / 2)
                     {
-                        return i;
+                        return { index: i, t: yTs[j] };
                     }
                 }
                 // 先在曲线上找到x再比较y
@@ -177,12 +177,12 @@
                     var yv = bezier.getValue(xTs[j], sys);
                     if (Math.abs(yv - y) < pointSize / 2)
                     {
-                        return i;
+                        return { index: i, t: xTs[j] };
                     }
                 }
             }
         }
-        return -1;
+        return null;
     }
 
     function deletePoint(index: number)
@@ -231,20 +231,39 @@
     /**
      * 在指定曲线上添加点
      * @param curveIndex 曲线编号
-     * @param x x坐标
-     * @param y y坐标
+     * @param t 曲线插值度
      */
-    function addPointAtCurve(curveIndex: number, x: number, y: number)
+    function addPointAtCurve(curveIndex: number, t: number)
     {
-        // 左控制点
-        var lx = bezier.linear(2 / 3, xs[curveIndex * 3 - 2], x);
-        var ly = bezier.linear(2 / 3, ys[curveIndex * 3 - 2], y);
-        // 右控制点
-        var rx = bezier.linear(2 / 3, xs[curveIndex * 3 - 1], x);
-        var ry = bezier.linear(2 / 3, ys[curveIndex * 3 - 1], y);
-        //
-        xs.splice(curveIndex * 3 - 1, 0, lx, x, rx);
-        ys.splice(curveIndex * 3 - 1, 0, ly, y, ry);
+        // 获取当前曲线
+        var sxs = xs.slice(curveIndex * 3 - 3, curveIndex * 3 + 1)
+        var sys = ys.slice(curveIndex * 3 - 3, curveIndex * 3 + 1)
+        var processsx: number[][] = [];
+        bezier.bn(t, sxs, processsx);
+        var processsy: number[][] = [];
+        bezier.bn(t, sys, processsy);
+
+        var nxs: number[] = [];
+        var nys: number[] = [];
+        processsx
+        for (let i = processsx.length - 1; i >= 0; i--)
+        {
+            if (i == processsx.length - 1)
+            {
+                // 添加关键点
+                nxs.push(processsx[i][0]);
+                nys.push(processsy[i][0]);
+            } else
+            {
+                // 添加左右控制点
+                nxs.unshift(processsx[i][0]);
+                nxs.push(processsx[i].pop());
+                nys.unshift(processsy[i][0]);
+                nys.push(processsy[i].pop());
+            }
+        }
+        xs.splice.apply(xs, [curveIndex * 3 - 3, 4].concat(nxs))
+        ys.splice.apply(ys, [curveIndex * 3 - 3, 4].concat(nys));
     }
 
     requestAnimationFrame(draw);

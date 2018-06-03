@@ -12,16 +12,6 @@ function createCanvas(x = 0, y = 0, width = 100, height = 100)
     return canvas;
 }
 
-function getBezierSamples(bezier: Bezier, num = 100)
-{
-    var points: number[][] = [];
-    for (let i = 0, step = 1 / num; i <= 1; i += step)
-    {
-        points.push([i, bezier.getValue(i)]);
-    }
-    return points;
-}
-
 /**
  * 清理画布
  * @param canvas 画布
@@ -82,12 +72,6 @@ bezierPoints = bezierPoints.map(item => { return [item[0] * canvas.width, (1 - i
 drawBezierCurve(canvas, bezierPoints, "red", 9);
 
 //
-var bezier = new Bezier(point0[0], point0[1], point1[0], point1[1]);
-var points = getBezierSamples(bezier, 100);
-points = points.map(item => { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; })
-drawPointsCurve(canvas, points, 'white', 6)
-
-//
 var xSamples = bezierCurve.getSamples(xs);
 var ySamples = bezierCurve.getSamples(ys);
 
@@ -122,13 +106,5 @@ for (let i = 0; i < num; i++)
 }
 console.timeEnd("CubicBezierCurve")
 
-console.time("bezier")
-for (let i = 0; i < num; i++)
-{
-    var v1 = bezier.getValue(x);
-}
-console.timeEnd("bezier")
-
-console.log(x, v1);
 console.log(x, v3);
 console.log(x, v4);

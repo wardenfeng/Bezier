@@ -34,6 +34,7 @@
         mousedownxy.y = y;
 
         editIndex = findPoint(x, y);
+
         window.addEventListener("mousemove", onMouseMove);
         window.addEventListener("mouseup", onMouseUp);
     }
@@ -118,7 +119,15 @@
             deletePoint(index);
         } else if (index == -1)
         {
-            addPoint(x, y);
+            // 没有选中关键与控制点时，检查是否点击到曲线
+            var curveIndex = findCurve(x, y);
+            if (curveIndex != -1)
+            {
+                addPointAtCurve(curveIndex, x, y);
+            } else
+            {
+                addPoint(x, y);
+            }
         }
 
         window.removeEventListener("mousemove", onMouseMove);
@@ -132,6 +141,45 @@
             if (Math.abs(xs[i] - x) < pointSize / 2 && Math.abs(ys[i] - y) < pointSize / 2)
             {
                 return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 查找点所在的曲线
+     * @param x x坐标
+     * @param y y坐标
+     */
+    function findCurve(x: number, y: number)
+    {
+        for (let i = 0, n = xs.length / 3; i < n; i++)
+        {
+            // 使用 bezierCurve 进行采样曲线点
+            if (i > 0)
+            {
+                var sxs = xs.slice(i * 3 - 3, i * 3 + 1)
+                var sys = ys.slice(i * 3 - 3, i * 3 + 1)
+                // 先在曲线上找到y再比较x
+                var yTs = bezier.getTFromValue(y, sys);
+                for (var j = 0; j < yTs.length; j++)
+                {
+                    var xv = bezier.getValue(yTs[j], sxs);
+                    if (Math.abs(xv - x) < pointSize / 2)
+                    {
+                        return i;
+                    }
+                }
+                // 先在曲线上找到x再比较y
+                var xTs = bezier.getTFromValue(x, sxs);
+                for (var j = 0; j < xTs.length; j++)
+                {
+                    var yv = bezier.getValue(xTs[j], sys);
+                    if (Math.abs(yv - y) < pointSize / 2)
+                    {
+                        return i;
+                    }
+                }
             }
         }
         return -1;
@@ -178,7 +226,25 @@
             xs.push(x);
             ys.push(y);
         }
+    }
 
+    /**
+     * 在指定曲线上添加点
+     * @param curveIndex 曲线编号
+     * @param x x坐标
+     * @param y y坐标
+     */
+    function addPointAtCurve(curveIndex: number, x: number, y: number)
+    {
+        // 左控制点
+        var lx = bezier.linear(2 / 3, xs[curveIndex * 3 - 2], x);
+        var ly = bezier.linear(2 / 3, ys[curveIndex * 3 - 2], y);
+        // 右控制点
+        var rx = bezier.linear(2 / 3, xs[curveIndex * 3 - 1], x);
+        var ry = bezier.linear(2 / 3, ys[curveIndex * 3 - 1], y);
+        //
+        xs.splice(curveIndex * 3 - 1, 0, lx, x, rx);
+        ys.splice(curveIndex * 3 - 1, 0, ly, y, ry);
     }
 
     requestAnimationFrame(draw);

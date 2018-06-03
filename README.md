@@ -8,7 +8,7 @@ https://wardenfeng.github.io/bezier
 #### 立方Bézier曲线 [CubicBezier.ts](src/math/CubicBezier.ts)
 CubicBezier是最常用到的Bézier曲线，为了提升性能以及简化接口单独从Bezier.ts提取出来。
 
-#### Bezier.ts 解决的问题
+#### Bezier.ts 提供功能
 1. 1次Bézier曲线 
     * 求值 ``` bezier.linear ```
     * 导数 ``` bezier.linearDerivative ```
@@ -31,7 +31,7 @@ CubicBezier是最常用到的Bézier曲线，为了提升性能以及简化接�
 
 #### [单元测试](tests/index.html)
 
-#### [示例]
+#### 示例
 1. [使用BezierCurve进行模拟canvas提供的 bezierCurveTo方法](BezierCurveTo.html)
 
 ![](images/BezierCurveTo.png)

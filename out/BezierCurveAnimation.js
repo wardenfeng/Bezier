@@ -36,11 +36,29 @@
             animations[i] = { x: x, y: y, processsx: processsx, processsy: processsy };
         }
         var t = 0;
+        var dir = 1;
         requestid = requestAnimationFrame(animation);
         requestAnimationFrame;
         var usecolors = getColors(xs.length);
         function animation() {
+            //
+            t += dir;
+            if (t > 100) {
+                t = 100;
+                dir = -1;
+            }
+            else if (t < 0) {
+                t = 0;
+                dir = 1;
+            }
             clearCanvas(canvas);
+            // 绘制插值过程
+            var processsx = animations[t].processsx;
+            var processsy = animations[t].processsy;
+            for (var i = 0; i < processsx.length; i++) {
+                drawPointsCurve(canvas, processsx[i], processsy[i], usecolors[i], 1);
+            }
+            requestid = requestAnimationFrame(animation);
             // 绘制整条曲线
             var xSamples = animations.map(function (i) { return i.x; });
             var ySamples = animations.map(function (i) { return i.y; });
@@ -49,15 +67,6 @@
             var txs = animations.map(function (i) { return i.x; }).splice(0, t);
             var tys = animations.map(function (i) { return i.y; }).splice(0, t);
             drawPointsCurve(canvas, txs, tys, "red", 3);
-            // 绘制插值过程
-            var processsx = animations[t].processsx;
-            var processsy = animations[t].processsy;
-            for (var i = 0; i < processsx.length; i++) {
-                drawPointsCurve(canvas, processsx[i], processsy[i], usecolors[i], 1);
-            }
-            //
-            t = (t + 1) % (num + 1);
-            requestid = requestAnimationFrame(animation);
         }
     }
 })();

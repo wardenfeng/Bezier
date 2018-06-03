@@ -1,4 +1,4 @@
-QUnit.module("BezierCurve", () =>
+QUnit.module("Bezier", () =>
 {
     // 允许误差
     var deviation = 0.0000001;

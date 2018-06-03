@@ -13,6 +13,9 @@
     "libs/qunit/qunit.d.ts",
     //
     "../src/math/Bezier.ts",
-    "Bezier.tests.ts"
+    "../src/math/CubicBezier.ts",
+    //
+    "src/CubicBezier.tests.ts",
+    "src/Bezier.tests.ts"
   ]
 }

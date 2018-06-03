@@ -72,23 +72,27 @@
             }
         } else if (editIndex % 3 == 1) // 右边控制点
         {
+            var addx = (x - xs[editIndex]) / (xs[editIndex - 1] - xs[editIndex]);
+            var addy = (y - ys[editIndex]) / (ys[editIndex - 1] - ys[editIndex]);
             xs[editIndex] = x;
             ys[editIndex] = y;
             // 改变左边控制点
             if (editIndex - 2 > -1)
             {
-                xs[editIndex - 2] = 2 * xs[editIndex - 1] - x;
-                ys[editIndex - 2] = 2 * ys[editIndex - 1] - y;
+                xs[editIndex - 2] += (xs[editIndex - 1] - xs[editIndex - 2]) * addx;
+                ys[editIndex - 2] += (ys[editIndex - 1] - ys[editIndex - 2]) * addy;
             }
         } else if (editIndex % 3 == 2) // 左边控制点
         {
+            var addx = (x - xs[editIndex]) / (xs[editIndex + 1] - xs[editIndex]);
+            var addy = (y - ys[editIndex]) / (ys[editIndex + 1] - ys[editIndex]);
             xs[editIndex] = x;
             ys[editIndex] = y;
             // 改变右边控制点
             if (editIndex + 2 < xs.length)
             {
-                xs[editIndex + 2] = 2 * xs[editIndex + 1] - x;
-                ys[editIndex + 2] = 2 * ys[editIndex + 1] - y;
+                xs[editIndex + 2] += (xs[editIndex + 1] - xs[editIndex + 2]) * addx;
+                ys[editIndex + 2] += (ys[editIndex + 1] - ys[editIndex + 2]) * addy;
             }
         }
     }

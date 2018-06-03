@@ -307,15 +307,15 @@ var Bezier = /** @class */ (function () {
         // return 3 * (1 - t) * (1 - t) * (ps[1] - ps[0]) + 6 * (1 - t) * t * (ps[2] - ps[1]) + 3 * t * t * (ps[3] - ps[2]);
     };
     /**
-     * 查找区间内极值所在插值度列表
+     * 查找区间内极值列表
      *
      * @param ps 点列表
      * @param numSamples 采样次数，用于分段查找极值
      * @param precision  查找精度
      *
-     * @returns 插值度列表
+     * @returns 极值列表 {} {ts: 极值插值度列表,vs: 极值值列表}
      */
-    Bezier.prototype.getTAtExtremums = function (ps, numSamples, precision) {
+    Bezier.prototype.getExtremums = function (ps, numSamples, precision) {
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
         var samples = [];
@@ -330,7 +330,8 @@ var Bezier = /** @class */ (function () {
             }
         }
         //
-        var results = [];
+        var resultTs = [];
+        var resultVs = [];
         for (var i = 0, n = resultRanges.length; i < n; i++) {
             var guessT = resultRanges[i];
             var derivative = this.getDerivative(guessT, ps);
@@ -345,9 +346,10 @@ var Bezier = /** @class */ (function () {
             if (guessT < 0 || guessT > 1) {
                 console.log(guessT + " \u4E0D\u6B63\u786E\uFF01");
             }
-            results.push(guessT);
+            resultTs.push(guessT);
+            resultVs.push(this.getValue(guessT, ps));
         }
-        return results;
+        return { ts: resultTs, vs: resultTs };
     };
     /**
      * 获取单调区间列表
@@ -360,13 +362,11 @@ var Bezier = /** @class */ (function () {
         var monotoneIntervalTs = [0, 1];
         var monotoneIntervalVs = [ps[0], ps[ps.length - 1]];
         // 预先计算好极值
-        var extremumTs = this.getTAtExtremums(ps, numSamples, precision);
-        var extremumVs = [];
-        for (var i = 0; i < extremumTs.length; i++) {
-            extremumVs[i] = this.getValue(extremumTs[i], ps);
+        var extremums = this.getExtremums(ps, numSamples, precision);
+        for (var i = 0; i < extremums.ts.length; i++) {
             // 增加单调区间
-            monotoneIntervalTs.splice(i + 1, 0, extremumTs[i]);
-            monotoneIntervalVs.splice(i + 1, 0, extremumVs[i]);
+            monotoneIntervalTs.splice(i + 1, 0, extremums.ts[i]);
+            monotoneIntervalVs.splice(i + 1, 0, extremums.vs[i]);
         }
         return { ts: monotoneIntervalTs, vs: monotoneIntervalVs };
     };

@@ -166,7 +166,7 @@ QUnit.module("BezierCurve", () =>
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
 
-    QUnit.test("getTAtExtremums ，查找区间内极值所在插值度列表 ", (assert) =>
+    QUnit.test("getExtremums ，查找区间内极值列表 ", (assert) =>
     {
         for (let j = 0; j < 10; j++)
         {
@@ -180,22 +180,24 @@ QUnit.module("BezierCurve", () =>
             }
 
             // 查找区间内极值所在插值度列表
-            var extremumXs = bezier.getTAtExtremums(ps, 20, deviation);
-            for (let i = 0, n = extremumXs.length; i < n; i++)
+            var extremums = bezier.getExtremums(ps, 20, deviation);
+            var ts = extremums.ts;
+            var vs = extremums.vs;
+            for (let i = 0, n = ts.length; i < n; i++)
             {
                 // 极值
-                var extremum = bezier.getValue(extremumXs[i], ps);
+                var extremum = vs[i];
                 // 极值前面的数据
-                var prex = extremumXs[i] - 0.001;
-                if (0 < i) prex = bezier.linear(0.999, extremumXs[i - 1], extremumXs[i]);
+                var prex = ts[i] - 0.001;
+                if (0 < i) prex = bezier.linear(0.999, ts[i - 1], ts[i]);
                 var prev = bezier.getValue(prex, ps);
                 // 极值后面面的数据
-                var nextx = extremumXs[i] + 0.001;
-                if (i < n - 1) nextx = bezier.linear(0.001, extremumXs[i], extremumXs[i + 1]);
+                var nextx = ts[i] + 0.001;
+                if (i < n - 1) nextx = bezier.linear(0.001, ts[i], ts[i + 1]);
                 var nextv = bezier.getValue(nextx, ps);
                 // 斜率
-                var derivative = bezier.getDerivative(extremumXs[i], ps);
-                assert.ok(Math.abs(derivative) < deviation, `${ps.length-1}次Bézier曲线 第${i}个解 极值位置：${extremumXs[i]} 斜率： ${derivative} \n 前面值： ${prev} \n 极值： ${extremum} \n 后面的值 ${nextv}`);
+                var derivative = bezier.getDerivative(ts[i], ps);
+                assert.ok(Math.abs(derivative) < deviation, `${ps.length - 1}次Bézier曲线 第${i}个解 极值位置：${ts[i]} 斜率： ${derivative} \n 前面值： ${prev} \n 极值： ${extremum} \n 后面的值 ${nextv}`);
             }
         }
         assert.ok(true)
@@ -222,7 +224,7 @@ QUnit.module("BezierCurve", () =>
                 for (let i = 0; i < ts.length; i++)
                 {
                     var tv = bezier.getValue(ts[i], ps);
-                    assert.ok(Math.abs(tv - targetV) < deviation, `${ps.length-1}次Bézier曲线 第${i}个解 目标值：${targetV} 查找到的值：${tv} 查找到的位置：${ts[i]}`);
+                    assert.ok(Math.abs(tv - targetV) < deviation, `${ps.length - 1}次Bézier曲线 第${i}个解 目标值：${targetV} 查找到的值：${tv} 查找到的位置：${ts[i]}`);
                 }
             }
         }

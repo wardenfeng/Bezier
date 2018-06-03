@@ -307,15 +307,15 @@ var Bezier = /** @class */ (function () {
         // return 3 * (1 - t) * (1 - t) * (ps[1] - ps[0]) + 6 * (1 - t) * t * (ps[2] - ps[1]) + 3 * t * t * (ps[3] - ps[2]);
     };
     /**
-     * 查找区间内极值所在插值度列表
+     * 查找区间内极值列表
      *
      * @param ps 点列表
      * @param numSamples 采样次数，用于分段查找极值
      * @param precision  查找精度
      *
-     * @returns 插值度列表
+     * @returns 极值列表 {} {ts: 极值插值度列表,vs: 极值值列表}
      */
-    Bezier.prototype.getTAtExtremums = function (ps, numSamples, precision) {
+    Bezier.prototype.getExtremums = function (ps, numSamples, precision) {
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
         var samples = [];
@@ -330,7 +330,8 @@ var Bezier = /** @class */ (function () {
             }
         }
         //
-        var results = [];
+        var resultTs = [];
+        var resultVs = [];
         for (var i = 0, n = resultRanges.length; i < n; i++) {
             var guessT = resultRanges[i];
             var derivative = this.getDerivative(guessT, ps);
@@ -345,9 +346,10 @@ var Bezier = /** @class */ (function () {
             if (guessT < 0 || guessT > 1) {
                 console.log(guessT + " \u4E0D\u6B63\u786E\uFF01");
             }
-            results.push(guessT);
+            resultTs.push(guessT);
+            resultVs.push(this.getValue(guessT, ps));
         }
-        return results;
+        return { ts: resultTs, vs: resultTs };
     };
     /**
      * 获取单调区间列表
@@ -360,13 +362,11 @@ var Bezier = /** @class */ (function () {
         var monotoneIntervalTs = [0, 1];
         var monotoneIntervalVs = [ps[0], ps[ps.length - 1]];
         // 预先计算好极值
-        var extremumTs = this.getTAtExtremums(ps, numSamples, precision);
-        var extremumVs = [];
-        for (var i = 0; i < extremumTs.length; i++) {
-            extremumVs[i] = this.getValue(extremumTs[i], ps);
+        var extremums = this.getExtremums(ps, numSamples, precision);
+        for (var i = 0; i < extremums.ts.length; i++) {
             // 增加单调区间
-            monotoneIntervalTs.splice(i + 1, 0, extremumTs[i]);
-            monotoneIntervalVs.splice(i + 1, 0, extremumVs[i]);
+            monotoneIntervalTs.splice(i + 1, 0, extremums.ts[i]);
+            monotoneIntervalVs.splice(i + 1, 0, extremums.vs[i]);
         }
         return { ts: monotoneIntervalTs, vs: monotoneIntervalVs };
     };
@@ -568,7 +568,7 @@ QUnit.module("BezierCurve", function () {
         var d1 = bezier.bnND(t, 2, ps);
         assert.ok(Math.abs(d0 - d1) < deviation);
     });
-    QUnit.test("getTAtExtremums ，查找区间内极值所在插值度列表 ", function (assert) {
+    QUnit.test("getExtremums ，查找区间内极值列表 ", function (assert) {
         for (var j = 0; j < 10; j++) {
             var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
             // 测试高次Bézier曲线
@@ -577,23 +577,25 @@ QUnit.module("BezierCurve", function () {
                 ps.push(Math.random());
             }
             // 查找区间内极值所在插值度列表
-            var extremumXs = bezier.getTAtExtremums(ps, 20, deviation);
-            for (var i = 0, n_1 = extremumXs.length; i < n_1; i++) {
+            var extremums = bezier.getExtremums(ps, 20, deviation);
+            var ts = extremums.ts;
+            var vs = extremums.vs;
+            for (var i = 0, n_1 = ts.length; i < n_1; i++) {
                 // 极值
-                var extremum = bezier.getValue(extremumXs[i], ps);
+                var extremum = vs[i];
                 // 极值前面的数据
-                var prex = extremumXs[i] - 0.001;
+                var prex = ts[i] - 0.001;
                 if (0 < i)
-                    prex = bezier.linear(0.999, extremumXs[i - 1], extremumXs[i]);
+                    prex = bezier.linear(0.999, ts[i - 1], ts[i]);
                 var prev = bezier.getValue(prex, ps);
                 // 极值后面面的数据
-                var nextx = extremumXs[i] + 0.001;
+                var nextx = ts[i] + 0.001;
                 if (i < n_1 - 1)
-                    nextx = bezier.linear(0.001, extremumXs[i], extremumXs[i + 1]);
+                    nextx = bezier.linear(0.001, ts[i], ts[i + 1]);
                 var nextv = bezier.getValue(nextx, ps);
                 // 斜率
-                var derivative = bezier.getDerivative(extremumXs[i], ps);
-                assert.ok(Math.abs(derivative) < deviation, ps.length - 1 + "\u6B21B\u00E9zier\u66F2\u7EBF \u7B2C" + i + "\u4E2A\u89E3 \u6781\u503C\u4F4D\u7F6E\uFF1A" + extremumXs[i] + " \u659C\u7387\uFF1A " + derivative + " \n \u524D\u9762\u503C\uFF1A " + prev + " \n \u6781\u503C\uFF1A " + extremum + " \n \u540E\u9762\u7684\u503C " + nextv);
+                var derivative = bezier.getDerivative(ts[i], ps);
+                assert.ok(Math.abs(derivative) < deviation, ps.length - 1 + "\u6B21B\u00E9zier\u66F2\u7EBF \u7B2C" + i + "\u4E2A\u89E3 \u6781\u503C\u4F4D\u7F6E\uFF1A" + ts[i] + " \u659C\u7387\uFF1A " + derivative + " \n \u524D\u9762\u503C\uFF1A " + prev + " \n \u6781\u503C\uFF1A " + extremum + " \n \u540E\u9762\u7684\u503C " + nextv);
             }
         }
         assert.ok(true);

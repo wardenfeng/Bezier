@@ -192,15 +192,18 @@ declare class Bezier {
      */
     getSecondDerivative(t: number, ps: number[]): number;
     /**
-     * 查找区间内极值所在插值度列表
+     * 查找区间内极值列表
      *
      * @param ps 点列表
      * @param numSamples 采样次数，用于分段查找极值
      * @param precision  查找精度
      *
-     * @returns 插值度列表
+     * @returns 极值列表 {} {ts: 极值插值度列表,vs: 极值值列表}
      */
-    getTAtExtremums(ps: number[], numSamples?: number, precision?: number): number[];
+    getExtremums(ps: number[], numSamples?: number, precision?: number): {
+        ts: number[];
+        vs: number[];
+    };
     /**
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}

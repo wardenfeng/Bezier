@@ -1,11 +1,11 @@
 /**
  * 立方Bézier曲线
  * 
- * 为了提升性能以及简化单独从BezierCurve提取出来。
+ * 为了提升性能以及简化接口单独从Bezier.ts提取出来。
  * 
  * @author feng / http://feng3d.com 03/06/2018
  */
-class CubicBezierCurve
+class CubicBezier
 {
     /**
      * 起始点
@@ -82,14 +82,14 @@ class CubicBezierCurve
     }
 
     /**
-     * 查找区间内极值所在插值度列表
+     * 查找区间内极值列表
      * 
      * @param numSamples 采样次数，用于分段查找极值
      * @param precision  查找精度
      * 
-     * @returns 极值所在插值度列表
+     * @returns 极值列表 {} {ts: 极值插值度列表,vs: 极值值列表}
      */
-    getTAtExtremums(numSamples = 10, precision = 0.0000001)
+    getExtremums(numSamples = 10, precision = 0.0000001)
     {
         // 预先计算分段斜率值
         var sampleDerivatives = [];
@@ -107,7 +107,8 @@ class CubicBezierCurve
             }
         }
         //
-        var results: number[] = [];
+        var resultTs: number[] = [];
+        var resultVs: number[] = [];
         for (let i = 0, n = resultRanges.length; i < n; i++)
         {
             var guessT = resultRanges[i];
@@ -121,9 +122,10 @@ class CubicBezierCurve
                 guessT += - derivative / slope;
                 derivative = this.getDerivative(guessT);
             }
-            results.push(guessT);
+            resultTs.push(guessT);
+            resultVs.push(this.getValue(guessT));
         }
-        return results;
+        return { ts: resultTs, vs: resultTs };
     }
 
     /**
@@ -136,14 +138,12 @@ class CubicBezierCurve
         var monotoneIntervalTs = [0, 1];
         var monotoneIntervalVs = [this.p0, this.p3];
         // 预先计算好极值
-        var extremumTs = this.getTAtExtremums(numSamples, precision);
-        var extremumVs: number[] = [];
-        for (let i = 0; i < extremumTs.length; i++)
+        var extremums = this.getExtremums(numSamples, precision);
+        for (let i = 0; i < extremums.ts.length; i++)
         {
-            extremumVs[i] = this.getValue(extremumTs[i]);
             // 增加单调区间
-            monotoneIntervalTs.splice(i + 1, 0, extremumTs[i]);
-            monotoneIntervalVs.splice(i + 2, 0, extremumVs[i]);
+            monotoneIntervalTs.splice(i + 1, 0, extremums.ts[i]);
+            monotoneIntervalVs.splice(i + 1, 0, extremums.vs[i]);
         }
         return { ts: monotoneIntervalTs, vs: monotoneIntervalVs };
     }

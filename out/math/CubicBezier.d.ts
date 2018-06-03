@@ -1,11 +1,11 @@
 /**
  * 立方Bézier曲线
  *
- * 为了提升性能以及简化单独从BezierCurve提取出来。
+ * 为了提升性能以及简化接口单独从Bezier.ts提取出来。
  *
  * @author feng / http://feng3d.com 03/06/2018
  */
-declare class CubicBezierCurve {
+declare class CubicBezier {
     /**
      * 起始点
      */
@@ -54,14 +54,17 @@ declare class CubicBezierCurve {
      */
     getSecondDerivative(t: number): number;
     /**
-     * 查找区间内极值所在插值度列表
+     * 查找区间内极值列表
      *
      * @param numSamples 采样次数，用于分段查找极值
      * @param precision  查找精度
      *
-     * @returns 极值所在插值度列表
+     * @returns 极值列表 {} {ts: 极值插值度列表,vs: 极值值列表}
      */
-    getTAtExtremums(numSamples?: number, precision?: number): number[];
+    getExtremums(numSamples?: number, precision?: number): {
+        ts: number[];
+        vs: number[];
+    };
     /**
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}

@@ -3,6 +3,10 @@
     var canvas = createCanvas(0, 60, window.innerWidth, window.innerHeight - 60);
     // window.addEventListener("click", onMouseClick)
     window.addEventListener("mousedown", onMouseDown);
+    /**
+     * 点绘制尺寸
+     */
+    var pointSize = 16;
     // 第一条曲线  [0,3] 
     // 第二条曲线  [3,6] 
     var xs = [];
@@ -95,7 +99,7 @@
     }
     function findPoint(x, y) {
         for (var i = 0; i < xs.length; i++) {
-            if (Math.abs(xs[i] - x) < 16 && Math.abs(ys[i] - y) < 16) {
+            if (Math.abs(xs[i] - x) < pointSize / 2 && Math.abs(ys[i] - y) < pointSize / 2) {
                 return i;
             }
         }
@@ -126,8 +130,8 @@
                 cx0 = lastx * 2 - xs[xs.length - 2];
                 cy0 = lasty * 2 - ys[ys.length - 2];
             }
-            var cx1 = bezier.linear(2 / 3, lastx, x);
-            var cy1 = bezier.linear(2 / 3, lasty, y);
+            var cx1 = bezier.linear(2 / 3, cx0, x);
+            var cy1 = bezier.linear(2 / 3, cy0, y);
             //
             xs.push(cx0, cx1, x);
             ys.push(cy0, cy1, y);
@@ -151,12 +155,12 @@
                 drawPointsCurve(canvas, xSamples, ySamples, 'white', 3);
             }
             // 绘制曲线端点
-            drawPoints(canvas, xs.slice(i * 3, i * 3 + 1), ys.slice(i * 3, i * 3 + 1), "red", 16);
+            drawPoints(canvas, xs.slice(i * 3, i * 3 + 1), ys.slice(i * 3, i * 3 + 1), "red", pointSize);
             // 绘制控制点
             if (i > 0)
-                drawPoints(canvas, xs.slice(i * 3 - 1, i * 3 + 0), ys.slice(i * 3 - 1, i * 3 + 0), "blue", 16);
+                drawPoints(canvas, xs.slice(i * 3 - 1, i * 3 + 0), ys.slice(i * 3 - 1, i * 3 + 0), "blue", pointSize);
             if (i < n - 1)
-                drawPoints(canvas, xs.slice(i * 3 + 1, i * 3 + 2), ys.slice(i * 3 + 1, i * 3 + 2), "blue", 16);
+                drawPoints(canvas, xs.slice(i * 3 + 1, i * 3 + 2), ys.slice(i * 3 + 1, i * 3 + 2), "blue", pointSize);
             // 绘制控制点之间的连线
             if (i > 0)
                 drawPointsCurve(canvas, xs.slice(i * 3 - 1, i * 3 + 1), ys.slice(i * 3 - 1, i * 3 + 1), "yellow", 1);

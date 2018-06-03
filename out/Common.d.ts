@@ -163,3 +163,11 @@ declare var ColorKeywords: {
     'yellowgreen': number;
 };
 declare function getColors(num: number): any[];
+/**
+ * 绘制点
+ * @param canvas 画布
+ * @param xpoints 曲线上的点x坐标
+ * @param ypoints 曲线上的点y坐标
+ * @param fillStyle 曲线颜色
+ */
+declare function drawPoints(canvas: HTMLCanvasElement, xpoints: number[], ypoints: number[], fillStyle?: string, lineWidth?: number): void;

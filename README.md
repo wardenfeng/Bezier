@@ -40,3 +40,7 @@ CubicBezier是最常用到的Bézier曲线，为了提升性能以及简化接�
 1. [随机生成n阶Bézier曲线并且播放插值动画](BezierCurveAnimation.html)
 
 ![](images/BezierCurveAnimation.png)
+
+1. [Bézier曲线编辑器](BezierEditor.html)
+
+![](images/BezierEditor.png)

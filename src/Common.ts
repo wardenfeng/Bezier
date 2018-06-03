@@ -17,7 +17,7 @@ function createCanvas(x = 0, y = 0, width = 100, height = 100)
  * 清理画布
  * @param canvas 画布
  */
-function clearCanvas(canvas: HTMLCanvasElement, fillStyle = 'brack')
+function clearCanvas(canvas: HTMLCanvasElement, fillStyle = 'black')
 {
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -95,4 +95,23 @@ function getColors(num: number)
         usecolors.push(color);
     }
     return usecolors;
+}
+
+/**
+ * 绘制点
+ * @param canvas 画布 
+ * @param xpoints 曲线上的点x坐标
+ * @param ypoints 曲线上的点y坐标
+ * @param fillStyle 曲线颜色
+ */
+function drawPoints(canvas: HTMLCanvasElement, xpoints: number[], ypoints: number[], fillStyle = 'white', lineWidth = 3)
+{
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = fillStyle;
+    for (let i = 0; i < xpoints.length; i++)
+    {
+        ctx.fillRect(xpoints[i] - lineWidth / 2, ypoints[i] - lineWidth / 2, lineWidth, lineWidth);
+        // ctx.fillRect(10, 10, 100, 100);
+    }
+
 }

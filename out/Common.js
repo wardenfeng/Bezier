@@ -19,7 +19,7 @@ function createCanvas(x, y, width, height) {
  * @param canvas 画布
  */
 function clearCanvas(canvas, fillStyle) {
-    if (fillStyle === void 0) { fillStyle = 'brack'; }
+    if (fillStyle === void 0) { fillStyle = 'black'; }
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // 绘制背景
@@ -91,5 +91,22 @@ function getColors(num) {
         usecolors.push(color);
     }
     return usecolors;
+}
+/**
+ * 绘制点
+ * @param canvas 画布
+ * @param xpoints 曲线上的点x坐标
+ * @param ypoints 曲线上的点y坐标
+ * @param fillStyle 曲线颜色
+ */
+function drawPoints(canvas, xpoints, ypoints, fillStyle, lineWidth) {
+    if (fillStyle === void 0) { fillStyle = 'white'; }
+    if (lineWidth === void 0) { lineWidth = 3; }
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = fillStyle;
+    for (var i = 0; i < xpoints.length; i++) {
+        ctx.fillRect(xpoints[i] - lineWidth / 2, ypoints[i] - lineWidth / 2, lineWidth, lineWidth);
+        // ctx.fillRect(10, 10, 100, 100);
+    }
 }
 //# sourceMappingURL=Common.js.map

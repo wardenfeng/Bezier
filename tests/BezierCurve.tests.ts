@@ -203,15 +203,32 @@ QUnit.module("BezierCurve", () =>
             var nextx = extremumXs[i] + 0.001;
             if (i < n - 1) nextx = bezierCurve.linear(0.001, extremumXs[i], extremumXs[i + 1]);
             var nextv = bezierCurve.getValue(nextx, ps);
-            // 
-            var sign = (prev - extremum) * (nextv - extremum);
             // 斜率
             var derivative = bezierCurve.getDerivative(extremumXs[i], ps);
-            assert.ok(sign >= 0, `斜率： ${derivative} \n 前面值： ${prev} \n 极值： ${extremum} \n 后面的值 ${nextv}`);
+            assert.ok(Math.abs(derivative) < deviation, `斜率： ${derivative} \n 前面值： ${prev} \n 极值： ${extremum} \n 后面的值 ${nextv}`);
         }
         if (extremumXs.length == 0)
         {
             assert.ok(true, "该区间内没有极值")
+        }
+    });
+
+    QUnit.test("getTFromValue", (assert) =>
+    {
+        var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
+        var targetV = Math.random();
+
+        var ts = bezierCurve.getTFromValue(targetV, ps);
+        if (ts.length > 0)
+        {
+            for (let i = 0; i < ts.length; i++)
+            {
+                var tv = bezierCurve.getValue(ts[i], ps);
+                assert.ok(Math.abs(tv - targetV) < deviation, `目标值：${targetV} 查找到的值：${tv} 查找到的位置：${ts[i]}`);
+            }
+        } else
+        {
+            assert.ok(true, `该区间内没有找到目标值！`)
         }
     });
 });

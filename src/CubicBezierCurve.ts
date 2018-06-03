@@ -86,11 +86,10 @@ class CubicBezierCurve
      * 
      * @param numSamples 采样次数，用于分段查找极值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      * 
      * @returns 极值所在插值度列表
      */
-    getTAtExtremums(numSamples = 10, precision = 0.0000001, maxIterations = 4)
+    getTAtExtremums(numSamples = 10, precision = 0.0000001)
     {
         // 预先计算分段斜率值
         var sampleDerivatives = [];
@@ -113,8 +112,7 @@ class CubicBezierCurve
         {
             var guessT = resultRanges[i];
             var derivative = this.getDerivative(guessT);
-            var j = 0;
-            while (Math.abs(derivative) > precision && j++ < maxIterations)
+            while (Math.abs(derivative) > precision)
             {
                 // 使用斜率进行预估目标位置
                 var slope = this.getSecondDerivative(guessT);
@@ -132,13 +130,13 @@ class CubicBezierCurve
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
      */
-    getMonotoneIntervals(numSamples = 10, precision = 0.0000001, maxIterations = 4)
+    getMonotoneIntervals(numSamples = 10, precision = 0.0000001)
     {
         // 区间内的单调区间
         var monotoneIntervalTs = [0, 1];
         var monotoneIntervalVs = [this.p0, this.p3];
         // 预先计算好极值
-        var extremumTs = this.getTAtExtremums(numSamples, precision, maxIterations);
+        var extremumTs = this.getTAtExtremums(numSamples, precision);
         var extremumVs: number[] = [];
         for (let i = 0; i < extremumTs.length; i++)
         {
@@ -155,11 +153,10 @@ class CubicBezierCurve
      * 
      * @param targetV 目标值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      * 
      * @returns 返回解数组
      */
-    getTFromValue(targetV: number, precision = 0.0000001, maxIterations = 4)
+    getTFromValue(targetV: number, precision = 0.0000001)
     {
         var monotoneIntervalTs = this.monotoneIntervalTs;
         var monotoneIntervalVs = this.monotoneIntervalVs;
@@ -177,7 +174,7 @@ class CubicBezierCurve
         var results: number[] = [];
         for (let i = 0, n = guessTs.length; i < n; i++)
         {
-            var result = this.getTFromValueAtRange(targetV, guessTs[i], precision, maxIterations);
+            var result = this.getTFromValueAtRange(targetV, guessTs[i], precision);
             results.push(result);
         }
         return results;
@@ -191,16 +188,14 @@ class CubicBezierCurve
      * @param targetV 目标值
      * @param guessT 预估目标T值，单调区间内的一个预估值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      * 
      * @returns 目标值所在插值度
      */
-    getTFromValueAtRange(targetV: number, guessT: number = 0, precision = 0.0000001, maxIterations = 4)
+    getTFromValueAtRange(targetV: number, guessT: number = 0, precision = 0.0000001)
     {
         var middleV = this.getValue(guessT);
 
-        var i = 0;
-        while (Math.abs(middleV - targetV) > precision && i++ < maxIterations)
+        while (Math.abs(middleV - targetV) > precision)
         {
             // 使用斜率进行预估目标位置
             var slope = this.getDerivative(guessT);

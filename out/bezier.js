@@ -312,14 +312,12 @@ var BezierCurve = /** @class */ (function () {
      * @param ps 点列表
      * @param numSamples 采样次数，用于分段查找极值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      *
      * @returns 插值度列表
      */
-    BezierCurve.prototype.getTAtExtremums = function (ps, numSamples, precision, maxIterations) {
+    BezierCurve.prototype.getTAtExtremums = function (ps, numSamples, precision) {
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
-        if (maxIterations === void 0) { maxIterations = 4; }
         var samples = [];
         for (var i = 0; i <= numSamples; i++) {
             samples.push(this.getDerivative(i / numSamples, ps));
@@ -336,14 +334,16 @@ var BezierCurve = /** @class */ (function () {
         for (var i = 0, n = resultRanges.length; i < n; i++) {
             var guessT = resultRanges[i];
             var derivative = this.getDerivative(guessT, ps);
-            var j = 0;
-            while (Math.abs(derivative) > precision && j++ < maxIterations) {
+            while (Math.abs(derivative) > precision) {
                 // 使用斜率进行预估目标位置
                 var slope = this.getSecondDerivative(guessT, ps);
                 if (slope == 0)
                     break;
                 guessT += -derivative / slope;
                 derivative = this.getDerivative(guessT, ps);
+            }
+            if (guessT < 0 || guessT > 1) {
+                console.log(guessT + " \u4E0D\u6B63\u786E\uFF01");
             }
             results.push(guessT);
         }
@@ -353,15 +353,14 @@ var BezierCurve = /** @class */ (function () {
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
      */
-    BezierCurve.prototype.getMonotoneIntervals = function (ps, numSamples, precision, maxIterations) {
+    BezierCurve.prototype.getMonotoneIntervals = function (ps, numSamples, precision) {
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
-        if (maxIterations === void 0) { maxIterations = 4; }
         // 区间内的单调区间
         var monotoneIntervalTs = [0, 1];
         var monotoneIntervalVs = [ps[0], ps[ps.length - 1]];
         // 预先计算好极值
-        var extremumTs = this.getTAtExtremums(ps, numSamples, precision, maxIterations);
+        var extremumTs = this.getTAtExtremums(ps, numSamples, precision);
         var extremumVs = [];
         for (var i = 0; i < extremumTs.length; i++) {
             extremumVs[i] = this.getValue(extremumTs[i], ps);
@@ -378,29 +377,27 @@ var BezierCurve = /** @class */ (function () {
      * @param ps 点列表
      * @param numSamples 分段数量，用于分段查找，用于解决寻找多个解、是否无解等问题；过少的分段可能会造成找不到存在的解决，过多的分段将会造成性能很差。
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      *
      * @returns 返回解数组
      */
-    BezierCurve.prototype.getTFromValue = function (targetV, ps, numSamples, precision, maxIterations) {
+    BezierCurve.prototype.getTFromValue = function (targetV, ps, numSamples, precision) {
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
-        if (maxIterations === void 0) { maxIterations = 4; }
         // 获取单调区间
-        var monotoneIntervals = this.getMonotoneIntervals(ps, numSamples, precision, maxIterations);
+        var monotoneIntervals = this.getMonotoneIntervals(ps, numSamples, precision);
         var monotoneIntervalTs = monotoneIntervals.ts;
         var monotoneIntervalVs = monotoneIntervals.vs;
         // 目标估计值列表
         var guessTs = [];
         // 遍历单调区间
         for (var i = 0, n = monotoneIntervalVs.length - 1; i < n; i++) {
-            if ((monotoneIntervalVs[i] - targetV) * (monotoneIntervalVs[i + 1] - targetV) < 0) {
+            if ((monotoneIntervalVs[i] - targetV) * (monotoneIntervalVs[i + 1] - targetV) <= 0) {
                 guessTs.push((monotoneIntervalTs[i] + monotoneIntervalTs[i + 1]) / 2);
             }
         }
         var results = [];
         for (var i = 0, n = guessTs.length; i < n; i++) {
-            var result = this.getTFromValueAtRange(targetV, ps, guessTs[i], precision, maxIterations);
+            var result = this.getTFromValueAtRange(targetV, ps, guessTs[i], precision);
             results.push(result);
         }
         return results;
@@ -414,15 +411,12 @@ var BezierCurve = /** @class */ (function () {
      * @param ps 点列表
      * @param guessT 预估目标T值，单调区间内的一个预估值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      */
-    BezierCurve.prototype.getTFromValueAtRange = function (targetV, ps, guessT, precision, maxIterations) {
+    BezierCurve.prototype.getTFromValueAtRange = function (targetV, ps, guessT, precision) {
         if (guessT === void 0) { guessT = 0; }
         if (precision === void 0) { precision = 0.0000001; }
-        if (maxIterations === void 0) { maxIterations = 4; }
         var middleV = this.getValue(guessT, ps);
-        var i = 0;
-        while (Math.abs(middleV - targetV) > precision && i++ < maxIterations) {
+        while (Math.abs(middleV - targetV) > precision) {
             // 使用斜率进行预估目标位置
             var slope = this.getDerivative(guessT, ps);
             if (slope == 0)
@@ -512,14 +506,12 @@ var CubicBezierCurve = /** @class */ (function () {
      *
      * @param numSamples 采样次数，用于分段查找极值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      *
      * @returns 极值所在插值度列表
      */
-    CubicBezierCurve.prototype.getTAtExtremums = function (numSamples, precision, maxIterations) {
+    CubicBezierCurve.prototype.getTAtExtremums = function (numSamples, precision) {
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
-        if (maxIterations === void 0) { maxIterations = 4; }
         // 预先计算分段斜率值
         var sampleDerivatives = [];
         for (var i = 0; i <= numSamples; i++) {
@@ -537,8 +529,7 @@ var CubicBezierCurve = /** @class */ (function () {
         for (var i = 0, n = resultRanges.length; i < n; i++) {
             var guessT = resultRanges[i];
             var derivative = this.getDerivative(guessT);
-            var j = 0;
-            while (Math.abs(derivative) > precision && j++ < maxIterations) {
+            while (Math.abs(derivative) > precision) {
                 // 使用斜率进行预估目标位置
                 var slope = this.getSecondDerivative(guessT);
                 if (slope == 0)
@@ -554,15 +545,14 @@ var CubicBezierCurve = /** @class */ (function () {
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
      */
-    CubicBezierCurve.prototype.getMonotoneIntervals = function (numSamples, precision, maxIterations) {
+    CubicBezierCurve.prototype.getMonotoneIntervals = function (numSamples, precision) {
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
-        if (maxIterations === void 0) { maxIterations = 4; }
         // 区间内的单调区间
         var monotoneIntervalTs = [0, 1];
         var monotoneIntervalVs = [this.p0, this.p3];
         // 预先计算好极值
-        var extremumTs = this.getTAtExtremums(numSamples, precision, maxIterations);
+        var extremumTs = this.getTAtExtremums(numSamples, precision);
         var extremumVs = [];
         for (var i = 0; i < extremumTs.length; i++) {
             extremumVs[i] = this.getValue(extremumTs[i]);
@@ -577,13 +567,11 @@ var CubicBezierCurve = /** @class */ (function () {
      *
      * @param targetV 目标值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      *
      * @returns 返回解数组
      */
-    CubicBezierCurve.prototype.getTFromValue = function (targetV, precision, maxIterations) {
+    CubicBezierCurve.prototype.getTFromValue = function (targetV, precision) {
         if (precision === void 0) { precision = 0.0000001; }
-        if (maxIterations === void 0) { maxIterations = 4; }
         var monotoneIntervalTs = this.monotoneIntervalTs;
         var monotoneIntervalVs = this.monotoneIntervalVs;
         // 目标估计值列表
@@ -596,7 +584,7 @@ var CubicBezierCurve = /** @class */ (function () {
         }
         var results = [];
         for (var i = 0, n = guessTs.length; i < n; i++) {
-            var result = this.getTFromValueAtRange(targetV, guessTs[i], precision, maxIterations);
+            var result = this.getTFromValueAtRange(targetV, guessTs[i], precision);
             results.push(result);
         }
         return results;
@@ -609,17 +597,14 @@ var CubicBezierCurve = /** @class */ (function () {
      * @param targetV 目标值
      * @param guessT 预估目标T值，单调区间内的一个预估值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      *
      * @returns 目标值所在插值度
      */
-    CubicBezierCurve.prototype.getTFromValueAtRange = function (targetV, guessT, precision, maxIterations) {
+    CubicBezierCurve.prototype.getTFromValueAtRange = function (targetV, guessT, precision) {
         if (guessT === void 0) { guessT = 0; }
         if (precision === void 0) { precision = 0.0000001; }
-        if (maxIterations === void 0) { maxIterations = 4; }
         var middleV = this.getValue(guessT);
-        var i = 0;
-        while (Math.abs(middleV - targetV) > precision && i++ < maxIterations) {
+        while (Math.abs(middleV - targetV) > precision) {
             // 使用斜率进行预估目标位置
             var slope = this.getDerivative(guessT);
             if (slope == 0)
@@ -724,24 +709,4 @@ for (var i = 0; i < xSamples.length; i++) {
     points2[i] = [xSamples[i] * canvas.width, (1 - ySamples[i]) * canvas.height];
 }
 drawPointsCurve(canvas, points2, "green", 3);
-var x = Math.random();
-var num = 100000;
-console.time("bezierCurve");
-for (var i = 0; i < num; i++) {
-    // var t = bezierCurve.getTFromValue(x, xs)[0];
-    var t = bezierCurve.getTFromValueAtRange(x, xs);
-    var v3 = bezierCurve.getValue(t, ys);
-}
-console.timeEnd("bezierCurve");
-var cubicX = new CubicBezierCurve(xs[0], xs[1], xs[2], xs[3]);
-var cubicY = new CubicBezierCurve(ys[0], ys[1], ys[2], ys[3]);
-console.time("CubicBezierCurve");
-for (var i = 0; i < num; i++) {
-    // var t = cubicX.getTFromValue(x)[0];
-    var t = cubicX.getTFromValueAtRange(x);
-    var v4 = cubicY.getValue(t);
-}
-console.timeEnd("CubicBezierCurve");
-console.log(x, v3);
-console.log(x, v4);
 //# sourceMappingURL=bezier.js.map

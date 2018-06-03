@@ -197,16 +197,15 @@ declare class BezierCurve {
      * @param ps 点列表
      * @param numSamples 采样次数，用于分段查找极值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      *
      * @returns 插值度列表
      */
-    getTAtExtremums(ps: number[], numSamples?: number, precision?: number, maxIterations?: number): number[];
+    getTAtExtremums(ps: number[], numSamples?: number, precision?: number): number[];
     /**
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
      */
-    getMonotoneIntervals(ps: number[], numSamples?: number, precision?: number, maxIterations?: number): {
+    getMonotoneIntervals(ps: number[], numSamples?: number, precision?: number): {
         ts: number[];
         vs: number[];
     };
@@ -217,11 +216,10 @@ declare class BezierCurve {
      * @param ps 点列表
      * @param numSamples 分段数量，用于分段查找，用于解决寻找多个解、是否无解等问题；过少的分段可能会造成找不到存在的解决，过多的分段将会造成性能很差。
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      *
      * @returns 返回解数组
      */
-    getTFromValue(targetV: number, ps: number[], numSamples?: number, precision?: number, maxIterations?: number): number[];
+    getTFromValue(targetV: number, ps: number[], numSamples?: number, precision?: number): number[];
     /**
      * 从存在解的区域进行插值值
      *
@@ -231,9 +229,8 @@ declare class BezierCurve {
      * @param ps 点列表
      * @param guessT 预估目标T值，单调区间内的一个预估值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      */
-    getTFromValueAtRange(targetV: number, ps: number[], guessT?: number, precision?: number, maxIterations?: number): number;
+    getTFromValueAtRange(targetV: number, ps: number[], guessT?: number, precision?: number): number;
     /**
      * 获取曲线样本数据
      *
@@ -304,16 +301,15 @@ declare class CubicBezierCurve {
      *
      * @param numSamples 采样次数，用于分段查找极值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      *
      * @returns 极值所在插值度列表
      */
-    getTAtExtremums(numSamples?: number, precision?: number, maxIterations?: number): number[];
+    getTAtExtremums(numSamples?: number, precision?: number): number[];
     /**
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
      */
-    getMonotoneIntervals(numSamples?: number, precision?: number, maxIterations?: number): {
+    getMonotoneIntervals(numSamples?: number, precision?: number): {
         ts: number[];
         vs: number[];
     };
@@ -322,11 +318,10 @@ declare class CubicBezierCurve {
      *
      * @param targetV 目标值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      *
      * @returns 返回解数组
      */
-    getTFromValue(targetV: number, precision?: number, maxIterations?: number): number[];
+    getTFromValue(targetV: number, precision?: number): number[];
     /**
      * 从存在解的区域进行查找目标值的插值度
      *
@@ -335,11 +330,10 @@ declare class CubicBezierCurve {
      * @param targetV 目标值
      * @param guessT 预估目标T值，单调区间内的一个预估值
      * @param precision  查找精度
-     * @param maxIterations  最大迭代次数
      *
      * @returns 目标值所在插值度
      */
-    getTFromValueAtRange(targetV: number, guessT?: number, precision?: number, maxIterations?: number): number;
+    getTFromValueAtRange(targetV: number, guessT?: number, precision?: number): number;
     /**
      * 获取曲线样本数据
      *
@@ -372,7 +366,3 @@ declare var bezierPoints: number[][];
 declare var xSamples: number[];
 declare var ySamples: number[];
 declare var points2: any[];
-declare var x: number;
-declare var num: number;
-declare var cubicX: CubicBezierCurve;
-declare var cubicY: CubicBezierCurve;

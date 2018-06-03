@@ -72,27 +72,53 @@
             }
         } else if (editIndex % 3 == 1) // 右边控制点
         {
-            var addx = (x - xs[editIndex]) / (xs[editIndex - 1] - xs[editIndex]);
-            var addy = (y - ys[editIndex]) / (ys[editIndex - 1] - ys[editIndex]);
-            xs[editIndex] = x;
-            ys[editIndex] = y;
             // 改变左边控制点
             if (editIndex - 2 > -1)
             {
-                xs[editIndex - 2] += (xs[editIndex - 1] - xs[editIndex - 2]) * addx;
-                ys[editIndex - 2] += (ys[editIndex - 1] - ys[editIndex - 2]) * addy;
+                var leftLength = Math.sqrt((xs[editIndex - 2] - xs[editIndex - 1]) * (xs[editIndex - 2] - xs[editIndex - 1]) + (ys[editIndex - 2] - ys[editIndex - 1]) * (ys[editIndex - 2] - ys[editIndex - 1]));
+                var rightLength = Math.sqrt((xs[editIndex - 1] - xs[editIndex]) * (xs[editIndex - 1] - xs[editIndex]) + (ys[editIndex - 1] - ys[editIndex]) * (ys[editIndex - 1] - ys[editIndex]));
+                //
+                if (Math.abs((x - xs[editIndex - 1]) * (y - ys[editIndex - 1])) > 0.01)
+                {
+                    xs[editIndex - 2] -= (x - xs[editIndex]) * leftLength / rightLength;
+                    ys[editIndex - 2] -= (y - ys[editIndex]) * leftLength / rightLength;
+                    //
+                    xs[editIndex] = x;
+                    ys[editIndex] = y;
+                }
+                // else
+                // {
+                //     debugger;
+                // }
+            } else
+            {
+                xs[editIndex] = x;
+                ys[editIndex] = y;
             }
         } else if (editIndex % 3 == 2) // 左边控制点
         {
-            var addx = (x - xs[editIndex]) / (xs[editIndex + 1] - xs[editIndex]);
-            var addy = (y - ys[editIndex]) / (ys[editIndex + 1] - ys[editIndex]);
-            xs[editIndex] = x;
-            ys[editIndex] = y;
             // 改变右边控制点
             if (editIndex + 2 < xs.length)
             {
-                xs[editIndex + 2] += (xs[editIndex + 1] - xs[editIndex + 2]) * addx;
-                ys[editIndex + 2] += (ys[editIndex + 1] - ys[editIndex + 2]) * addy;
+                var leftLength = Math.sqrt((xs[editIndex + 1] - xs[editIndex]) * (xs[editIndex + 1] - xs[editIndex]) + (ys[editIndex + 1] - ys[editIndex]) * (ys[editIndex + 1] - ys[editIndex]));
+                var rightLength = Math.sqrt((xs[editIndex + 2] - xs[editIndex + 1]) * (xs[editIndex + 2] - xs[editIndex + 1]) + (ys[editIndex + 2] - ys[editIndex + 1]) * (ys[editIndex + 2] - ys[editIndex + 1]));
+                //
+                if (Math.abs((xs[editIndex + 1] - x) * (ys[editIndex + 1] - y)) > 0.01)
+                {
+                    xs[editIndex + 2] -= (x - xs[editIndex]) * rightLength / leftLength;
+                    ys[editIndex + 2] -= (y - ys[editIndex]) * rightLength / leftLength;
+                    //
+                    xs[editIndex] = x;
+                    ys[editIndex] = y;
+                }
+                // else
+                // {
+                //     debugger;
+                // }
+            } else
+            {
+                xs[editIndex] = x;
+                ys[editIndex] = y;
             }
         }
     }

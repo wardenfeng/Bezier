@@ -41,7 +41,7 @@ function clearCanvas(canvas: HTMLCanvasElement)
  * @param points 曲线上的点
  * @param strokeStyle 曲线颜色
  */
-function drawCurve(canvas: HTMLCanvasElement, points: number[][], strokeStyle = 'white', lineWidth = 3)
+function drawPointsCurve(canvas: HTMLCanvasElement, points: number[][], strokeStyle = 'white', lineWidth = 3)
 {
     var ctx = canvas.getContext("2d");
     ctx.beginPath();
@@ -55,6 +55,17 @@ function drawCurve(canvas: HTMLCanvasElement, points: number[][], strokeStyle = 
     ctx.stroke();
 }
 
+function drawBezierCurve(canvas: HTMLCanvasElement, points: number[][], strokeStyle = 'white', lineWidth = 3)
+{
+    var ctx = canvas.getContext("2d");
+    ctx.beginPath();
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = strokeStyle;
+    ctx.moveTo(points[0][0], points[0][1]);
+    ctx.bezierCurveTo(points[1][0], points[1][1], points[2][0], points[2][1], points[3][0], points[3][1]);
+    ctx.stroke();
+}
+
 var canvas = createCanvas(100, 100, 400, 300);
 // var point0 = [Math.random(), Math.random()];
 // var point1 = [Math.random(), Math.random()];
@@ -64,11 +75,17 @@ var xs = [0, point0[0], point1[0], 1];
 var ys = [0, point0[1], point1[1], 1];
 
 clearCanvas(canvas);
+
+//
+var bezierPoints = [[0, 0], point0, point1, [1, 1]];
+bezierPoints = bezierPoints.map(item => { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; })
+drawBezierCurve(canvas, bezierPoints, "red", 9);
+
 //
 var bezier = new Bezier(point0[0], point0[1], point1[0], point1[1]);
 var points = getBezierSamples(bezier, 100);
 points = points.map(item => { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; })
-drawCurve(canvas, points, 'white', 9)
+drawPointsCurve(canvas, points, 'white', 6)
 
 //
 var xSamples = bezierCurve.getSamples(xs);
@@ -79,7 +96,7 @@ for (let i = 0; i < xSamples.length; i++)
 {
     points2[i] = [xSamples[i] * canvas.width, (1 - ySamples[i]) * canvas.height];
 }
-drawCurve(canvas, points2, "green", 3);
+drawPointsCurve(canvas, points2, "green", 3);
 
 var x = Math.random();
 

@@ -841,7 +841,7 @@ function clearCanvas(canvas) {
  * @param points 曲线上的点
  * @param strokeStyle 曲线颜色
  */
-function drawCurve(canvas, points, strokeStyle, lineWidth) {
+function drawPointsCurve(canvas, points, strokeStyle, lineWidth) {
     if (strokeStyle === void 0) { strokeStyle = 'white'; }
     if (lineWidth === void 0) { lineWidth = 3; }
     var ctx = canvas.getContext("2d");
@@ -854,6 +854,17 @@ function drawCurve(canvas, points, strokeStyle, lineWidth) {
     }
     ctx.stroke();
 }
+function drawBezierCurve(canvas, points, strokeStyle, lineWidth) {
+    if (strokeStyle === void 0) { strokeStyle = 'white'; }
+    if (lineWidth === void 0) { lineWidth = 3; }
+    var ctx = canvas.getContext("2d");
+    ctx.beginPath();
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = strokeStyle;
+    ctx.moveTo(points[0][0], points[0][1]);
+    ctx.bezierCurveTo(points[1][0], points[1][1], points[2][0], points[2][1], points[3][0], points[3][1]);
+    ctx.stroke();
+}
 var canvas = createCanvas(100, 100, 400, 300);
 // var point0 = [Math.random(), Math.random()];
 // var point1 = [Math.random(), Math.random()];
@@ -863,10 +874,14 @@ var xs = [0, point0[0], point1[0], 1];
 var ys = [0, point0[1], point1[1], 1];
 clearCanvas(canvas);
 //
+var bezierPoints = [[0, 0], point0, point1, [1, 1]];
+bezierPoints = bezierPoints.map(function (item) { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; });
+drawBezierCurve(canvas, bezierPoints, "red", 9);
+//
 var bezier = new Bezier(point0[0], point0[1], point1[0], point1[1]);
 var points = getBezierSamples(bezier, 100);
 points = points.map(function (item) { return [item[0] * canvas.width, (1 - item[1]) * canvas.height]; });
-drawCurve(canvas, points, 'white', 9);
+drawPointsCurve(canvas, points, 'white', 6);
 //
 var xSamples = bezierCurve.getSamples(xs);
 var ySamples = bezierCurve.getSamples(ys);
@@ -874,7 +889,7 @@ var points2 = [];
 for (var i = 0; i < xSamples.length; i++) {
     points2[i] = [xSamples[i] * canvas.width, (1 - ySamples[i]) * canvas.height];
 }
-drawCurve(canvas, points2, "green", 3);
+drawPointsCurve(canvas, points2, "green", 3);
 var x = Math.random();
 var num = 100000;
 console.time("bezierCurve");

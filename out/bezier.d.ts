@@ -442,12 +442,14 @@ declare function clearCanvas(canvas: HTMLCanvasElement): void;
  * @param points 曲线上的点
  * @param strokeStyle 曲线颜色
  */
-declare function drawCurve(canvas: HTMLCanvasElement, points: number[][], strokeStyle?: string, lineWidth?: number): void;
+declare function drawPointsCurve(canvas: HTMLCanvasElement, points: number[][], strokeStyle?: string, lineWidth?: number): void;
+declare function drawBezierCurve(canvas: HTMLCanvasElement, points: number[][], strokeStyle?: string, lineWidth?: number): void;
 declare var canvas: HTMLCanvasElement;
 declare var point0: number[];
 declare var point1: number[];
 declare var xs: number[];
 declare var ys: number[];
+declare var bezierPoints: number[][];
 declare var bezier: Bezier;
 declare var points: number[][];
 declare var xSamples: number[];

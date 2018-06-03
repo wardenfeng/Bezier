@@ -6,8 +6,20 @@
     // window.addEventListener("click", onMouseClick)
     window.addEventListener("mousedown", onMouseDown);
 
-    var xs: number[] = [Math.random() * canvas.width, Math.random() * canvas.width, Math.random() * canvas.width];
-    var ys: number[] = [Math.random() * canvas.height, Math.random() * canvas.height, Math.random() * canvas.height];
+    // 第一条曲线  [0,3] 
+    // 第二条曲线  [3,6] 
+    var xs: number[] = [
+        Math.random() * canvas.width,
+        Math.random() * canvas.width,
+        Math.random() * canvas.width,
+        Math.random() * canvas.width,
+    ];
+    var ys: number[] = [
+        Math.random() * canvas.height,
+        Math.random() * canvas.height,
+        Math.random() * canvas.height,
+        Math.random() * canvas.height,
+    ];
     var editIndex = -1;
     var editing = false;
     var mousedownxy = { x: -1, y: -1 }
@@ -107,28 +119,34 @@
     {
         clearCanvas(canvas);
 
-        if (xs.length > 0)
+        for (let i = 0, n = xs.length / 3; i < n; i++)
         {
             // 使用 bezierCurve 进行采样曲线点
-            var xSamples = bezier.getSamples(xs);
-            var ySamples = bezier.getSamples(ys);
-            // 绘制曲线
-            drawPointsCurve(canvas, xSamples, ySamples, 'white', 3);
+            if (i > 0)
+            {
+                var sxs = xs.slice(i * 3 - 3, i * 3 + 1)
+                var sys = ys.slice(i * 3 - 3, i * 3 + 1)
 
-            // 绘制起点
-            drawPoints(canvas, xs.slice(0, 1), ys.slice(0, 1), "red", 16)
+                var xSamples = bezier.getSamples(sxs);
+                var ySamples = bezier.getSamples(sys);
+                // 绘制曲线
+                drawPointsCurve(canvas, xSamples, ySamples, 'white', 3);
+            }
+
+            // 绘制曲线端点
+            drawPoints(canvas, xs.slice(i * 3, i * 3 + 1), ys.slice(i * 3, i * 3 + 1), "red", 16)
 
             // 绘制控制点
-            if (xs.length > 2)
-                drawPoints(canvas, xs.slice(1, xs.length - 1), ys.slice(1, ys.length - 1), "blue", 16)
-
-            // 绘制终点
-            if (xs.length > 1)
-                drawPoints(canvas, xs.slice(xs.length - 1, xs.length), ys.slice(ys.length - 1, ys.length), "green", 16)
+            if (i > 0)
+                drawPoints(canvas, xs.slice(i * 3 - 1, i * 3 + 0), ys.slice(i * 3 - 1, i * 3 + 0), "blue", 16)
+            if (i < n - 1)
+                drawPoints(canvas, xs.slice(i * 3 + 1, i * 3 + 2), ys.slice(i * 3 + 1, i * 3 + 2), "blue", 16)
 
             // 绘制控制点之间的连线
-            if (xs.length > 2)
-                drawPointsCurve(canvas, xs, ys, "yellow", 1);
+            if (i > 0)
+                drawPointsCurve(canvas, xs.slice(i * 3 - 1, i * 3 + 1), ys.slice(i * 3 - 1, i * 3 + 1), "yellow", 1)
+            if (i < n - 1)
+                drawPointsCurve(canvas, xs.slice(i * 3 + 0, i * 3 + 2), ys.slice(i * 3 + 0, i * 3 + 2), "yellow", 1)
         }
         //
         requestAnimationFrame(draw);

@@ -334,7 +334,7 @@ var Bezier = /** @class */ (function () {
         var resultRanges = [];
         for (var i = 0, n = numSamples; i < n; i++) {
             if (samples[i] * samples[i + 1] < 0) {
-                resultRanges.push([i / numSamples, (i + 1) / numSamples, samples[i], samples[i + 1]]);
+                resultRanges.push([i / numSamples, (i + 1) / numSamples]);
             }
         }
         //
@@ -342,7 +342,7 @@ var Bezier = /** @class */ (function () {
         var resultVs = [];
         for (var i = 0, n = resultRanges.length; i < n; i++) {
             var range = resultRanges[i];
-            var guessT = this.getExtremumAtRange(0, ps, range[0], range[1], range[2], range[3], precision);
+            var guessT = this.getExtremumAtRange(0, ps, range[0], range[1], precision);
             resultTs.push(guessT);
             resultVs.push(this.getValue(guessT, ps));
         }
@@ -355,17 +355,16 @@ var Bezier = /** @class */ (function () {
      * @param ps 点列表
      * @param startT 起始插值点
      * @param endT 终止插值点
-     * @param startV 起始值
-     * @param endV 终止值
      * @param precision 插值精度
      */
-    Bezier.prototype.getExtremumAtRange = function (targetD, ps, startT, endT, startV, endV, precision) {
+    Bezier.prototype.getExtremumAtRange = function (targetD, ps, startT, endT, precision) {
         if (precision === void 0) { precision = 0.0000001; }
+        var startV = this.getDerivative(startT, ps);
+        var endV = this.getDerivative(endT, ps);
         var dir = endV - startV;
         //
         var guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
         var guessV = this.getDerivative(guessT, ps);
-        var numTteration = 0;
         while (Math.abs(guessV) > precision) {
             if (guessV * dir > 0) {
                 endT = guessT;
@@ -377,11 +376,6 @@ var Bezier = /** @class */ (function () {
             }
             guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
             guessV = this.getDerivative(guessT, ps);
-            numTteration++;
-            // if (numTteration > 5)
-            // {
-            //     debugger;
-            // }
         }
         return guessT;
     };
@@ -426,12 +420,12 @@ var Bezier = /** @class */ (function () {
         // 遍历单调区间
         for (var i = 0, n = monotoneIntervalVs.length - 1; i < n; i++) {
             if ((monotoneIntervalVs[i] - targetV) * (monotoneIntervalVs[i + 1] - targetV) <= 0) {
-                resultRanges.push([monotoneIntervalTs[i], monotoneIntervalTs[i + 1], monotoneIntervalVs[i], monotoneIntervalVs[i + 1]]);
+                resultRanges.push([monotoneIntervalTs[i], monotoneIntervalTs[i + 1]]);
             }
         }
         var results = [];
         for (var i = 0, n = resultRanges.length; i < n; i++) {
-            var result = this.getTFromValueAtRange(targetV, ps, resultRanges[i][0], resultRanges[i][1], resultRanges[i][2], resultRanges[i][3], precision);
+            var result = this.getTFromValueAtRange(targetV, ps, resultRanges[i][0], resultRanges[i][1], precision);
             results.push(result);
         }
         return results;
@@ -443,35 +437,29 @@ var Bezier = /** @class */ (function () {
      *
      * @param targetV 目标值
      * @param ps 点列表
-     * @param start 起始插值度
-     * @param end 终止插值度
-     * @param startv 起始值
-     * @param endv 终止值
+     * @param startT 起始插值度
+     * @param endT 终止插值度
      * @param precision  查找精度
      */
-    Bezier.prototype.getTFromValueAtRange = function (targetV, ps, start, end, startv, endv, precision) {
+    Bezier.prototype.getTFromValueAtRange = function (targetV, ps, startT, endT, precision) {
         if (precision === void 0) { precision = 0.0000001; }
-        var dir = endv - startv;
-        var guessT = start + (targetV - startv) / (endv - startv) * (end - start);
+        var startV = this.getValue(startT, ps);
+        var endV = this.getValue(endT, ps);
+        var dir = endV - startV;
+        var guessT = startT + (targetV - startV) / (endV - startV) * (endT - startT);
         var guessV = this.getValue(guessT, ps);
-        var numTteration = 0;
         while (Math.abs(guessV - targetV) > precision) {
             if ((guessV - targetV) * dir > 0) {
-                end = guessT;
-                endv = guessV;
+                endT = guessT;
+                endV = guessV;
             }
             else {
-                start = guessT;
-                startv = guessV;
+                startT = guessT;
+                startV = guessV;
             }
             // 使用斜率进行预估目标位置
-            guessT = start + (targetV - startv) / (endv - startv) * (end - start);
+            guessT = startT + (targetV - startV) / (endV - startV) * (endT - startT);
             guessV = this.getValue(guessT, ps);
-            numTteration++;
-            // if (numTteration > 5)
-            // {
-            //     debugger;
-            // }
         }
         return guessT;
     };

@@ -66,6 +66,15 @@ declare class CubicBezier {
         vs: number[];
     };
     /**
+     * 在导数曲线单调区间内查找指定导数所在插值度
+     *
+     * @param targetD 目标斜率
+     * @param startT 起始插值点
+     * @param endT 终止插值点
+     * @param precision 插值精度
+     */
+    getExtremumAtRange(targetD: number, startT: number, endT: number, precision?: number): number;
+    /**
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
      */
@@ -89,13 +98,11 @@ declare class CubicBezier {
      * 该函数只能从单调区间内查找值，并且 targetV 处于该区间内
      *
      * @param targetV 目标值
-     * @param start 起始插值度
-     * @param end 终止插值度
-     * @param startv 起始值
-     * @param endv 终止值
+     * @param startT 起始插值度
+     * @param endT 终止插值度
      * @param precision  查找精度
      */
-    getTFromValueAtRange(targetV: number, start: number, end: number, startv: number, endv: number, precision?: number): number;
+    getTFromValueAtRange(targetV: number, startT: number, endT: number, precision?: number): number;
     /**
      * 获取曲线样本数据
      *

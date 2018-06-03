@@ -212,11 +212,9 @@ declare class Bezier {
      * @param ps 点列表
      * @param startT 起始插值点
      * @param endT 终止插值点
-     * @param startV 起始值
-     * @param endV 终止值
      * @param precision 插值精度
      */
-    getExtremumAtRange(targetD: number, ps: number[], startT: number, endT: number, startV: number, endV: number, precision?: number): number;
+    getExtremumAtRange(targetD: number, ps: number[], startT: number, endT: number, precision?: number): number;
     /**
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
@@ -243,13 +241,11 @@ declare class Bezier {
      *
      * @param targetV 目标值
      * @param ps 点列表
-     * @param start 起始插值度
-     * @param end 终止插值度
-     * @param startv 起始值
-     * @param endv 终止值
+     * @param startT 起始插值度
+     * @param endT 终止插值度
      * @param precision  查找精度
      */
-    getTFromValueAtRange(targetV: number, ps: number[], start: number, end: number, startv: number, endv: number, precision?: number): number;
+    getTFromValueAtRange(targetV: number, ps: number[], startT: number, endT: number, precision?: number): number;
     /**
      * 获取曲线样本数据
      *

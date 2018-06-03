@@ -153,6 +153,17 @@
             ys.splice(index - 2, 3);
         }
         else {
+            var leftLength = Math.sqrt((xs[index - 1] - xs[index]) * (xs[index - 1] - xs[index]) + (ys[index - 1] - ys[index]) * (ys[index - 1] - ys[index]));
+            var rightLength = Math.sqrt((xs[index + 1] - xs[index]) * (xs[index + 1] - xs[index]) + (ys[index + 1] - ys[index]) * (ys[index + 1] - ys[index]));
+            // 删除点处相当于删除后曲线t值
+            var deleteT = leftLength / (leftLength + rightLength);
+            // 放大
+            xs[index - 2] = xs[index - 3] + (xs[index - 2] - xs[index - 3]) / deleteT;
+            ys[index - 2] = ys[index - 3] + (ys[index - 2] - ys[index - 3]) / deleteT;
+            //
+            xs[index + 2] = xs[index + 3] + (xs[index + 2] - xs[index + 3]) / (1 - deleteT);
+            ys[index + 2] = ys[index + 3] + (ys[index + 2] - ys[index + 3]) / (1 - deleteT);
+            //
             xs.splice(index - 1, 3);
             ys.splice(index - 1, 3);
         }

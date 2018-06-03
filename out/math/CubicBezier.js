@@ -101,8 +101,12 @@ var CubicBezier = /** @class */ (function () {
         var dir = endV - startV;
         //
         var guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
+        // 使用二分查找
+        // var guessT = (startT + endT) / 2;
         var guessV = this.getDerivative(guessT);
-        while (Math.abs(guessV) > precision) {
+        while (Math.abs(guessV) > precision) 
+        // while (Math.abs(startT - endT) > precision)
+        {
             if (guessV * dir > 0) {
                 endT = guessT;
                 endV = guessV;
@@ -112,6 +116,8 @@ var CubicBezier = /** @class */ (function () {
                 startV = guessV;
             }
             guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
+            // 使用二分查找
+            // guessT = (startT + endT) / 2;
             guessV = this.getDerivative(guessT);
         }
         return guessT;
@@ -181,9 +187,14 @@ var CubicBezier = /** @class */ (function () {
         var startV = this.getValue(startT);
         var endV = this.getValue(endT);
         var dir = endV - startV;
+        // 使用斜率进行预估目标位置
         var guessT = startT + (targetV - startV) / (endV - startV) * (endT - startT);
+        // 使用二分查找
+        // var guessT = (startT + endT) / 2;
         var guessV = this.getValue(guessT);
-        while (Math.abs(guessV - targetV) > precision) {
+        while (Math.abs(guessV - targetV) > precision) 
+        // while (Math.abs(startT - endT) > precision)
+        {
             if ((guessV - targetV) * dir > 0) {
                 endT = guessT;
                 endV = guessV;
@@ -194,6 +205,8 @@ var CubicBezier = /** @class */ (function () {
             }
             // 使用斜率进行预估目标位置
             guessT = startT + (targetV - startV) / (endV - startV) * (endT - startT);
+            // 使用二分查找
+            // guessT = (startT + endT) / 2;
             guessV = this.getValue(guessT);
         }
         return guessT;

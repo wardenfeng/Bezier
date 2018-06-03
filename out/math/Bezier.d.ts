@@ -6,6 +6,12 @@ declare var bezier: Bezier;
  * Bézier曲线
  * @see https://en.wikipedia.org/wiki/B%C3%A9zier_curve
  *
+ * #### getTFromValueAtRange 与 getExtremumAtRange 使用到了曲线上查找值，有三种方法可选
+ *
+ * 1. 放弃，二分查找；效率最差，区间内有解情况下可以确保取到解
+ * 1. 选用，两端评估，根据两端作为斜率进行对目标值位置进行评估；区间内有解情况下可以确保取到解
+ * 1. 放弃，斜率评估，根据当前斜率进行对目标值位置进行评估 （貌似是牛顿迭代）；可能会跳出该区间取到其他区间的解（特别是在高次Bézier曲线时），很难控制
+ *
  * @author feng / http://feng3d.com 03/06/2018
  */
 declare class Bezier {

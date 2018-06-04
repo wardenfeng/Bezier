@@ -1,6 +1,10 @@
 ### Bézier曲线
 https://wardenfeng.github.io/bezier
 
+创建该库的原始目的是为了解决feng3d引擎粒子中时间与常量的变化曲线问题。
+
+制作Bézier曲线这个库忙了整整3天了，感觉要跳进高等代数的坑了，得赶紧爬出这个坑，这坑太深了，以后再来跳。
+
 #### 核心文件
 1. [Bezier.ts](src/math/Bezier.ts) 
 1. [Bezier.d.ts](out/math/Bezier.d.ts) 

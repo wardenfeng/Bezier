@@ -42,6 +42,8 @@ declare class EquationSolving {
     /**
      * 二分法
      *
+     * 通过 中间值 (a + b) / 2 二分 [a, b] ，逐渐缩小求解区间最终获得解
+     *
      * @param f 函数f(x)
      * @param a 区间起点
      * @param b 区间终点
@@ -51,6 +53,22 @@ declare class EquationSolving {
      * @returns 不存在解时返回 undefined ，存在时返回 解
      */
     binary(f: (x) => number, a: number, b: number, precision?: number, errorcallback?: (err: Error) => void): number;
+    /**
+     * 连线法 （我自己想的方法，自己取的名字，目前没有找到相应的资料）
+     *
+     * 通过 A，B两点连线与x轴交点来缩小求解区间最终获得解
+     *
+     * A，B两点直线方程 f(x) = f(a) + (f(b) - f(a)) / (b - a) * (x-a) ,求 f(x) == 0 解得 x = a + (0 - fa) / (fb - fa) * (b - a)
+     *
+     * @param f 函数f(x)
+     * @param a 区间起点
+     * @param b 区间终点
+     * @param precision 求解精度
+     * @param errorcallback  错误回调函数
+     *
+     * @returns 不存在解时返回 undefined ，存在时返回 解
+     */
+    line(f: (x) => number, a: number, b: number, precision?: number, errorcallback?: (err: Error) => void): number;
 }
 /**
  * Bézier曲线
@@ -272,16 +290,6 @@ declare class Bezier {
         vs: number[];
     };
     /**
-     * 在导数曲线单调区间内查找指定导数所在插值度
-     *
-     * @param targetD 目标斜率
-     * @param ps 点列表
-     * @param startT 起始插值点
-     * @param endT 终止插值点
-     * @param precision 插值精度
-     */
-    getExtremumAtRange(targetD: number, ps: number[], startT: number, endT: number, precision?: number): number;
-    /**
      * 获取单调区间列表
      * @returns {} {ts: 区间节点插值度列表,vs: 区间节点值列表}
      */
@@ -300,18 +308,6 @@ declare class Bezier {
      * @returns 返回解数组
      */
     getTFromValue(targetV: number, ps: number[], numSamples?: number, precision?: number): number[];
-    /**
-     * 从存在解的区域进行插值值
-     *
-     * 该函数只能从单调区间内查找值，并且 targetV 处于该区间内
-     *
-     * @param targetV 目标值
-     * @param ps 点列表
-     * @param startT 起始插值度
-     * @param endT 终止插值度
-     * @param precision  查找精度
-     */
-    getTFromValueAtRange(targetV: number, ps: number[], startT: number, endT: number, precision?: number): number;
     /**
      * 获取曲线样本数据
      *

@@ -69,6 +69,8 @@ class EquationSolving
     /**
      * 二分法
      * 
+     * 通过 中间值 (a + b) / 2 二分 [a, b] ，逐渐缩小求解区间最终获得解
+     * 
      * @param f 函数f(x)
      * @param a 区间起点
      * @param b 区间终点
@@ -94,6 +96,52 @@ class EquationSolving
         do
         {
             var r = (a + b) / 2;
+            var fr = f(r);
+            if (fa * fr < 0)
+            {
+                b = r;
+                fb = fr;
+            } else
+            {
+                a = r;
+                fa = fr;
+            }
+        } while (!this.equalNumber(fr, 0, precision));
+        return r;
+    }
+
+    /**
+     * 连线法 （我自己想的方法，自己取的名字，目前没有找到相应的资料）
+     * 
+     * 通过 A，B两点连线与x轴交点来缩小求解区间最终获得解
+     * 
+     * A，B两点直线方程 f(x) = f(a) + (f(b) - f(a)) / (b - a) * (x-a) ,求 f(x) == 0 解得 x = a + (0 - fa) / (fb - fa) * (b - a)
+     * 
+     * @param f 函数f(x)
+     * @param a 区间起点
+     * @param b 区间终点
+     * @param precision 求解精度
+     * @param errorcallback  错误回调函数
+     * 
+     * @returns 不存在解时返回 undefined ，存在时返回 解
+     */
+    line(f: (x) => number, a: number, b: number, precision = 0.0000001, errorcallback?: (err: Error) => void)
+    {
+        if (!this.hasSolution(f, a, b, errorcallback)) return undefined;
+
+        var fa = f(a);
+        var fb = f(b);
+        if (this.equalNumber(fa, 0, precision))
+        {
+            return a;
+        }
+        if (this.equalNumber(fb, 0, precision))
+        {
+            return b;
+        }
+        do
+        {
+            var r = a + (0 - fa) / (fb - fa) * (b - a);
             var fr = f(r);
             if (fa * fr < 0)
             {
@@ -502,65 +550,20 @@ class Bezier
             samples.push(this.getDerivative(i / numSamples, ps));
         }
         // 查找存在解的分段
-        var resultRanges: number[][] = [];
+        //
+        var resultTs: number[] = [];
+        var resultVs: number[] = [];
         for (let i = 0, n = numSamples; i < n; i++)
         {
             if (samples[i] * samples[i + 1] < 0)
             {
-                resultRanges.push([i / numSamples, (i + 1) / numSamples]);
+                var guessT = equationSolving.line((x) => { return this.getDerivative(x, ps); }, i / numSamples, (i + 1) / numSamples, precision)
+                // var guessT = equationSolving.binary((x) => { return this.getDerivative(x, ps); }, i / numSamples, (i + 1) / numSamples, precision)
+                resultTs.push(guessT);
+                resultVs.push(this.getValue(guessT, ps));
             }
-        }
-        //
-        var resultTs: number[] = [];
-        var resultVs: number[] = [];
-        for (let i = 0, n = resultRanges.length; i < n; i++)
-        {
-            var range = resultRanges[i];
-            var guessT = this.getExtremumAtRange(0, ps, range[0], range[1], precision);
-
-            resultTs.push(guessT);
-            resultVs.push(this.getValue(guessT, ps));
         }
         return { ts: resultTs, vs: resultVs };
-    }
-
-    /**
-     * 在导数曲线单调区间内查找指定导数所在插值度
-     * 
-     * @param targetD 目标斜率
-     * @param ps 点列表
-     * @param startT 起始插值点
-     * @param endT 终止插值点
-     * @param precision 插值精度
-     */
-    getExtremumAtRange(targetD: number, ps: number[], startT: number, endT: number, precision = 0.0000001)
-    {
-        var startV = this.getDerivative(startT, ps);
-        var endV = this.getDerivative(endT, ps);
-        var dir = endV - startV;
-        //
-        var guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
-        // 使用二分查找
-        // var guessT = (startT + endT) / 2;
-        var guessV = this.getDerivative(guessT, ps);
-        while (Math.abs(guessV) > precision)
-        // while (Math.abs(startT - endT) > precision)
-        {
-            if (guessV * dir > 0)
-            {
-                endT = guessT;
-                endV = guessV;
-            } else
-            {
-                startT = guessT;
-                startV = guessV;
-            }
-            guessT = startT + (0 - startV) / (endV - startV) * (endT - startT);
-            // 使用二分查找
-            // guessT = (startT + endT) / 2;
-            guessV = this.getDerivative(guessT, ps);
-        }
-        return guessT;
     }
 
     /**
@@ -601,69 +604,18 @@ class Bezier
         var monotoneIntervalVs = monotoneIntervals.vs;
 
         // 存在解的单调区间
-        var resultRanges: number[][] = [];
+        var results: number[] = [];
         // 遍历单调区间
         for (let i = 0, n = monotoneIntervalVs.length - 1; i < n; i++)
         {
             if ((monotoneIntervalVs[i] - targetV) * (monotoneIntervalVs[i + 1] - targetV) <= 0)
             {
-                resultRanges.push([monotoneIntervalTs[i], monotoneIntervalTs[i + 1]]);
+                // var result = equationSolving.binary((x) => { return this.getValue(x, ps) - targetV; }, monotoneIntervalTs[i], monotoneIntervalTs[i + 1], precision)
+                var result = equationSolving.line((x) => { return this.getValue(x, ps) - targetV; }, monotoneIntervalTs[i], monotoneIntervalTs[i + 1], precision)
+                results.push(result);
             }
-        }
-
-        var results: number[] = [];
-        for (let i = 0, n = resultRanges.length; i < n; i++)
-        {
-            var result = this.getTFromValueAtRange(targetV, ps, resultRanges[i][0], resultRanges[i][1], precision);
-
-            // debugger;
-            var result = equationSolving.binary((x) => { return this.getValue(x, ps) - targetV; }, resultRanges[i][0], resultRanges[i][1], precision)
-
-            results.push(result);
         }
         return results;
-    }
-
-    /**
-     * 从存在解的区域进行插值值
-     * 
-     * 该函数只能从单调区间内查找值，并且 targetV 处于该区间内
-     * 
-     * @param targetV 目标值
-     * @param ps 点列表
-     * @param startT 起始插值度
-     * @param endT 终止插值度
-     * @param precision  查找精度
-     */
-    getTFromValueAtRange(targetV: number, ps: number[], startT: number, endT: number, precision = 0.0000001)
-    {
-        var startV = this.getValue(startT, ps);
-        var endV = this.getValue(endT, ps);
-        var dir = endV - startV;
-        var guessT = startT + (targetV - startV) / (endV - startV) * (endT - startT);
-        // 使用二分查找
-        // var guessT = (startT + endT) / 2;
-        var guessV = this.getValue(guessT, ps);
-
-        while (Math.abs(guessV - targetV) > precision)
-        // while (Math.abs(startT - endT) > precision)
-        {
-            if ((guessV - targetV) * dir > 0)
-            {
-                endT = guessT;
-                endV = guessV;
-            } else
-            {
-                startT = guessT;
-                startV = guessV;
-            }
-            // 使用斜率进行预估目标位置
-            guessT = startT + (targetV - startV) / (endV - startV) * (endT - startT);
-            // 使用二分查找
-            // guessT = (startT + endT) / 2;
-            guessV = this.getValue(guessT, ps);
-        }
-        return guessT;
     }
 
     /**

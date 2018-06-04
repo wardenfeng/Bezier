@@ -3,14 +3,120 @@
  */
 var bezier;
 /**
+ * 方程求解
+ */
+var equationSolving;
+/**
+ * 方程求解
+ * 参考：高等数学 第七版上册 第三章第八节 方程的近似解
+ * 当f(x)在区间 [a, b] 上连续，且f(a) * f(b) <= 0 时，f(x)在区间 [a, b] 上至少存在一个解使得 f(x) == 0
+ *
+ * 当f(x)在区间 [a, b] 上连续，且 (f(a) - y) * (f(b) - y) < 0 时，f(x)在区间 [a, b] 上至少存在一个解使得 f(x) == y
+ */
+var EquationSolving = /** @class */ (function () {
+    function EquationSolving() {
+    }
+    /**
+     * 比较 a 与 b 是否相等
+     * @param a 值a
+     * @param b 值b
+     * @param precision 比较精度
+     */
+    EquationSolving.prototype.equalNumber = function (a, b, precision) {
+        if (precision === void 0) { precision = 0.0000001; }
+        return Math.abs(a - b) < precision;
+    };
+    /**
+     * 函数是否连续
+     * @param f 函数
+     */
+    EquationSolving.prototype.isContinuous = function (f) {
+        return true;
+    };
+    /**
+     * 方程 f(x) == 0 在 [a, b] 区间内是否有解
+     *
+     * 当f(x)在区间 [a, b] 上连续，且f(a) * f(b) <= 0 时，f(x)在区间 [a, b] 上至少存在一个解使得 f(x) == 0
+     *
+     * @param f 函数f(x)
+     * @param a 区间起点
+     * @param b 区间终点
+     * @param errorcallback  错误回调函数
+     *
+     * @returns 是否有解
+     */
+    EquationSolving.prototype.hasSolution = function (f, a, b, errorcallback) {
+        if (!this.isContinuous(f)) {
+            errorcallback && errorcallback(new Error("\u51FD\u6570 " + f + " \u5728 [" + a + " ," + b + "] \u533A\u95F4\u5185\u4E0D\u8FDE\u7EED\uFF0C\u65E0\u6CD5\u4E3A\u5176\u6C42\u89E3\uFF01"));
+            return false;
+        }
+        var fa = f(a);
+        var fb = f(b);
+        if (fa * fb > 0) {
+            errorcallback && errorcallback(new Error("f(a) * f(b) \u503C\u4E3A " + fa * fb + "\uFF0C\u4E0D\u6EE1\u8DB3 f(a) * f(b) <= 0\uFF0C\u65E0\u6CD5\u4E3A\u5176\u6C42\u89E3\uFF01"));
+            return false;
+        }
+        return true;
+    };
+    /**
+     * 二分法
+     *
+     * @param f 函数f(x)
+     * @param a 区间起点
+     * @param b 区间终点
+     * @param precision 求解精度
+     * @param errorcallback  错误回调函数
+     *
+     * @returns 不存在解时返回 undefined ，存在时返回 解
+     */
+    EquationSolving.prototype.binary = function (f, a, b, precision, errorcallback) {
+        if (precision === void 0) { precision = 0.0000001; }
+        if (!this.hasSolution(f, a, b, errorcallback))
+            return undefined;
+        var fa = f(a);
+        var fb = f(b);
+        if (this.equalNumber(fa, 0, precision)) {
+            return a;
+        }
+        if (this.equalNumber(fb, 0, precision)) {
+            return b;
+        }
+        do {
+            var r = (a + b) / 2;
+            var fr = f(r);
+            if (fa * fr < 0) {
+                b = r;
+                fb = fr;
+            }
+            else {
+                a = r;
+                fa = fr;
+            }
+        } while (!this.equalNumber(fr, 0, precision));
+        return r;
+    };
+    return EquationSolving;
+}());
+equationSolving = new EquationSolving();
+/**
  * Bézier曲线
  * @see https://en.wikipedia.org/wiki/B%C3%A9zier_curve
  *
- * #### getTFromValueAtRange 与 getExtremumAtRange 使用到了曲线上查找值，有三种方法可选
+ * #### getTFromValueAtRange 与 getExtremumAtRange 使用到了方程求解
  *
- * 1. 放弃，二分查找；效率最差，区间内有解情况下可以确保取到解
+ * 方程的近似解
+ * 参考：高等数学 第七版上册 第三章第八节 方程的近似解
+ * 定义： f(x)在区间 [a, b] 上连续，且 (f(a) - y) * (f(b) - y) < 0
+ * 推论： f(x)在区间 [a, b] 上至少存在一个解使得 f(x) == 0
+ *
+ * 以下方法可以求解
+ * 1. 二分法
+ *      if( f((a+b)/2 )
+ *
+ * 1. 放弃，二分法；估计结果在两个端点之间；效率最差，区间内有解情况下可以确保取到解
  * 1. 选用，两端评估，根据两端作为斜率进行对目标值位置进行评估；区间内有解情况下可以确保取到解
- * 1. 放弃，斜率评估，根据当前斜率进行对目标值位置进行评估 （貌似是牛顿迭代）；可能会跳出该区间取到其他区间的解（特别是在高次Bézier曲线时），很难控制
+ * 1. 放弃，切线法，根据当前斜率进行对目标值位置进行评估 （貌似是牛顿迭代）；可能会跳出该区间取到其他区间的解（特别是在高次Bézier曲线时），很难控制
+ * 1.
  *
  * @author feng / http://feng3d.com 03/06/2018
  */
@@ -421,6 +527,7 @@ var Bezier = /** @class */ (function () {
      * @returns 返回解数组
      */
     Bezier.prototype.getTFromValue = function (targetV, ps, numSamples, precision) {
+        var _this = this;
         if (numSamples === void 0) { numSamples = 10; }
         if (precision === void 0) { precision = 0.0000001; }
         // 获取单调区间
@@ -438,6 +545,8 @@ var Bezier = /** @class */ (function () {
         var results = [];
         for (var i = 0, n = resultRanges.length; i < n; i++) {
             var result = this.getTFromValueAtRange(targetV, ps, resultRanges[i][0], resultRanges[i][1], precision);
+            // debugger;
+            var result = equationSolving.binary(function (x) { return _this.getValue(x, ps) - targetV; }, resultRanges[i][0], resultRanges[i][1], precision);
             results.push(result);
         }
         return results;

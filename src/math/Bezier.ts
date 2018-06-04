@@ -45,25 +45,24 @@ class EquationSolving
      * @param f 函数f(x)
      * @param a 区间起点
      * @param b 区间终点
-     * @param callback  回调函数
+     * @param errorcallback  错误回调函数
      * 
      * @returns 是否有解
      */
-    hasSolution(f: (x) => number, a: number, b: number, callback?: (err: Error, result: boolean) => void)
+    hasSolution(f: (x) => number, a: number, b: number, errorcallback?: (err: Error) => void)
     {
         if (!this.isContinuous(f))
         {
-            callback && callback(new Error(`函数 ${f} 在 [${a} ,${b}] 区间内不连续，无法为其求解！`), false);
+            errorcallback && errorcallback(new Error(`函数 ${f} 在 [${a} ,${b}] 区间内不连续，无法为其求解！`));
             return false;
         }
         var fa = f(a);
         var fb = f(b);
         if (fa * fb > 0)
         {
-            callback && callback(new Error(`f(a) * f(b) 值为 ${fa * fb}，不满足 f(a) * f(b) <= 0，无法为其求解！`), false);
+            errorcallback && errorcallback(new Error(`f(a) * f(b) 值为 ${fa * fb}，不满足 f(a) * f(b) <= 0，无法为其求解！`));
             return false;
         }
-        callback && callback(null, true);
         return true;
     }
 
@@ -74,40 +73,39 @@ class EquationSolving
      * @param a 区间起点
      * @param b 区间终点
      * @param precision 求解精度
-     * @param callback  回调函数
+     * @param errorcallback  错误回调函数
      * 
      * @returns 不存在解时返回 undefined ，存在时返回 解
      */
-    binary(f: (x) => number, a: number, b: number, precision = 0.0000001, callback?: (err: Error, result: number) => void)
+    binary(f: (x) => number, a: number, b: number, precision = 0.0000001, errorcallback?: (err: Error) => void)
     {
-        this.hasSolution(f, a, b, (err, hasSolution) =>
-        {
-            if (err)
-            {
-                callback && callback(err, undefined);
-                return undefined;
-            }
+        if (!this.hasSolution(f, a, b, errorcallback)) return undefined;
 
-            var fa = f(a);
-            var fb = f(b);
-            if (this.equalNumber(fa, 0, precision))
+        var fa = f(a);
+        var fb = f(b);
+        if (this.equalNumber(fa, 0, precision))
+        {
+            return a;
+        }
+        if (this.equalNumber(fb, 0, precision))
+        {
+            return b;
+        }
+        do
+        {
+            var r = (a + b) / 2;
+            var fr = f(r);
+            if (fa * fr < 0)
             {
-                callback && callback(null, a);
-                return a;
+                b = r;
+                fb = fr;
+            } else
+            {
+                a = r;
+                fa = fr;
             }
-            if (this.equalNumber(fb, 0, precision))
-            {
-                callback && callback(null, b);
-                return b;
-            }
-            do
-            {
-                var r = (a + b) / 2;
-                var fr = f(r);
-            } while (!this.equalNumber(fr, 0, precision));
-            callback(null, r);
-            return r;
-        });
+        } while (!this.equalNumber(fr, 0, precision));
+        return r;
     }
 }
 
@@ -617,6 +615,10 @@ class Bezier
         for (let i = 0, n = resultRanges.length; i < n; i++)
         {
             var result = this.getTFromValueAtRange(targetV, ps, resultRanges[i][0], resultRanges[i][1], precision);
+
+            // debugger;
+            var result = equationSolving.binary((x) => { return this.getValue(x, ps) - targetV; }, resultRanges[i][0], resultRanges[i][1], precision)
+
             results.push(result);
         }
         return results;

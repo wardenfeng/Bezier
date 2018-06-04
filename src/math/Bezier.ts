@@ -11,12 +11,23 @@ var equationSolving: EquationSolving;
 /**
  * 方程求解
  * 参考：高等数学 第七版上册 第三章第八节 方程的近似解
- * 当f(x)在区间 [a, b] 上连续，且 (f(a) - y) * (f(b) - y) < 0 时，f(x)在区间 [a, b] 上至少存在一个解使得 f(x) == 0
+ * 当f(x)在区间 [a, b] 上连续，且f(a) * f(b) <= 0 时，f(x)在区间 [a, b] 上至少存在一个解使得 f(x) == 0
  * 
  * 当f(x)在区间 [a, b] 上连续，且 (f(a) - y) * (f(b) - y) < 0 时，f(x)在区间 [a, b] 上至少存在一个解使得 f(x) == y
  */
 class EquationSolving
 {
+    /**
+     * 比较 a 与 b 是否相等
+     * @param a 值a
+     * @param b 值b
+     * @param precision 比较精度
+     */
+    equalNumber(a: number, b: number, precision = 0.0000001)
+    {
+        return Math.abs(a - b) < precision;
+    }
+
     /**
      * 函数是否连续
      * @param f 函数
@@ -29,21 +40,74 @@ class EquationSolving
     /**
      * 方程 f(x) == 0 在 [a, b] 区间内是否有解
      * 
-     * 方程是否存在解
+     * 当f(x)在区间 [a, b] 上连续，且f(a) * f(b) <= 0 时，f(x)在区间 [a, b] 上至少存在一个解使得 f(x) == 0
      * 
-     * @returns 方程 f(x) == 0 
+     * @param f 函数f(x)
+     * @param a 区间起点
+     * @param b 区间终点
+     * @param callback  回调函数
+     * 
+     * @returns 是否有解
      */
-    hasSolution(f: (x) => number, a: number, b: number)
+    hasSolution(f: (x) => number, a: number, b: number, callback?: (err: Error, result: boolean) => void)
     {
+        if (!this.isContinuous(f))
+        {
+            callback && callback(new Error(`函数 ${f} 在 [${a} ,${b}] 区间内不连续，无法为其求解！`), false);
+            return false;
+        }
+        var fa = f(a);
+        var fb = f(b);
+        if (fa * fb > 0)
+        {
+            callback && callback(new Error(`f(a) * f(b) 值为 ${fa * fb}，不满足 f(a) * f(b) <= 0，无法为其求解！`), false);
+            return false;
+        }
+        callback && callback(null, true);
         return true;
     }
 
     /**
      * 二分法
+     * 
+     * @param f 函数f(x)
+     * @param a 区间起点
+     * @param b 区间终点
+     * @param precision 求解精度
+     * @param callback  回调函数
+     * 
+     * @returns 不存在解时返回 undefined ，存在时返回 解
      */
-    binary()
+    binary(f: (x) => number, a: number, b: number, precision = 0.0000001, callback?: (err: Error, result: number) => void)
     {
+        this.hasSolution(f, a, b, (err, hasSolution) =>
+        {
+            if (err)
+            {
+                callback && callback(err, undefined);
+                return undefined;
+            }
 
+            var fa = f(a);
+            var fb = f(b);
+            if (this.equalNumber(fa, 0, precision))
+            {
+                callback && callback(null, a);
+                return a;
+            }
+            if (this.equalNumber(fb, 0, precision))
+            {
+                callback && callback(null, b);
+                return b;
+            }
+            do
+            {
+                var r = (a + b) / 2;
+                var fr = f(r);
+            } while (!this.equalNumber(fr, 0, precision));
+            callback(null, r);
+            return r;
+        });
     }
 }
 

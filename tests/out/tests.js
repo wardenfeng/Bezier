@@ -1,4 +1,41 @@
 /**
+ * 高次函数
+ *
+ * 处理N次函数定义，求值，方程求解问题
+ *
+ * n次函数定义
+ * f(x) = a0 * pow(x, n) + a1 * pow(x, n - 1) +.....+ an_1 * pow(x, 1) + an
+ *
+ * 0次 f(x) = a0;
+ * 1次 f(x) = a0 * x + a1;
+ * 2次 f(x) = a0 * x * x + a1 * x + a2;
+ * ......
+ *
+ * @author feng / http://feng3d.com 05/06/2018
+ */
+var HighFunction = /** @class */ (function () {
+    /**
+     * 构建函数
+     * @param as 函数系数 a0-an 数组
+     */
+    function HighFunction(as) {
+        this.as = as;
+    }
+    /**
+     * 获取函数 f(x) 的值
+     * @param x x坐标
+     */
+    HighFunction.prototype.getValue = function (x) {
+        var v = 0;
+        var as = this.as;
+        for (var i = 0, n = as.length; i < n; i++) {
+            v = v * x + as[i];
+        }
+        return v;
+    };
+    return HighFunction;
+}());
+/**
  * 方程求解
  */
 var equationSolving;
@@ -1036,6 +1073,42 @@ var CubicBezier = /** @class */ (function () {
     };
     return CubicBezier;
 }());
+QUnit.module("HighFunction", function () {
+    // 允许误差
+    var deviation = 0.0000001;
+    QUnit.test("getValue 获取函数 f(x) 的值 ", function (assert) {
+        for (var i = 0; i < 100; i++) {
+            var as = [Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random()];
+            var f = function (x) {
+                return as[0] * x * x * x * x * x +
+                    as[1] * x * x * x * x +
+                    as[2] * x * x * x +
+                    as[3] * x * x +
+                    as[4] * x +
+                    as[5];
+            };
+            var hf = new HighFunction(as);
+            var x = Math.random();
+            var fx = f(x);
+            var hfx = hf.getValue(x);
+            assert.ok(Math.abs(fx - hfx) < deviation);
+        }
+    });
+});
+QUnit.module("EquationSolving", function () {
+    // 允许误差
+    var deviation = 0.0000001;
+    QUnit.test("getDerivative， 获取近似导函数 ", function (assert) {
+        // var f = (x) =>
+        // as[0] * x * x * x * x * x +
+        // as[1] * x * x * x * x +
+        // as[2] * x * x * x +
+        // as[3] * x * x +
+        // as[4] * x +
+        // as[5];
+        equationSolving.binary;
+    });
+});
 QUnit.module("CubicBezier", function () {
     // 允许误差
     var deviation = 0.0000001;

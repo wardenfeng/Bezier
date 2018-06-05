@@ -36,7 +36,7 @@ declare class EquationSolving {
      * @param f 函数
      * @param delta Δx
      */
-    private getDerivative(f, delta?);
+    getDerivative(f: (x) => number, delta?: number): (x: any) => number;
     /**
      * 函数是否连续
      * @param f 函数
@@ -90,7 +90,7 @@ declare class EquationSolving {
      */
     line(f: (x) => number, a: number, b: number, precision?: number, errorcallback?: (err: Error) => void): number;
     /**
-     * 切线法
+     * 切线法 求解 f(x) == 0
      *
      * 用曲线弧一端的切线来代替曲线弧，从而求出方程实根的近似解。
      *
@@ -115,7 +115,7 @@ declare class EquationSolving {
      */
     tangent(f: (x) => number, f1: (x) => number, f2: (x) => number, a: number, b: number, precision?: number, errorcallback?: (err: Error) => void): number;
     /**
-     * 割线法（弦截法）
+     * 割线法（弦截法） 求解 f(x) == 0
      *
      * 使用 (f(Xn) - f(Xn-1)) / (Xn - Xn-1) 代替切线法迭代公式 Xn+1 = Xn - f(Xn) / f'(Xn) 中的 f'(x)
      *

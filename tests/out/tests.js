@@ -204,7 +204,7 @@ var EquationSolving = /** @class */ (function () {
         return x;
     };
     /**
-     * 切线法
+     * 切线法 求解 f(x) == 0
      *
      * 用曲线弧一端的切线来代替曲线弧，从而求出方程实根的近似解。
      *
@@ -296,7 +296,7 @@ var EquationSolving = /** @class */ (function () {
         return x;
     };
     /**
-     * 割线法（弦截法）
+     * 割线法（弦截法） 求解 f(x) == 0
      *
      * 使用 (f(Xn) - f(Xn-1)) / (Xn - Xn-1) 代替切线法迭代公式 Xn+1 = Xn - f(Xn) / f'(Xn) 中的 f'(x)
      *
@@ -405,7 +405,7 @@ var EquationSolving = /** @class */ (function () {
             xn = xn$1;
             fxn = f(xn);
         } while (!this.equalNumber(fxn, 0, precision));
-        return x;
+        return xn;
     };
     return EquationSolving;
 }());
@@ -1097,16 +1097,92 @@ QUnit.module("HighFunction", function () {
 });
 QUnit.module("EquationSolving", function () {
     // 允许误差
-    var deviation = 0.0000001;
-    QUnit.test("getDerivative， 获取近似导函数 ", function (assert) {
-        // var f = (x) =>
-        // as[0] * x * x * x * x * x +
-        // as[1] * x * x * x * x +
-        // as[2] * x * x * x +
-        // as[3] * x * x +
-        // as[4] * x +
-        // as[5];
-        equationSolving.binary;
+    var precision = 0.0000001;
+    var testtimes = 100;
+    QUnit.test("binary 二分法 求解 f(x) == 0 ", function (assert) {
+        for (var i = 0; i < testtimes; i++) {
+            var as = [Math.random(), Math.random(), Math.random(), Math.random(), Math.random()];
+            var hf = new HighFunction(as);
+            var a = Math.random();
+            var b = a + Math.random();
+            var fa = hf.getValue(a);
+            var fb = hf.getValue(b);
+            var f = function (x) { return hf.getValue(x) - (fa + fb) / 2; };
+            // 求解 ff(x) == 0
+            var x = equationSolving.binary(f, a, b, precision);
+            var fx = f(x);
+            assert.ok(fx < precision);
+        }
+    });
+    QUnit.test("line 连线法 求解 f(x) == 0 ", function (assert) {
+        for (var i = 0; i < testtimes; i++) {
+            var as = [Math.random(), Math.random(), Math.random(), Math.random(), Math.random()];
+            var hf = new HighFunction(as);
+            var a = Math.random();
+            var b = a + Math.random();
+            var fa = hf.getValue(a);
+            var fb = hf.getValue(b);
+            var f = function (x) { return hf.getValue(x) - (fa + fb) / 2; };
+            // 求解 ff(x) == 0
+            var x = equationSolving.line(f, a, b, precision);
+            var fx = f(x);
+            assert.ok(fx < precision);
+        }
+    });
+    QUnit.test("tangent 切线法 求解 f(x) == 0 ", function (assert) {
+        for (var i = 0; i < testtimes; i++) {
+            var as = [Math.random(), Math.random(), Math.random(), Math.random(), Math.random()];
+            var hf = new HighFunction(as);
+            var a = Math.random();
+            var b = a + Math.random();
+            var fa = hf.getValue(a);
+            var fb = hf.getValue(b);
+            var f = function (x) { return hf.getValue(x) - (fa + fb) / 2; };
+            // 导函数
+            var f1 = equationSolving.getDerivative(f);
+            // 二阶导函数
+            var f2 = equationSolving.getDerivative(f1);
+            // 求解 ff(x) == 0
+            var x = equationSolving.tangent(f, f1, f2, a, b, precision, function (err) {
+                assert.ok(false, err.message);
+                debugger;
+            });
+            if (x < a || x > b) {
+                assert.ok(true, "\u89E3 " + x + " \u8D85\u51FA\u6C42\u89E3\u533A\u95F4 [" + a + ", " + b + "]");
+            }
+            else {
+                if (x != undefined) {
+                    var fx = f(x);
+                    assert.ok(fx < precision);
+                }
+            }
+        }
+    });
+    QUnit.test("secant 割线法（弦截法） 求解 f(x) == 0 ", function (assert) {
+        for (var i = 0; i < testtimes; i++) {
+            var as = [Math.random(), Math.random(), Math.random(), Math.random(), Math.random()];
+            var hf = new HighFunction(as);
+            var a = Math.random();
+            var b = a + Math.random();
+            var fa = hf.getValue(a);
+            var fb = hf.getValue(b);
+            var f = function (x) { return hf.getValue(x) - (fa + fb) / 2; };
+            // 求解 ff(x) == 0
+            var x = equationSolving.secant(f, a, b, precision, function (err) {
+                assert.ok(false, err.message);
+                debugger;
+            });
+            if (x == undefined) {
+                assert.ok(false);
+            }
+            if (x < a || x > b) {
+                assert.ok(true, "\u89E3 " + x + " \u8D85\u51FA\u6C42\u89E3\u533A\u95F4 [" + a + ", " + b + "]");
+            }
+            else {
+                var fx = f(x);
+                assert.ok(fx < precision);
+            }
+        }
     });
 });
 QUnit.module("CubicBezier", function () {

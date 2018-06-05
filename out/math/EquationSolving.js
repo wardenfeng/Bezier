@@ -167,7 +167,7 @@ var EquationSolving = /** @class */ (function () {
         return x;
     };
     /**
-     * 切线法
+     * 切线法 求解 f(x) == 0
      *
      * 用曲线弧一端的切线来代替曲线弧，从而求出方程实根的近似解。
      *
@@ -259,7 +259,7 @@ var EquationSolving = /** @class */ (function () {
         return x;
     };
     /**
-     * 割线法（弦截法）
+     * 割线法（弦截法） 求解 f(x) == 0
      *
      * 使用 (f(Xn) - f(Xn-1)) / (Xn - Xn-1) 代替切线法迭代公式 Xn+1 = Xn - f(Xn) / f'(Xn) 中的 f'(x)
      *
@@ -368,7 +368,7 @@ var EquationSolving = /** @class */ (function () {
             xn = xn$1;
             fxn = f(xn);
         } while (!this.equalNumber(fxn, 0, precision));
-        return x;
+        return xn;
     };
     return EquationSolving;
 }());

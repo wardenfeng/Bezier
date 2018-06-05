@@ -46,7 +46,7 @@ class EquationSolving
      * @param f 函数
      * @param delta Δx
      */
-    private getDerivative(f: (x) => number, delta = 0.0000001)
+    getDerivative(f: (x) => number, delta = 0.0000001)
     {
         return (x) =>
         {
@@ -188,7 +188,7 @@ class EquationSolving
     }
 
     /**
-     * 切线法
+     * 切线法 求解 f(x) == 0
      * 
      * 用曲线弧一端的切线来代替曲线弧，从而求出方程实根的近似解。
      * 
@@ -296,7 +296,7 @@ class EquationSolving
     }
 
     /**
-     * 割线法（弦截法）
+     * 割线法（弦截法） 求解 f(x) == 0
      * 
      * 使用 (f(Xn) - f(Xn-1)) / (Xn - Xn-1) 代替切线法迭代公式 Xn+1 = Xn - f(Xn) / f'(Xn) 中的 f'(x)
      * 
@@ -422,7 +422,7 @@ class EquationSolving
             xn = xn$1;
             fxn = f(xn);
         } while (!this.equalNumber(fxn, 0, precision));
-        return x;
+        return xn;
     }
 }
 

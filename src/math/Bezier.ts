@@ -67,9 +67,9 @@ class EquationSolving
     }
 
     /**
-     * 二分法
+     * 二分法 求解 f(x) == 0
      * 
-     * 通过 中间值 (a + b) / 2 二分 [a, b] ，逐渐缩小求解区间最终获得解
+     * 通过 x = (a + b) / 2 二分 [a, b] ，逐渐缩小求解区间最终获得解
      * 
      * @param f 函数f(x)
      * @param a 区间起点
@@ -95,23 +95,27 @@ class EquationSolving
         }
         do
         {
-            var r = (a + b) / 2;
-            var fr = f(r);
+            var x = (a + b) / 2;
+            var fr = f(x);
             if (fa * fr < 0)
             {
-                b = r;
+                b = x;
                 fb = fr;
             } else
             {
-                a = r;
+                a = x;
                 fa = fr;
             }
         } while (!this.equalNumber(fr, 0, precision));
-        return r;
+        return x;
     }
 
     /**
-     * 连线法 （我自己想的方法，自己取的名字，目前没有找到相应的资料）
+     * 连线法 求解 f(x) == 0
+     * 
+     * 连线法是我自己想的方法，自己取的名字，目前没有找到相应的资料（这方法大家都能够想得到。）
+     * 
+     * 用曲线弧两端的连线来代替曲线弧，从而求出方程实根的近似解。
      * 
      * 通过 A，B两点连线与x轴交点来缩小求解区间最终获得解
      * 
@@ -141,19 +145,104 @@ class EquationSolving
         }
         do
         {
-            var r = a + (0 - fa) / (fb - fa) * (b - a);
-            var fr = f(r);
+            var x = a + (0 - fa) / (fb - fa) * (b - a);
+            var fr = f(x);
             if (fa * fr < 0)
             {
-                b = r;
+                b = x;
                 fb = fr;
             } else
             {
-                a = r;
+                a = x;
                 fa = fr;
             }
         } while (!this.equalNumber(fr, 0, precision));
-        return r;
+        return x;
+    }
+
+    /**
+     * 切线法
+     * 
+     * 用曲线弧一端的切线来代替曲线弧，从而求出方程实根的近似解。
+     * 
+     * #### 额外需求
+     * 1. f(x)在[a, b]上具有一阶导数 f'(x)
+     * 1. f'(x)在[a, b]上保持定号；意味着f(x)在[a, b]上单调
+     * 1. f''(x)在[a, b]上保持定号；意味着f'(x)在[a, b]上单调
+     * 
+     * @param f 函数f(x)
+     * @param f1 一阶导函数 f'(x)
+     * @param f2 二阶导函数 f''(x)
+     * @param a 区间起点
+     * @param b 区间终点
+     * @param precision 求解精度
+     * @param errorcallback  错误回调函数
+     * 
+     * @returns 不存在解时返回 undefined ，存在时返回 解
+     */
+    tangent(f: (x) => number, f1: (x) => number, f2: (x) => number, a: number, b: number, precision = 0.0000001, errorcallback?: (err: Error) => void)
+    {
+        if (!this.hasSolution(f, a, b, errorcallback)) return undefined;
+
+        var fa = f(a);
+        var fb = f(b);
+        if (this.equalNumber(fa, 0, precision))
+        {
+            return a;
+        }
+        if (this.equalNumber(fb, 0, precision))
+        {
+            return b;
+        }
+
+        var f1Sign = fb - fa; // f'(x)在[a, b]上保持的定号
+        var f1a = f1(a);
+        var f1b = f1(b);
+
+        // 判断f'(x)在[a, b]上保持定号
+        if (f1a * f1Sign <= 0 || f1b * f1Sign <= 0) // 此处存在bug，由于该判断只代表f'(x)在[a, b]上同号却无法确保保持定号
+        {
+            errorcallback && errorcallback(new Error(`[${a}, ${b}] 上存在解，由于f'(x)在[a, b]上没有保持定号，无法使用该方法 ${arguments.callee} 求解`));
+            return undefined;
+        }
+
+        var f2Sign = fb - fa; // f''(x)在[a, b]上保持的定号
+        var f2a = f2(a);
+        var f2b = f2(b);
+        // 判断f''(x)在[a, b]上保持定号
+        if (f2a * f2Sign <= 0 || f2b * f2Sign <= 0) // 此处存在bug，由于该判断只代表f''(x)在[a, b]上同号却无法确保保持定号
+        {
+            errorcallback && errorcallback(new Error(`[${a}, ${b}] 上存在解，由于f''(x)在[a, b]上没有保持定号，无法使用该方法 ${arguments.callee} 求解`));
+            return undefined;
+        }
+
+        var x: number;
+        if (f1Sign > 0)
+        {
+            if (f2Sign > 0)
+                x = b;
+            else
+                x = a;
+        } else
+        {
+            if (f2Sign > 0)
+                x = a;
+            else
+                x = b;
+        }
+
+        do
+        {
+            var fx = f(x);
+            var f1x = f1(x);
+            if (f1x * f1Sign <= 0)
+            {
+                errorcallback && errorcallback(new Error(`[${a}, ${b}] 上存在解，由于f'(x)在[a, b]上没有保持定号，无法使用该方法 ${arguments.callee} 求解`));
+                return undefined;
+            }
+            x = x - fx / f1x;
+        } while (!this.equalNumber(fx, 0, precision));
+        return x;
     }
 }
 

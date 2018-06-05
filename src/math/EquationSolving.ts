@@ -43,14 +43,17 @@ class EquationSolving
      * 导函数定义
      * f'(x) = (f(x + Δx) - f(x)) / Δx , Δx → 0
      * 
+     * 注：通过测试Δx不能太小，由于方程内存在x的n次方问题（比如0.000000000000001的10次方为0），过小会导致计算机计算进度不够反而导致求导不准确！
+     * 
      * @param f 函数
-     * @param delta Δx
+     * @param delta Δx，进过测试该值太小或者过大都会导致求导准确率降低（个人猜测是计算机计算精度问题导致）
      */
-    getDerivative(f: (x) => number, delta = 0.0000001)
+    getDerivative(f: (x) => number, delta = 0.000000001)
     {
         return (x) =>
         {
-            return (f(x + delta) - f(x)) / delta;
+            var d = (f(x + delta) - f(x)) / delta;
+            return d;
         }
     }
 

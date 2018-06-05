@@ -201,7 +201,6 @@ QUnit.module("Bezier", () =>
                 assert.ok(Math.abs(derivative) < deviation, `${ps.length - 1}次Bézier曲线 第${i}个解 极值位置：${ts[i]} 斜率： ${derivative} \n 前面值： ${prev} \n 极值： ${extremum} \n 后面的值 ${nextv}`);
             }
         }
-        assert.ok(true)
     });
 
     QUnit.test("getTFromValue ，获取目标值所在的插值度T，返回区间内所有解", (assert) =>
@@ -230,6 +229,32 @@ QUnit.module("Bezier", () =>
                 }
             }
         }
-        assert.ok(true)
+    });
+
+    QUnit.test("getDerivative ，获取曲线在指定插值度上的导数(斜率)", (assert) =>
+    {
+        var num = 1000;
+        for (let j = 0; j < num; j++)
+        {
+            var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
+
+            // 测试高次Bézier曲线
+            // var n = Math.floor(Math.random() * 5);
+            var n = 5;
+            for (let i = 0; i < n; i++)
+            {
+                ps.push(Math.random());
+            }
+
+            var f = (x) => bezier.getValue(x, ps);
+            var f1 = equationSolving.getDerivative(f);
+            //
+            var t = Math.random();
+            var td = bezier.getDerivative(t, ps);
+            var td1 = f1(t);
+
+            // 此处比较值不能使用太大
+            assert.ok(Math.abs(td - td1) < 0.000001);
+        }
     });
 });

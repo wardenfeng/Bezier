@@ -385,8 +385,7 @@ class Bezier
         {
             if (samples[i] * samples[i + 1] < 0)
             {
-                var guessT = equationSolving.line((x) => { return this.getDerivative(x, ps); }, i / numSamples, (i + 1) / numSamples, precision)
-                // var guessT = equationSolving.binary((x) => { return this.getDerivative(x, ps); }, i / numSamples, (i + 1) / numSamples, precision)
+                var guessT = equationSolving.line((x) => { return this.getDerivative(x, ps); }, i / numSamples, (i + 1) / numSamples, precision);
                 resultTs.push(guessT);
                 resultVs.push(this.getValue(guessT, ps));
             }
@@ -440,25 +439,8 @@ class Bezier
             {
                 var fx = (x) => { return this.getValue(x, ps) - targetV; };
 
-                // 二分法
-                // var result = equationSolving.binary(fx, monotoneIntervalTs[i], monotoneIntervalTs[i + 1], precision)
-
                 // 连线法
                 var result = equationSolving.line(fx, monotoneIntervalTs[i], monotoneIntervalTs[i + 1], precision)
-
-                // // 切线法
-                // var f1x = (x) => this.getDerivative(x, ps);
-                // var f2x = (x) => this.getSecondDerivative(x, ps);
-                // var errs: Error[] = [];
-                // var result2 = equationSolving.tangent(fx, f1x, f2x, monotoneIntervalTs[i], monotoneIntervalTs[i + 1], precision, (err) =>
-                // {
-                //     errs.push(err);
-                // });
-                // if (result2 != undefined)
-                // {
-                //     if (Math.abs(fx(result) - fx(result2)) > precision)
-                //         throw "111";
-                // }
                 results.push(result);
             }
         }

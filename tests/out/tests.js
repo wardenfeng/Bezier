@@ -1,21 +1,29 @@
 /**
- * Bézier曲线
- */
-var bezier;
-/**
  * 方程求解
  */
 var equationSolving;
 /**
  * 方程求解
+ *
+ * 求解方程 f(x) == 0 在[a, b]上的解
+ *
  * 参考：高等数学 第七版上册 第三章第八节 方程的近似解
  * 当f(x)在区间 [a, b] 上连续，且f(a) * f(b) <= 0 时，f(x)在区间 [a, b] 上至少存在一个解使得 f(x) == 0
  *
  * 当f(x)在区间 [a, b] 上连续，且 (f(a) - y) * (f(b) - y) < 0 时，f(x)在区间 [a, b] 上至少存在一个解使得 f(x) == y
+ *
+ * @author feng / http://feng3d.com 05/06/2018
  */
 var EquationSolving = /** @class */ (function () {
     function EquationSolving() {
     }
+    /**
+     * 获取数字的(正负)符号
+     * @param n 数字
+     */
+    EquationSolving.prototype.getSign = function (n) {
+        return n > 0 ? "+" : "-";
+    };
     /**
      * 比较 a 与 b 是否相等
      * @param a 值a
@@ -25,6 +33,21 @@ var EquationSolving = /** @class */ (function () {
     EquationSolving.prototype.equalNumber = function (a, b, precision) {
         if (precision === void 0) { precision = 0.0000001; }
         return Math.abs(a - b) < precision;
+    };
+    /**
+     * 获取近似导函数
+     *
+     * 导函数定义
+     * f'(x) = (f(x + Δx) - f(x)) / Δx , Δx → 0
+     *
+     * @param f 函数
+     * @param delta Δx
+     */
+    EquationSolving.prototype.getDerivative = function (f, delta) {
+        if (delta === void 0) { delta = 0.0000001; }
+        return function (x) {
+            return (f(x + delta) - f(x)) / delta;
+        };
     };
     /**
      * 函数是否连续
@@ -59,9 +82,9 @@ var EquationSolving = /** @class */ (function () {
         return true;
     };
     /**
-     * 二分法
+     * 二分法 求解 f(x) == 0
      *
-     * 通过 中间值 (a + b) / 2 二分 [a, b] ，逐渐缩小求解区间最终获得解
+     * 通过区间中点作为边界来逐步缩小求解区间，最终获得解
      *
      * @param f 函数f(x)
      * @param a 区间起点
@@ -84,25 +107,29 @@ var EquationSolving = /** @class */ (function () {
             return b;
         }
         do {
-            var r = (a + b) / 2;
-            var fr = f(r);
+            var x = (a + b) / 2;
+            var fr = f(x);
             if (fa * fr < 0) {
-                b = r;
+                b = x;
                 fb = fr;
             }
             else {
-                a = r;
+                a = x;
                 fa = fr;
             }
         } while (!this.equalNumber(fr, 0, precision));
-        return r;
+        return x;
     };
     /**
-     * 连线法 （我自己想的方法，自己取的名字，目前没有找到相应的资料）
+     * 连线法 求解 f(x) == 0
+     *
+     * 连线法是我自己想的方法，自己取的名字，目前没有找到相应的资料（这方法大家都能够想得到。）
+     *
+     * 用曲线弧两端的连线来代替曲线弧与X轴交点作为边界来逐步缩小求解区间，最终获得解
      *
      * 通过 A，B两点连线与x轴交点来缩小求解区间最终获得解
      *
-     * A，B两点直线方程 f(x) = f(a) + (f(b) - f(a)) / (b - a) * (x-a) ,求 f(x) == 0 解得 x = a + (0 - fa) / (fb - fa) * (b - a)
+     * A，B两点直线方程 f(x) = f(a) + (f(b) - f(a)) / (b - a) * (x-a) ,求 f(x) == 0 解得 x = a - fa * (b - a)/ (fb - fa)
      *
      * @param f 函数f(x)
      * @param a 区间起点
@@ -125,41 +152,234 @@ var EquationSolving = /** @class */ (function () {
             return b;
         }
         do {
-            var r = a + (0 - fa) / (fb - fa) * (b - a);
-            var fr = f(r);
+            // 
+            var x = a - fa * (b - a) / (fb - fa);
+            var fr = f(x);
             if (fa * fr < 0) {
-                b = r;
+                b = x;
                 fb = fr;
             }
             else {
-                a = r;
+                a = x;
                 fa = fr;
             }
         } while (!this.equalNumber(fr, 0, precision));
-        return r;
+        return x;
+    };
+    /**
+     * 切线法
+     *
+     * 用曲线弧一端的切线来代替曲线弧，从而求出方程实根的近似解。
+     *
+     * 迭代公式： Xn+1 = Xn - f(Xn) / f'(Xn)
+     *
+     * #### 额外需求
+     * 1. f(x)在[a, b]上具有一阶导数 f'(x)
+     * 1. f'(x)在[a, b]上保持定号；意味着f(x)在[a, b]上单调
+     * 1. f''(x)在[a, b]上保持定号；意味着f'(x)在[a, b]上单调
+     *
+     * 切记，当无法满足这些额外要求时，该函数将找不到[a, b]上的解！！！！！！！！！！！
+     *
+     * @param f 函数f(x)
+     * @param f1 一阶导函数 f'(x)
+     * @param f2 二阶导函数 f''(x)
+     * @param a 区间起点
+     * @param b 区间终点
+     * @param precision 求解精度
+     * @param errorcallback  错误回调函数
+     *
+     * @returns 不存在解与无法使用该函数求解时返回 undefined ，否则返回 解
+     */
+    EquationSolving.prototype.tangent = function (f, f1, f2, a, b, precision, errorcallback) {
+        if (precision === void 0) { precision = 0.0000001; }
+        if (!this.hasSolution(f, a, b, errorcallback))
+            return undefined;
+        var fa = f(a);
+        var fb = f(b);
+        if (this.equalNumber(fa, 0, precision)) {
+            return a;
+        }
+        if (this.equalNumber(fb, 0, precision)) {
+            return b;
+        }
+        var f1Sign = fb - fa; // f'(x)在[a, b]上保持的定号
+        var f1a = f1(a);
+        var f1b = f1(b);
+        // f'(x)在[a, b]上保持定号
+        if (f1a * f1Sign <= 0) {
+            errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef'(" + a + ") = " + f1a + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f1Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+            return undefined;
+        }
+        if (f1b * f1Sign <= 0) {
+            errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef'(" + b + ") = " + f1b + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f1Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+            return undefined;
+        }
+        var f2Sign = fb - fa; // f''(x)在[a, b]上保持的定号
+        var f2a = f2(a);
+        var f2b = f2(b);
+        // f''(x)在[a, b]上保持定号
+        if (f2a * f2Sign <= 0) {
+            errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef''(" + a + ") = " + f2a + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f2Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+            return undefined;
+        }
+        if (f2b * f2Sign <= 0) {
+            errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef''(" + b + ") = " + f2b + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f2Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+            return undefined;
+        }
+        var x;
+        if (f1Sign > 0) {
+            if (f2Sign > 0)
+                x = b;
+            else
+                x = a;
+        }
+        else {
+            if (f2Sign > 0)
+                x = a;
+            else
+                x = b;
+        }
+        do {
+            var fx = f(x);
+            var f1x = f1(x);
+            var f2x = f2(x);
+            // f'(x)在[a, b]上保持定号
+            if (f1x * f1Sign <= 0) {
+                errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef'(" + x + ") = " + f1x + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f1Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+                return undefined;
+            }
+            // f''(x)在[a, b]上保持定号
+            if (f2x * f2Sign <= 0) {
+                errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef''(" + x + ") = " + f2x + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f2Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+                return undefined;
+            }
+            // 迭代 Xn+1 = Xn - f(Xn) / f'(Xn)
+            x = x - fx / f1x;
+        } while (!this.equalNumber(fx, 0, precision));
+        return x;
+    };
+    /**
+     * 割线法（弦截法）
+     *
+     * 使用 (f(Xn) - f(Xn-1)) / (Xn - Xn-1) 代替切线法迭代公式 Xn+1 = Xn - f(Xn) / f'(Xn) 中的 f'(x)
+     *
+     * 迭代公式：Xn+1 = Xn - f(Xn) * (Xn - Xn-1) / (f(Xn) - f(Xn-1));
+     *
+     * 用过点(Xn-1,f(Xn-1))和点(Xn,f(Xn))的割线来近似代替(Xn,f(Xn))处的切线，将这条割线与X轴交点的横坐标作为新的近似解。
+     *
+     * #### 额外需求
+     * 1. f(x)在[a, b]上具有一阶导数 f'(x)
+     * 1. f'(x)在[a, b]上保持定号；意味着f(x)在[a, b]上单调
+     * 1. f''(x)在[a, b]上保持定号；意味着f'(x)在[a, b]上单调
+     *
+     * 切记，当无法满足这些额外要求时，该函数将找不到[a, b]上的解！！！！！！！！！！！
+     *
+     * @param f 函数f(x)
+     * @param a 区间起点
+     * @param b 区间终点
+     * @param precision 求解精度
+     * @param errorcallback  错误回调函数
+     *
+     * @returns 不存在解与无法使用该函数求解时返回 undefined ，否则返回 解
+     */
+    EquationSolving.prototype.secant = function (f, a, b, precision, errorcallback) {
+        if (precision === void 0) { precision = 0.0000001; }
+        if (!this.hasSolution(f, a, b, errorcallback))
+            return undefined;
+        var fa = f(a);
+        var fb = f(b);
+        if (this.equalNumber(fa, 0, precision)) {
+            return a;
+        }
+        if (this.equalNumber(fb, 0, precision)) {
+            return b;
+        }
+        // 此处创建近似导函数以及二次导函数，其实割线法使用在计算f'(x)困难时的，但是 getDerivative 方法解决了这个困难。。。。
+        var f1 = this.getDerivative(f, precision);
+        var f2 = this.getDerivative(f1, precision);
+        var f1Sign = fb - fa; // f'(x)在[a, b]上保持的定号
+        // 
+        var f1a = f1(a);
+        var f1b = f1(b);
+        // f'(x)在[a, b]上保持定号
+        if (f1a * f1Sign <= 0) {
+            errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef'(" + a + ") = " + f1a + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f1Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+            return undefined;
+        }
+        if (f1b * f1Sign <= 0) {
+            errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef'(" + b + ") = " + f1b + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f1Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+            return undefined;
+        }
+        var f2Sign = fb - fa; // f''(x)在[a, b]上保持的定号
+        var f2a = f2(a);
+        var f2b = f2(b);
+        // f''(x)在[a, b]上保持定号
+        if (f2a * f2Sign <= 0) {
+            errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef''(" + a + ") = " + f2a + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f2Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+            return undefined;
+        }
+        if (f2b * f2Sign <= 0) {
+            errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef''(" + b + ") = " + f2b + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f2Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+            return undefined;
+        }
+        var x;
+        if (f1Sign > 0) {
+            if (f2Sign > 0)
+                x = b;
+            else
+                x = a;
+        }
+        else {
+            if (f2Sign > 0)
+                x = a;
+            else
+                x = b;
+        }
+        // Xn-1
+        var xn_1 = x;
+        var fxn_1 = f(xn_1);
+        // Xn
+        var xn = xn_1 - precision * f2Sign / Math.abs(f2Sign);
+        var fxn = f(xn);
+        // 
+        if (fxn * fxn_1 < 0) {
+            return xn;
+        }
+        // Xn+1
+        var xn$1;
+        do {
+            var f1xn = f1(xn);
+            // f'(x)在[a, b]上保持定号
+            if (f1xn * f1Sign <= 0) {
+                errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef'(" + xn + ") = " + f1xn + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f1Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+                return undefined;
+            }
+            var f2xn = f2(xn);
+            // f''(x)在[a, b]上保持定号
+            if (f2xn * f2Sign <= 0) {
+                errorcallback && errorcallback(new Error("[" + a + ", " + b + "] \u4E0A\u5B58\u5728\u89E3\uFF0C\u7531\u4E8Ef''(" + xn + ") = " + f2xn + " \u5728[a, b]\u4E0A\u6CA1\u6709\u4FDD\u6301\u5B9A\u53F7 " + this.getSign(f2Sign) + " \uFF0C\u65E0\u6CD5\u4F7F\u7528\u5207\u7EBF\u6CD5\u6C42\u89E3"));
+                return undefined;
+            }
+            // 迭代 Xn+1 = Xn - f(Xn) * (Xn - Xn-1) / (f(Xn) - f(Xn-1));
+            xn$1 = xn - fxn * (xn - xn_1) / (fxn - fxn_1);
+            //
+            xn_1 = xn;
+            fxn_1 = fxn;
+            xn = xn$1;
+            fxn = f(xn);
+        } while (!this.equalNumber(fxn, 0, precision));
+        return x;
     };
     return EquationSolving;
 }());
 equationSolving = new EquationSolving();
 /**
  * Bézier曲线
+ */
+var bezier;
+/**
+ * Bézier曲线
  * @see https://en.wikipedia.org/wiki/B%C3%A9zier_curve
- *
- * #### getTFromValueAtRange 与 getExtremumAtRange 使用到了方程求解
- *
- * 方程的近似解
- * 参考：高等数学 第七版上册 第三章第八节 方程的近似解
- * 定义： f(x)在区间 [a, b] 上连续，且 (f(a) - y) * (f(b) - y) < 0
- * 推论： f(x)在区间 [a, b] 上至少存在一个解使得 f(x) == 0
- *
- * 以下方法可以求解
- * 1. 二分法
- *      if( f((a+b)/2 )
- *
- * 1. 放弃，二分法；估计结果在两个端点之间；效率最差，区间内有解情况下可以确保取到解
- * 1. 选用，两端评估，根据两端作为斜率进行对目标值位置进行评估；区间内有解情况下可以确保取到解
- * 1. 放弃，切线法，根据当前斜率进行对目标值位置进行评估 （貌似是牛顿迭代）；可能会跳出该区间取到其他区间的解（特别是在高次Bézier曲线时），很难控制
- * 1.
  *
  * @author feng / http://feng3d.com 03/06/2018
  */
@@ -542,8 +762,24 @@ var Bezier = /** @class */ (function () {
         // 遍历单调区间
         for (var i = 0, n = monotoneIntervalVs.length - 1; i < n; i++) {
             if ((monotoneIntervalVs[i] - targetV) * (monotoneIntervalVs[i + 1] - targetV) <= 0) {
-                // var result = equationSolving.binary((x) => { return this.getValue(x, ps) - targetV; }, monotoneIntervalTs[i], monotoneIntervalTs[i + 1], precision)
-                var result = equationSolving.line(function (x) { return _this.getValue(x, ps) - targetV; }, monotoneIntervalTs[i], monotoneIntervalTs[i + 1], precision);
+                var fx = function (x) { return _this.getValue(x, ps) - targetV; };
+                // 二分法
+                // var result = equationSolving.binary(fx, monotoneIntervalTs[i], monotoneIntervalTs[i + 1], precision)
+                // 连线法
+                var result = equationSolving.line(fx, monotoneIntervalTs[i], monotoneIntervalTs[i + 1], precision);
+                // // 切线法
+                // var f1x = (x) => this.getDerivative(x, ps);
+                // var f2x = (x) => this.getSecondDerivative(x, ps);
+                // var errs: Error[] = [];
+                // var result2 = equationSolving.tangent(fx, f1x, f2x, monotoneIntervalTs[i], monotoneIntervalTs[i + 1], precision, (err) =>
+                // {
+                //     errs.push(err);
+                // });
+                // if (result2 != undefined)
+                // {
+                //     if (Math.abs(fx(result) - fx(result2)) > precision)
+                //         throw "111";
+                // }
                 results.push(result);
             }
         }

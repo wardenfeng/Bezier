@@ -12,6 +12,7 @@
     //
     "libs/qunit/qunit.d.ts",
     //
+    "../src/math/EquationSolving.ts",
     "../src/math/Bezier.ts",
     "../src/math/CubicBezier.ts",
     //

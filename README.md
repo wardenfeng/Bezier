@@ -9,7 +9,6 @@ https://wardenfeng.github.io/bezier
 
 #### 核心文件
 1. [Bezier.ts](src/math/Bezier.ts) 
-1. [Bezier.d.ts](out/math/Bezier.d.ts) 
 
 #### 立方Bézier曲线 [CubicBezier.ts](src/math/CubicBezier.ts)
 CubicBezier是最常用到的Bézier曲线，为了提升性能以及简化接口单独从Bezier.ts提取出来。
@@ -38,15 +37,19 @@ CubicBezier是最常用到的Bézier曲线，为了提升性能以及简化接�
 #### [单元测试](tests/index.html)
 
 #### 示例
-1. [使用BezierCurve进行模拟canvas提供的 bezierCurveTo方法](BezierCurveTo.html)
+1. [使用BezierCurve进行模拟canvas提供的 bezierCurveTo方法](examples/BezierCurveTo.html)
 
 ![](images/BezierCurveTo.png)
 
 
-1. [随机生成n阶Bézier曲线并且播放插值动画](BezierCurveAnimation.html)
+1. [随机生成n阶Bézier曲线并且播放插值动画](examples/BezierCurveAnimation.html)
 
 ![](images/BezierCurveAnimation.png)
 
-1. [Bézier曲线编辑器](BezierEditor.html)
+1. [Bézier曲线编辑器](examples/BezierEditor.html)
 
 ![](images/BezierEditor.png)
+
+1. [连续三阶Bézier曲线编辑](examples/CubicBezierSequenceEditor.html)
+
+![](images/CubicBezierSequenceEditor.png)

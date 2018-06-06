@@ -1,4 +1,4 @@
-![logo](favicon.ico)
+[![logo](favicon.ico)](http://feng3d.com)
 
 # Bézier曲线 <small>1.0.0</small>
 

@@ -8,9 +8,9 @@ https://wardenfeng.github.io/bezier
 说了不陷入，结果又制作了 EquationSolving.ts 提供了方程求解功能。
 
 #### 核心文件
-1. [Bezier.ts](src/math/Bezier.ts) 
+1. Bezier.ts  Bézier曲线
 
-#### 立方Bézier曲线 [CubicBezier.ts](src/math/CubicBezier.ts)
+#### 立方Bézier曲线 CubicBezier.ts
 CubicBezier是最常用到的Bézier曲线，为了提升性能以及简化接口单独从Bezier.ts提取出来。
 
 #### Bezier.ts 提供功能
@@ -34,22 +34,43 @@ CubicBezier是最常用到的Bézier曲线，为了提升性能以及简化接�
 1. n次Bézier曲线的极值列表 ``` bezier.getExtremums ```
 1. n次Bézier曲线的区间列表 ``` bezier.getMonotoneIntervals ```
 
-#### [单元测试](tests/index.html)
-
 #### 示例
-1. [使用BezierCurve进行模拟canvas提供的 bezierCurveTo方法](examples/BezierCurveTo.html)
+##### 使用BezierCurve进行模拟canvas提供的 bezierCurveTo方法
 
-![](images/BezierCurveTo.png)
+[quickstart website](examples/BezierCurveTo.html ':include :type=iframe width=100% height=400px')
 
+##### 随机生成n阶Bézier曲线并且播放插值动画
 
-1. [随机生成n阶Bézier曲线并且播放插值动画](examples/BezierCurveAnimation.html)
+[quickstart website](examples/BezierCurveAnimation.html ':include :type=iframe width=100% height=400px')
 
-![](images/BezierCurveAnimation.png)
+##### Bézier曲线编辑器
 
-1. [Bézier曲线编辑器](examples/BezierEditor.html)
+[quickstart website](examples/BezierEditor.html ':include :type=iframe width=100% height=400px')
 
-![](images/BezierEditor.png)
+##### 连续三阶Bézier曲线编辑
 
-1. [连续三阶Bézier曲线编辑](examples/CubicBezierSequenceEditor.html)
+[quickstart website](examples/CubicBezierSequenceEditor.html ':include :type=iframe width=100% height=400px')
 
-![](images/CubicBezierSequenceEditor.png)
+#### 单元测试
+
+[quickstart website](tests/index.html ':include :type=iframe width=100% height=400px')
+
+#### 参考资料
+1. https://en.wikipedia.org/wiki/B%C3%A9zier_curve
+1. https://baike.baidu.com/item/%E8%B4%9D%E5%A1%9E%E5%B0%94%E6%9B%B2%E7%BA%BF/1091769
+1. https://blog.csdn.net/venshine/article/details/51750906
+1. https://github.com/venshine/BezierMaker
+1. https://github.com/gre/bezier-easing
+1. https://github.com/vrk/beziertool
+1. https://github.com/gre/bezier-easing-editor
+1. 高等数学 第七版上册 第三章第八节 方程的近似解
+
+#### 关于作者
+
+网站：http://feng3d.com/
+
+github：https://github.com/wardenfeng
+
+github：https://github.com/feng3d-labs
+
+getee：https://gitee.com/feng3d

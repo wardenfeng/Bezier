@@ -4,7 +4,7 @@
     var button = document.getElementById("button");
     // 创建画布
     var canvas = createCanvas(0, 60, window.innerWidth, window.innerHeight - 60);
-    input.value = "" + 200;
+    input.value = "" + 64;
     var requestid;
 
     draw();

@@ -6,10 +6,12 @@
     "declaration": true,
     // "strict": true,
     "experimentalDecorators": true,
-    // "outDir": "out/"
-    "outFile": "out/bezier.js"
+    // "outDir": "/"
+    // "outFile": "out/bezier.js"
   },
   "include": [
-    "src/**/*.ts"
+    //
+    "../out/bezier.d.ts",
+    "**/*.ts"
   ],
 }

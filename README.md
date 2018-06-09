@@ -84,3 +84,5 @@ github：https://github.com/wardenfeng
 github：https://github.com/feng3d-labs
 
 getee：https://gitee.com/feng3d
+
+feng3d交流QQ群:519732759

@@ -402,31 +402,80 @@ var Bezier = /** @class */ (function () {
      * 该方法分割出来的两条曲线连接起来与原曲线完全重合
      *
      * @param t 分割位置（插值度）
-     * @param ps 被分割曲线
+     * @param ps 被分割曲线点列表
      * @returns 返回两条曲线组成的数组
      */
     Bezier.prototype.split = function (t, ps) {
         // 获取曲线的动画过程
-        var processsx = [];
-        bezier.bn(t, ps, processsx);
+        var processs = [];
+        bezier.bn(t, ps, processs);
         // 第一条曲线
         var fps = [];
         // 第二条曲线
         var sps = [];
         // 使用当前t值进行分割曲线
-        for (var i = processsx.length - 1; i >= 0; i--) {
-            if (i == processsx.length - 1) {
+        for (var i = processs.length - 1; i >= 0; i--) {
+            if (i == processs.length - 1) {
                 // 添加关键点
-                fps.push(processsx[i][0]);
-                fps.push(processsx[i][0]);
+                fps.push(processs[i][0]);
+                fps.push(processs[i][0]);
             }
             else {
                 // 添加左右控制点
-                fps.unshift(processsx[i][0]);
-                sps.push(processsx[i].pop());
+                fps.unshift(processs[i][0]);
+                sps.push(processs[i].pop());
             }
         }
         return [fps, sps];
+    };
+    /**
+     * 合并曲线
+     *
+     * 该方法会还原被split分割后的曲线
+     *
+     * @param fps 第一条曲线点列表
+     * @param sps 第二条曲线点列表
+     */
+    Bezier.prototype.merge = function (fps, sps) {
+        fps = fps.concat();
+        sps = sps.concat();
+        var processs = [];
+        var t;
+        // 上条曲线
+        var pps;
+        // 当前曲线
+        var ps;
+        // 测试精度
+        var precision = 0.0000001;
+        for (var i = 0, n = fps.length; i < n; i++) {
+            ps = processs[i] = [];
+            if (i == 0) {
+                var n0 = processs[i][0] = fps.pop();
+                var n1 = sps.shift();
+                // debug
+                if (Math.abs(n0 - n1) < precision) {
+                    debugger;
+                }
+            }
+            else if (i == 1) {
+                // 计算t值
+                processs[i][0] = fps.pop();
+                processs[i][1] = sps.shift();
+                t = (processs[i - 1][0] - processs[i][0]) / (processs[i][1] - processs[i][0]);
+            }
+            else {
+                pps = processs[i - 1];
+                // 前面增加点
+                var nfp = fps.pop();
+                // 后面增加点
+                var nsp = sps.shift();
+                ps[0] = nfp;
+                for (var j = 0, n_1 = pps.length; j < n_1; j++) {
+                    ps[j + 1] = ps[j] + (pps[j] - ps[j]) / t;
+                }
+            }
+        }
+        return processs.pop();
     };
     /**
      * 获取曲线样本数据

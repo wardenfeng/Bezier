@@ -232,10 +232,19 @@ declare class Bezier {
      * 该方法分割出来的两条曲线连接起来与原曲线完全重合
      *
      * @param t 分割位置（插值度）
-     * @param ps 被分割曲线
+     * @param ps 被分割曲线点列表
      * @returns 返回两条曲线组成的数组
      */
     split(t: number, ps: number[]): number[][];
+    /**
+     * 合并曲线
+     *
+     * 该方法会还原被split分割后的曲线
+     *
+     * @param fps 第一条曲线点列表
+     * @param sps 第二条曲线点列表
+     */
+    merge(fps: number[], sps: number[]): number[];
     /**
      * 获取曲线样本数据
      *

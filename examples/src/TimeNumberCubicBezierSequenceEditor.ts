@@ -229,34 +229,34 @@
             ys.splice(index - 2, 3);
         } else
         {
-            var leftLength = Math.sqrt((xs[index - 1] - xs[index]) * (xs[index - 1] - xs[index]) + (ys[index - 1] - ys[index]) * (ys[index - 1] - ys[index]));
-            var rightLength = Math.sqrt((xs[index + 1] - xs[index]) * (xs[index + 1] - xs[index]) + (ys[index + 1] - ys[index]) * (ys[index + 1] - ys[index]));
-            // 删除点处相当于删除后曲线t值
-            var deleteT = leftLength / (leftLength + rightLength);
+            // var leftLength = Math.sqrt((xs[index - 1] - xs[index]) * (xs[index - 1] - xs[index]) + (ys[index - 1] - ys[index]) * (ys[index - 1] - ys[index]));
+            // var rightLength = Math.sqrt((xs[index + 1] - xs[index]) * (xs[index + 1] - xs[index]) + (ys[index + 1] - ys[index]) * (ys[index + 1] - ys[index]));
+            // // 删除点处相当于删除后曲线t值
+            // var deleteT = leftLength / (leftLength + rightLength);
 
-            // 放大
-            xs[index - 2] = xs[index - 3] + (xs[index - 2] - xs[index - 3]) / deleteT;
-            ys[index - 2] = ys[index - 3] + (ys[index - 2] - ys[index - 3]) / deleteT;
-            //
-            xs[index + 2] = xs[index + 3] + (xs[index + 2] - xs[index + 3]) / (1 - deleteT);
-            ys[index + 2] = ys[index + 3] + (ys[index + 2] - ys[index + 3]) / (1 - deleteT);
-            //
-            xs.splice(index - 1, 3);
-            ys.splice(index - 1, 3);
-
+            // // 放大
+            // xs[index - 2] = xs[index - 3] + (xs[index - 2] - xs[index - 3]) / deleteT;
+            // ys[index - 2] = ys[index - 3] + (ys[index - 2] - ys[index - 3]) / deleteT;
             // //
-            // // 前曲线
-            // var pxs = xs.slice(index - 3, index + 0);
-            // var pys = ys.slice(index - 3, index + 0);
-            // // 后曲线
-            // var nxs = xs.slice(index + 0, index + 3);
-            // var nys = ys.slice(index + 0, index + 3);
-            // // 合并后曲线
-            // var cxs = bezier.merge(pxs, nxs);
-            // var cys = bezier.merge(pys, nys);
-            // // 
-            // xs.splice(index - 3, 7, cxs[0], cxs[1], cxs[2], cxs[3])
-            // ys.splice(index - 3, 7, cys[0], cys[1], cys[2], cys[3])
+            // xs[index + 2] = xs[index + 3] + (xs[index + 2] - xs[index + 3]) / (1 - deleteT);
+            // ys[index + 2] = ys[index + 3] + (ys[index + 2] - ys[index + 3]) / (1 - deleteT);
+            // //
+            // xs.splice(index - 1, 3);
+            // ys.splice(index - 1, 3);
+
+            //
+            // 前曲线
+            var pxs = xs.slice(index - 3, index + 1);
+            var pys = ys.slice(index - 3, index + 1);
+            // 后曲线
+            var nxs = xs.slice(index + 0, index + 4);
+            var nys = ys.slice(index + 0, index + 4);
+            // 合并后曲线
+            var cxs = bezier.merge(pxs, nxs);
+            var cys = bezier.merge(pys, nys);
+            // 
+            xs.splice(index - 3, 7, cxs[0], cxs[1], cxs[2], cxs[3])
+            ys.splice(index - 3, 7, cys[0], cys[1], cys[2], cys[3])
         }
     }
 

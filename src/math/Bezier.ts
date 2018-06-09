@@ -504,20 +504,13 @@ class Bezier
         var pps: number[];
         // 当前曲线
         var ps: number[];
-        // 测试精度
-        var precision = 0.0000001;
         for (let i = 0, n = fps.length; i < n; i++)
         {
             ps = processs[i] = [];
             if (i == 0)
             {
-                var n0 = processs[i][0] = fps.pop();
-                var n1 = sps.shift();
-                // debug
-                if (Math.abs(n0 - n1) > precision)
-                {
-                    debugger;
-                }
+                processs[i][0] = fps.pop();
+                sps.shift();
             } else if (i == 1)
             {
                 // 计算t值
@@ -531,15 +524,24 @@ class Bezier
                 var nfp = fps.pop();
                 // 后面增加点
                 var nsp = sps.shift();
-                ps[0] = nfp;
+                // 从前往后计算
+                var ps0: number[] = [];
+                ps0[0] = nfp;
                 for (let j = 0, n = pps.length; j < n; j++)
                 {
-                    ps[j + 1] = ps[j] + (pps[j] - ps[j]) / t;
+                    ps0[j + 1] = ps0[j] + (pps[j] - ps0[j]) / t;
                 }
-                //debug
-                if (Math.abs(ps[i + 1] - nsp) > precision)
+                // 从后往前计算
+                var ps1: number[] = [];
+                ps1[pps.length] = nsp;
+                for (let j = pps.length - 1; j >= 0; j--)
                 {
-                    debugger;
+                    ps1[j] = ps1[j] - (ps1[j] - pps[j]) / (1 - t);
+                }
+                // 合并前后两个方向的计算
+                for (let j = 0, n = ps0.length; j < n; j++)
+                {
+                    ps[j] = (ps0[j] * (n - j) + ps1[j] * j) / n;
                 }
             }
         }

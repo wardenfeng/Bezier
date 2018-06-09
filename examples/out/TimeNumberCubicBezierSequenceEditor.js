@@ -10,11 +10,9 @@
     var pointSize = 16;
     // 第一条曲线  [0,3] 
     // 第二条曲线  [3,6] 
-    var xs = [];
-    var ys = [];
+    var keys = [];
     addPoint(Math.random() * canvas.width, Math.random() * canvas.height);
-    addPoint(Math.random() * canvas.width, Math.random() * canvas.height);
-    var editIndex = -1;
+    var editKey;
     var editing = false;
     var mousedownxy = { x: -1, y: -1 };
     function onMouseDown(ev) {
@@ -25,12 +23,12 @@
         var y = ev.clientY - rect.top;
         mousedownxy.x = x;
         mousedownxy.y = y;
-        editIndex = findPoint(x, y);
+        editKey = findPoint(x, y);
         window.addEventListener("mousemove", onMouseMove);
         window.addEventListener("mouseup", onMouseUp);
     }
     function onMouseMove(ev) {
-        if (editIndex == -1)
+        if (editKey == null)
             return;
         editing = true;
         var rect = canvas.getBoundingClientRect();
@@ -38,69 +36,14 @@
             return;
         var x = ev.clientX - rect.left;
         var y = ev.clientY - rect.top;
-        if (editIndex % 3 == 0) {
-            var offsetx = x - xs[editIndex];
-            var offsety = y - ys[editIndex];
-            xs[editIndex] = x;
-            ys[editIndex] = y;
-            // 同时以移动左边控制点
-            if (editIndex > 0) {
-                xs[editIndex - 1] += offsetx;
-                ys[editIndex - 1] += offsety;
-            }
-            // 同时以移动右边控制点
-            if (editIndex + 1 < xs.length) {
-                xs[editIndex + 1] += offsetx;
-                ys[editIndex + 1] += offsety;
-            }
-        }
-        else if (editIndex % 3 == 1) {
-            // 改变左边控制点
-            if (editIndex - 2 > -1) {
-                var leftLength = Math.sqrt((xs[editIndex - 2] - xs[editIndex - 1]) * (xs[editIndex - 2] - xs[editIndex - 1]) + (ys[editIndex - 2] - ys[editIndex - 1]) * (ys[editIndex - 2] - ys[editIndex - 1]));
-                var rightLength = Math.sqrt((xs[editIndex - 1] - xs[editIndex]) * (xs[editIndex - 1] - xs[editIndex]) + (ys[editIndex - 1] - ys[editIndex]) * (ys[editIndex - 1] - ys[editIndex]));
-                //
-                if (Math.abs((x - xs[editIndex - 1]) * (y - ys[editIndex - 1])) > 0.01) {
-                    xs[editIndex - 2] -= (x - xs[editIndex]) * leftLength / rightLength;
-                    ys[editIndex - 2] -= (y - ys[editIndex]) * leftLength / rightLength;
-                    //
-                    xs[editIndex] = x;
-                    ys[editIndex] = y;
-                }
-            }
-            else {
-                xs[editIndex] = x;
-                ys[editIndex] = y;
-            }
-        }
-        else if (editIndex % 3 == 2) {
-            // 改变右边控制点
-            if (editIndex + 2 < xs.length) {
-                var leftLength = Math.sqrt((xs[editIndex + 1] - xs[editIndex]) * (xs[editIndex + 1] - xs[editIndex]) + (ys[editIndex + 1] - ys[editIndex]) * (ys[editIndex + 1] - ys[editIndex]));
-                var rightLength = Math.sqrt((xs[editIndex + 2] - xs[editIndex + 1]) * (xs[editIndex + 2] - xs[editIndex + 1]) + (ys[editIndex + 2] - ys[editIndex + 1]) * (ys[editIndex + 2] - ys[editIndex + 1]));
-                //
-                if (Math.abs((xs[editIndex + 1] - x) * (ys[editIndex + 1] - y)) > 0.01) {
-                    xs[editIndex + 2] -= (x - xs[editIndex]) * rightLength / leftLength;
-                    ys[editIndex + 2] -= (y - ys[editIndex]) * rightLength / leftLength;
-                    //
-                    xs[editIndex] = x;
-                    ys[editIndex] = y;
-                }
-                // else
-                // {
-                //     debugger;
-                // }
-            }
-            else {
-                xs[editIndex] = x;
-                ys[editIndex] = y;
-            }
-        }
+        var key = editKey;
+        key.x = x;
+        key.y = y;
     }
     function onMouseUp(ev) {
         if (editing) {
             editing = false;
-            editIndex = -1;
+            editKey = null;
             return;
         }
         var rect = canvas.getBoundingClientRect();
@@ -112,11 +55,11 @@
             // 有移动鼠标，无效点击
             return;
         }
-        var index = findPoint(x, y);
-        if (index % 3 == 0) {
-            deletePoint(index);
+        var selectedKey = findPoint(x, y);
+        if (selectedKey != null) {
+            deletePoint(selectedKey);
         }
-        else if (index == -1) {
+        else {
             // 没有选中关键与控制点时，检查是否点击到曲线
             var result = findCurve(x, y);
             if (result != null) {
@@ -130,12 +73,12 @@
         window.removeEventListener("mouseup", onMouseUp);
     }
     function findPoint(x, y) {
-        for (var i = 0; i < xs.length; i++) {
-            if (Math.abs(xs[i] - x) < pointSize / 2 && Math.abs(ys[i] - y) < pointSize / 2) {
-                return i;
+        for (var i = 0; i < keys.length; i++) {
+            if (Math.abs(keys[i].x - x) < pointSize / 2 && Math.abs(keys[i].y - y) < pointSize / 2) {
+                return keys[i];
             }
         }
-        return -1;
+        return null;
     }
     /**
      * 查找点所在的曲线
@@ -143,77 +86,43 @@
      * @param y y坐标
      */
     function findCurve(x, y) {
-        for (var i = 0, n = xs.length / 3; i < n; i++) {
-            // 使用 bezierCurve 进行采样曲线点
-            if (i > 0) {
-                var sxs = xs.slice(i * 3 - 3, i * 3 + 1);
-                var sys = ys.slice(i * 3 - 3, i * 3 + 1);
-                // 先在曲线上找到y再比较x
-                var yTs = bezier.getTFromValue(y, sys);
-                for (var j = 0; j < yTs.length; j++) {
-                    var xv = bezier.getValue(yTs[j], sxs);
-                    if (Math.abs(xv - x) < pointSize / 2) {
-                        return { index: i, t: yTs[j] };
-                    }
-                }
-                // 先在曲线上找到x再比较y
-                var xTs = bezier.getTFromValue(x, sxs);
-                for (var j = 0; j < xTs.length; j++) {
-                    var yv = bezier.getValue(xTs[j], sys);
-                    if (Math.abs(yv - y) < pointSize / 2) {
-                        return { index: i, t: xTs[j] };
-                    }
-                }
-            }
-        }
+        // for (let i = 0, n = xs.length / 3; i < n; i++)
+        // {
+        //     // 使用 bezierCurve 进行采样曲线点
+        //     if (i > 0)
+        //     {
+        //         var sxs = xs.slice(i * 3 - 3, i * 3 + 1)
+        //         var sys = ys.slice(i * 3 - 3, i * 3 + 1)
+        //         // 先在曲线上找到y再比较x
+        //         var yTs = bezier.getTFromValue(y, sys);
+        //         for (var j = 0; j < yTs.length; j++)
+        //         {
+        //             var xv = bezier.getValue(yTs[j], sxs);
+        //             if (Math.abs(xv - x) < pointSize / 2)
+        //             {
+        //                 return { index: i, t: yTs[j] };
+        //             }
+        //         }
+        //         // 先在曲线上找到x再比较y
+        //         var xTs = bezier.getTFromValue(x, sxs);
+        //         for (var j = 0; j < xTs.length; j++)
+        //         {
+        //             var yv = bezier.getValue(xTs[j], sys);
+        //             if (Math.abs(yv - y) < pointSize / 2)
+        //             {
+        //                 return { index: i, t: xTs[j] };
+        //             }
+        //         }
+        //     }
+        // }
         return null;
     }
-    function deletePoint(index) {
-        if (index == 0) {
-            xs.splice(index, 3);
-            ys.splice(index, 3);
-        }
-        else if (index == xs.length - 1) {
-            xs.splice(index - 2, 3);
-            ys.splice(index - 2, 3);
-        }
-        else {
-            //
-            // 前曲线
-            var pxs = xs.slice(index - 3, index + 1);
-            var pys = ys.slice(index - 3, index + 1);
-            // 后曲线
-            var nxs = xs.slice(index + 0, index + 4);
-            var nys = ys.slice(index + 0, index + 4);
-            // 合并后曲线
-            var cxs = bezier.merge(pxs, nxs);
-            var cys = bezier.merge(pys, nys);
-            // 
-            xs.splice(index - 3, 7, cxs[0], cxs[1], cxs[2], cxs[3]);
-            ys.splice(index - 3, 7, cys[0], cys[1], cys[2], cys[3]);
-        }
+    function deletePoint(key) {
+        var index = keys.indexOf(key);
+        keys.splice(index, 1);
     }
     function addPoint(x, y) {
-        if (xs.length > 0) {
-            var lastx = xs[xs.length - 1];
-            var lasty = ys[ys.length - 1];
-            // 自动新增两个控制点
-            var cx0 = bezier.linear(1 / 3, lastx, x);
-            var cy0 = bezier.linear(1 / 3, lasty, y);
-            if (xs.length - 2 > -1) {
-                cx0 = lastx * 2 - xs[xs.length - 2];
-                cy0 = lasty * 2 - ys[ys.length - 2];
-            }
-            var cx1 = bezier.linear(2 / 3, cx0, x);
-            var cy1 = bezier.linear(2 / 3, cy0, y);
-            //
-            xs.push(cx0, cx1, x);
-            ys.push(cy0, cy1, y);
-        }
-        else {
-            xs.push(x);
-            ys.push(y);
-        }
+        keys.push({ x: x, y: y, tan: 0 });
     }
     /**
      * 在指定曲线上添加点
@@ -222,48 +131,66 @@
      */
     function addPointAtCurve(curveIndex, t) {
         // 获取当前曲线
-        var sxs = xs.slice(curveIndex * 3 - 3, curveIndex * 3 + 1);
-        var sys = ys.slice(curveIndex * 3 - 3, curveIndex * 3 + 1);
-        // 分割曲线
-        var xss = bezier.split(t, sxs);
-        var yss = bezier.split(t, sys);
-        //
-        var nxs = xss[0].concat();
-        nxs.pop();
-        nxs = nxs.concat(xss[1]);
-        //
-        var nys = yss[0].concat();
-        nys.pop();
-        nys = nys.concat(yss[1]);
-        //
-        xs.splice.apply(xs, [curveIndex * 3 - 3, 4].concat(nxs));
-        ys.splice.apply(ys, [curveIndex * 3 - 3, 4].concat(nys));
+        // var sxs = xs.slice(curveIndex * 3 - 3, curveIndex * 3 + 1)
+        // var sys = ys.slice(curveIndex * 3 - 3, curveIndex * 3 + 1)
+        // // 分割曲线
+        // var xss = bezier.split(t, sxs);
+        // var yss = bezier.split(t, sys);
+        // //
+        // var nxs = xss[0].concat();
+        // nxs.pop();
+        // nxs = nxs.concat(xss[1]);
+        // //
+        // var nys = yss[0].concat();
+        // nys.pop();
+        // nys = nys.concat(yss[1]);
+        // //
+        // xs.splice.apply(xs, [curveIndex * 3 - 3, 4].concat(nxs))
+        // ys.splice.apply(ys, [curveIndex * 3 - 3, 4].concat(nys));
     }
     requestAnimationFrame(draw);
     function draw() {
         clearCanvas(canvas);
-        for (var i = 0, n = xs.length / 3; i < n; i++) {
+        keys.sort(function (a, b) { return a.x - b.x; });
+        for (var i = 0, n = keys.length; i < n; i++) {
+            var key = keys[i];
             // 使用 bezierCurve 进行采样曲线点
             if (i > 0) {
-                var sxs = xs.slice(i * 3 - 3, i * 3 + 1);
-                var sys = ys.slice(i * 3 - 3, i * 3 + 1);
-                var xSamples = bezier.getSamples(sxs);
-                var ySamples = bezier.getSamples(sys);
+                var prekey = keys[i - 1];
+                var xstart = prekey.x;
+                var ystart = prekey.y;
+                var tanstart = prekey.tan;
+                var xend = key.x;
+                var yend = key.y;
+                var tanend = key.tan;
+                var sys = [ystart, ystart + tanstart * (yend - ystart) / 3, yend - tanend * (yend - ystart) / 3, yend];
+                var numSamples = 100;
+                var ySamples = bezier.getSamples(sys, numSamples);
+                var xSamples = ySamples.map(function (v, i) { return xstart + (xend - xstart) * i / numSamples; });
                 // 绘制曲线
                 drawPointsCurve(canvas, xSamples, ySamples, 'white', 3);
             }
             // 绘制曲线端点
-            drawPoints(canvas, xs.slice(i * 3, i * 3 + 1), ys.slice(i * 3, i * 3 + 1), "red", pointSize);
+            drawPoints(canvas, [key.x], [key.y], "red", pointSize);
+            if (i == 0) {
+                drawPointsCurve(canvas, [0, key.x], [key.y, key.y], 'white', 3);
+            }
+            if (i == n - 1) {
+                drawPointsCurve(canvas, [key.x, canvas.width], [key.y, key.y], 'white', 3);
+            }
+            var controllerLength = 100;
             // 绘制控制点
-            if (i > 0)
-                drawPoints(canvas, xs.slice(i * 3 - 1, i * 3 + 0), ys.slice(i * 3 - 1, i * 3 + 0), "blue", pointSize);
-            if (i < n - 1)
-                drawPoints(canvas, xs.slice(i * 3 + 1, i * 3 + 2), ys.slice(i * 3 + 1, i * 3 + 2), "blue", pointSize);
-            // 绘制控制点之间的连线
-            if (i > 0)
-                drawPointsCurve(canvas, xs.slice(i * 3 - 1, i * 3 + 1), ys.slice(i * 3 - 1, i * 3 + 1), "yellow", 1);
-            if (i < n - 1)
-                drawPointsCurve(canvas, xs.slice(i * 3 + 0, i * 3 + 2), ys.slice(i * 3 + 0, i * 3 + 2), "yellow", 1);
+            if (i > 0) {
+                // 左边控制点
+                var lcp = { x: key.x - controllerLength * Math.cos(Math.atan(key.tan)), y: key.y - controllerLength * Math.sin(Math.atan(key.tan)) };
+                drawPoints(canvas, [lcp.x], [lcp.y], "blue", pointSize);
+                drawPointsCurve(canvas, [key.x, lcp.x], [key.y, lcp.y], "yellow", 1);
+            }
+            if (i < n - 1) {
+                var rcp = { x: key.x + controllerLength * Math.cos(Math.atan(key.tan)), y: key.y + controllerLength * Math.sin(Math.atan(key.tan)) };
+                drawPoints(canvas, [rcp.x], [rcp.y], "blue", pointSize);
+                drawPointsCurve(canvas, [key.x, rcp.x], [key.y, rcp.y], "yellow", 1);
+            }
         }
         //
         requestAnimationFrame(draw);

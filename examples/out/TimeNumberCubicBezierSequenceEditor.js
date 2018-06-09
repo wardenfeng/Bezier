@@ -195,6 +195,19 @@
             //
             xs.splice(index - 1, 3);
             ys.splice(index - 1, 3);
+            // //
+            // // 前曲线
+            // var pxs = xs.slice(index - 3, index + 0);
+            // var pys = ys.slice(index - 3, index + 0);
+            // // 后曲线
+            // var nxs = xs.slice(index + 0, index + 3);
+            // var nys = ys.slice(index + 0, index + 3);
+            // // 合并后曲线
+            // var cxs = bezier.merge(pxs, nxs);
+            // var cys = bezier.merge(pys, nys);
+            // // 
+            // xs.splice(index - 3, 7, cxs[0], cxs[1], cxs[2], cxs[3])
+            // ys.splice(index - 3, 7, cys[0], cys[1], cys[2], cys[3])
         }
     }
     function addPoint(x, y) {

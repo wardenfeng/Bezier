@@ -397,9 +397,7 @@ var Bezier = /** @class */ (function () {
     /**
      * 分割曲线
      *
-     * 在插值度t位置把曲线一分为二
-     *
-     * 该方法分割出来的两条曲线连接起来与原曲线完全重合
+     * 在曲线插值度t位置分割为两条连接起来与原曲线完全重合的曲线
      *
      * @param t 分割位置（插值度）
      * @param ps 被分割曲线点列表
@@ -430,6 +428,8 @@ var Bezier = /** @class */ (function () {
     };
     /**
      * 合并曲线
+     *
+     * 合并两条连接的曲线为一条曲线并且可以还原为分割前的曲线
      *
      * @param fps 第一条曲线点列表
      * @param sps 第二条曲线点列表
@@ -790,7 +790,7 @@ var EquationSolving = /** @class */ (function () {
         return Math.abs(a - b) < precision;
     };
     /**
-     * 获取近似导函数
+     * 获取近似导函数 f'(x)
      *
      * 导函数定义
      * f'(x) = (f(x + Δx) - f(x)) / Δx , Δx → 0

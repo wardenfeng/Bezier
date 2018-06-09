@@ -13,7 +13,8 @@ https://wardenfeng.github.io/bezier
 #### 立方Bézier曲线 CubicBezier.ts
 CubicBezier是最常用到的Bézier曲线，为了提升性能以及简化接口单独从Bezier.ts提取出来。
 
-#### Bezier.ts 提供功能
+#### Bezier.ts
+解决任意Bézier曲线的求值求导获取极值等问题。
 1. 1次Bézier曲线 
     * 求值 ``` bezier.linear ```
     * 导数 ``` bezier.linearDerivative ```
@@ -33,6 +34,18 @@ CubicBezier是最常用到的Bézier曲线，为了提升性能以及简化接�
     * N阶导数 ``` bezier.bnND ```
 1. n次Bézier曲线的极值列表 ``` bezier.getExtremums ```
 1. n次Bézier曲线的区间列表 ``` bezier.getMonotoneIntervals ```
+1. 查找区间内极值列表 ```  bezier.getExtremums ```
+1. 获取目标值所在的插值度T ```  bezier.getTFromValue ```
+1. 分割曲线，在曲线插值度t位置分割为两条连接起来与原曲线完全重合的曲线 ``` bezier.split ```
+1. 合并曲线，合并两条连接的曲线为一条曲线并且可以还原为分割前的曲线 ``` bezier.merge ```
+
+#### EquationSolving.ts
+解决任意一元函数求导以及方程求解等问题。
+1. 获取近似导函数 f'(x) ``` equationSolving.getDerivative ```
+1. 二分法 求解 f(x) == 0 ``` equationSolving.binary ```
+1. 连线法 求解 f(x) == 0 ``` equationSolving.line ```
+1. 切线法 求解 f(x) == 0 ``` equationSolving.tangent ```
+1. 割线法（弦截法） 求解 f(x) == 0 ``` equationSolving.secant ```
 
 #### 示例
 ##### 使用BezierCurve进行模拟canvas提供的 bezierCurveTo方法

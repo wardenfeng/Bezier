@@ -38,7 +38,7 @@ class EquationSolving
     }
 
     /**
-     * 获取近似导函数
+     * 获取近似导函数 f'(x)
      * 
      * 导函数定义
      * f'(x) = (f(x + Δx) - f(x)) / Δx , Δx → 0

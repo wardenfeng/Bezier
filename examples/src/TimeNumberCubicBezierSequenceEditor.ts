@@ -1,7 +1,7 @@
 (() =>
 {
     // 基于时间的连续三阶Bézier曲线编辑，意味着一个x对应唯一的y
-    
+
     // 创建画布
     var canvas = createCanvas(0, 60, window.innerWidth, window.innerHeight - 60);
 
@@ -282,31 +282,18 @@
         // 获取当前曲线
         var sxs = xs.slice(curveIndex * 3 - 3, curveIndex * 3 + 1)
         var sys = ys.slice(curveIndex * 3 - 3, curveIndex * 3 + 1)
-        // 获取曲线的动画过程
-        var processsx: number[][] = [];
-        bezier.bn(t, sxs, processsx);
-        var processsy: number[][] = [];
-        bezier.bn(t, sys, processsy);
-
-        var nxs: number[] = [];
-        var nys: number[] = [];
-        // 使用当前t值进行分割曲线
-        for (let i = processsx.length - 1; i >= 0; i--)
-        {
-            if (i == processsx.length - 1)
-            {
-                // 添加关键点
-                nxs.push(processsx[i][0]);
-                nys.push(processsy[i][0]);
-            } else
-            {
-                // 添加左右控制点
-                nxs.unshift(processsx[i][0]);
-                nxs.push(processsx[i].pop());
-                nys.unshift(processsy[i][0]);
-                nys.push(processsy[i].pop());
-            }
-        }
+        // 分割曲线
+        var xss = bezier.split(t, sxs);
+        var yss = bezier.split(t, sys);
+        //
+        var nxs = xss[0].concat();
+        nxs.pop();
+        nxs = nxs.concat(xss[1]);
+        //
+        var nys = yss[0].concat();
+        nys.pop();
+        nys = nys.concat(yss[1]);
+        //
         xs.splice.apply(xs, [curveIndex * 3 - 3, 4].concat(nxs))
         ys.splice.apply(ys, [curveIndex * 3 - 3, 4].concat(nys));
     }

@@ -453,7 +453,7 @@ var Bezier = /** @class */ (function () {
                 var n0 = processs[i][0] = fps.pop();
                 var n1 = sps.shift();
                 // debug
-                if (Math.abs(n0 - n1) < precision) {
+                if (Math.abs(n0 - n1) > precision) {
                     debugger;
                 }
             }
@@ -472,6 +472,10 @@ var Bezier = /** @class */ (function () {
                 ps[0] = nfp;
                 for (var j = 0, n_1 = pps.length; j < n_1; j++) {
                     ps[j + 1] = ps[j] + (pps[j] - ps[j]) / t;
+                }
+                //debug
+                if (Math.abs(ps[i + 1] - nsp) > precision) {
+                    debugger;
                 }
             }
         }

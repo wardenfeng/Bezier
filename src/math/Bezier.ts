@@ -514,7 +514,7 @@ class Bezier
                 var n0 = processs[i][0] = fps.pop();
                 var n1 = sps.shift();
                 // debug
-                if (Math.abs(n0 - n1) < precision)
+                if (Math.abs(n0 - n1) > precision)
                 {
                     debugger;
                 }
@@ -535,6 +535,11 @@ class Bezier
                 for (let j = 0, n = pps.length; j < n; j++)
                 {
                     ps[j + 1] = ps[j] + (pps[j] - ps[j]) / t;
+                }
+                //debug
+                if (Math.abs(ps[i + 1] - nsp) > precision)
+                {
+                    debugger;
                 }
             }
         }

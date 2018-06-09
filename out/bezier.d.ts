@@ -225,6 +225,18 @@ declare class Bezier {
      */
     getTFromValue(targetV: number, ps: number[], numSamples?: number, precision?: number): number[];
     /**
+     * 分割曲线
+     *
+     * 在插值度t位置把曲线一分为二
+     *
+     * 该方法分割出来的两条曲线连接起来与原曲线完全重合
+     *
+     * @param t 分割位置（插值度）
+     * @param ps 被分割曲线
+     * @returns 返回两条曲线组成的数组
+     */
+    split(t: number, ps: number[]): number[][];
+    /**
      * 获取曲线样本数据
      *
      * 这些点可用于连线来拟合曲线。

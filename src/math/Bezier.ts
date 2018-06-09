@@ -448,6 +448,45 @@ class Bezier
     }
 
     /**
+     * 分割曲线
+     * 
+     * 在插值度t位置把曲线一分为二
+     * 
+     * 该方法分割出来的两条曲线连接起来与原曲线完全重合
+     * 
+     * @param t 分割位置（插值度）
+     * @param ps 被分割曲线
+     * @returns 返回两条曲线组成的数组
+     */
+    split(t: number, ps: number[])
+    {
+        // 获取曲线的动画过程
+        var processsx: number[][] = [];
+        bezier.bn(t, ps, processsx);
+
+        // 第一条曲线
+        var fps: number[] = [];
+        // 第二条曲线
+        var sps: number[] = [];
+        // 使用当前t值进行分割曲线
+        for (let i = processsx.length - 1; i >= 0; i--)
+        {
+            if (i == processsx.length - 1)
+            {
+                // 添加关键点
+                fps.push(processsx[i][0]);
+                fps.push(processsx[i][0]);
+            } else
+            {
+                // 添加左右控制点
+                fps.unshift(processsx[i][0]);
+                sps.push(processsx[i].pop());
+            }
+        }
+        return [fps, sps];
+    }
+
+    /**
      * 获取曲线样本数据
      * 
      * 这些点可用于连线来拟合曲线。

@@ -12,6 +12,10 @@
      * 点绘制尺寸
      */
     var pointSize = 16;
+    /**
+     * 控制柄长度
+     */
+    var controllerLength = 100;
 
     // 第一条曲线  [0,3] 
     // 第二条曲线  [3,6] 
@@ -19,6 +23,7 @@
     addPoint(Math.random() * canvas.width, Math.random() * canvas.height);
 
     var editKey: { x: number, y: number, tan: number };
+    var controlkey: { x: number, y: number, tan: number };
     var editing = false;
     var mousedownxy = { x: -1, y: -1 }
 
@@ -34,6 +39,10 @@
         mousedownxy.y = y;
 
         editKey = findPoint(x, y);
+        if (editKey == null)
+        {
+            controlkey = findControlPoint(x, y);
+        }
 
         window.addEventListener("mousemove", onMouseMove);
         window.addEventListener("mouseup", onMouseUp);
@@ -41,7 +50,7 @@
 
     function onMouseMove(ev: MouseEvent)
     {
-        if (editKey == null)
+        if (editKey == null && controlkey == null)
             return;
         editing = true;
 
@@ -51,10 +60,14 @@
         var x = ev.clientX - rect.left;
         var y = ev.clientY - rect.top;
 
-        var key = editKey;
-
-        key.x = x;
-        key.y = y;
+        if (editKey)
+        {
+            editKey.x = x;
+            editKey.y = y;
+        } else if (controlkey)
+        {
+            controlkey.tan = (y - controlkey.y) / (x - controlkey.x);
+        }
     }
 
     function onMouseUp(ev: MouseEvent)
@@ -63,6 +76,7 @@
         {
             editing = false;
             editKey = null;
+            controlkey = null;
             return;
         }
         var rect = canvas.getBoundingClientRect();
@@ -105,6 +119,25 @@
             if (Math.abs(keys[i].x - x) < pointSize / 2 && Math.abs(keys[i].y - y) < pointSize / 2)
             {
                 return keys[i];
+            }
+        }
+        return null;
+    }
+
+    function findControlPoint(x: number, y: number)
+    {
+        for (let i = 0; i < keys.length; i++)
+        {
+            var key = keys[i];
+            var lcp = { x: key.x - controllerLength * Math.cos(Math.atan(key.tan)), y: key.y - controllerLength * Math.sin(Math.atan(key.tan)) };
+            if (Math.abs(lcp.x - x) < pointSize / 2 && Math.abs(lcp.y - y) < pointSize / 2)
+            {
+                return key;
+            }
+            var rcp = { x: key.x + controllerLength * Math.cos(Math.atan(key.tan)), y: key.y + controllerLength * Math.sin(Math.atan(key.tan)) };
+            if (Math.abs(rcp.x - x) < pointSize / 2 && Math.abs(rcp.y - y) < pointSize / 2)
+            {
+                return key;
             }
         }
         return null;
@@ -207,7 +240,7 @@
                 var xend = key.x;
                 var yend = key.y;
                 var tanend = key.tan;
-                var sys = [ystart, ystart + tanstart * (yend - ystart) / 3, yend - tanend * (yend - ystart) / 3, yend];
+                var sys = [ystart, ystart + tanstart * (xend - xstart) / 3, yend - tanend * (xend - xstart) / 3, yend];
 
                 var numSamples = 100;
                 var ySamples = bezier.getSamples(sys, numSamples);
@@ -229,7 +262,6 @@
                 drawPointsCurve(canvas, [key.x, canvas.width], [key.y, key.y], 'white', 3);
             }
 
-            var controllerLength = 100;
             // 绘制控制点
             if (i > 0)
             {

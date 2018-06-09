@@ -22,13 +22,6 @@
         drawBezierCurve(canvas, xs, ys, "red", 15);
 
         // 使用 bezierCurve 进行采样曲线点
-        var xBezier = new CubicBezier(xs[0], xs[1], xs[2], xs[3]);
-        var yBezier = new CubicBezier(ys[0], ys[1], ys[2], ys[3]);
-        var xSamples = xBezier.getSamples();
-        var ySamples = yBezier.getSamples();
-        drawPointsCurve(canvas, xSamples, ySamples, "blue", 10);
-
-        // 使用 bezierCurve 进行采样曲线点
         var xSamples = bezier.getSamples(xs);
         var ySamples = bezier.getSamples(ys);
         drawPointsCurve(canvas, xSamples, ySamples, "green", 5);

@@ -16,7 +16,6 @@
     //
     "src/HighFunction.tests.ts",
     "src/EquationSolving.tests.ts",
-    "src/CubicBezier.tests.ts",
     "src/Bezier.tests.ts"
   ]
 }

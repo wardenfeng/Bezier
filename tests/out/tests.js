@@ -107,62 +107,6 @@ QUnit.module("EquationSolving", function () {
         }
     });
 });
-QUnit.module("CubicBezier", function () {
-    // 允许误差
-    var deviation = 0.0000001;
-    QUnit.test("getExtremums ，查找区间内极值列表 ", function (assert) {
-        for (var j = 0; j < 10; j++) {
-            var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
-            var bezier = new CubicBezier(ps[0], ps[1], ps[2], ps[3]);
-            // 查找区间内极值所在插值度列表
-            var extremums = bezier.getExtremums(20, deviation);
-            var ts = extremums.ts;
-            var vs = extremums.vs;
-            if (ts.length > 0) {
-                for (var i = 0, n = ts.length; i < n; i++) {
-                    assert.ok(0 <= ts[i] && ts[i] <= 1, "\u6781\u503C\u4F4D\u7F6E " + ts[i] + " \u5FC5\u987B\u5728\u533A\u57DF [0,1] \u5185");
-                    // 极值
-                    var extremum = vs[i];
-                    // 极值前面的数据
-                    var prex = ts[i] - 0.001;
-                    if (0 < i)
-                        prex = ts[i - 1] + 0.999 * (ts[i - 1] - ts[i]);
-                    var prev = bezier.getValue(prex);
-                    // 极值后面面的数据
-                    var nextx = ts[i] + 0.001;
-                    if (i < n - 1)
-                        nextx = ts[i] + 0.001 * (ts[i] - ts[i + 1]);
-                    var nextv = bezier.getValue(nextx);
-                    // 斜率
-                    var derivative = bezier.getDerivative(ts[i]);
-                    assert.ok(Math.abs(derivative) < deviation, ps.length - 1 + "\u6B21B\u00E9zier\u66F2\u7EBF \u7B2C" + i + "\u4E2A\u89E3 \u6781\u503C\u4F4D\u7F6E\uFF1A" + ts[i] + " \u659C\u7387\uFF1A " + derivative + " \n \u524D\u9762\u503C\uFF1A " + prev + " \n \u6781\u503C\uFF1A " + extremum + " \n \u540E\u9762\u7684\u503C " + nextv);
-                }
-            }
-            else {
-                assert.ok(true, "没有找到极值");
-            }
-        }
-    });
-    QUnit.test("getTFromValue ，获取目标值所在的插值度T，返回区间内所有解", function (assert) {
-        for (var j = 0; j < 10; j++) {
-            var ps = [Math.random(), Math.random(), Math.random(), Math.random()];
-            var bezier = new CubicBezier(ps[0], ps[1], ps[2], ps[3]);
-            // 为了确保有解，去平均值
-            var targetV = ps.reduce(function (pre, item) { return pre + item; }, 0) / ps.length;
-            var ts = bezier.getTFromValue(targetV, 10, deviation);
-            if (ts.length > 0) {
-                for (var i = 0; i < ts.length; i++) {
-                    var tv = bezier.getValue(ts[i]);
-                    assert.ok(Math.abs(tv - targetV) < deviation, ps.length - 1 + "\u6B21B\u00E9zier\u66F2\u7EBF \u7B2C" + i + "\u4E2A\u89E3 \u76EE\u6807\u503C\uFF1A" + targetV + " \u67E5\u627E\u5230\u7684\u503C\uFF1A" + tv + " \u67E5\u627E\u5230\u7684\u4F4D\u7F6E\uFF1A" + ts[i]);
-                    assert.ok(0 <= ts[i] && ts[i] <= 1, ts[i] + " \u89E3\u5FC5\u987B\u5728 [0,1] \u533A\u95F4\u5185 ");
-                }
-            }
-            else {
-                assert.ok(false, "\u6CA1\u6709\u627E\u5230\u76EE\u6807\u503C");
-            }
-        }
-    });
-});
 QUnit.module("Bezier", function () {
     // 允许误差
     var deviation = 0.0000001;

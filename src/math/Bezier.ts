@@ -489,12 +489,11 @@ class Bezier
     /**
      * 合并曲线
      * 
-     * 该方法会还原被split分割后的曲线
-     * 
      * @param fps 第一条曲线点列表
      * @param sps 第二条曲线点列表
+     * @param mergeType 合并方式。mergeType = 0时进行还原合并，还原拆分之前的曲线；mergeType = 1时进行拟合合并，合并后的曲线会经过两条曲线的连接点；
      */
-    merge(fps: number[], sps: number[])
+    merge(fps: number[], sps: number[], mergeType = 0)
     {
         fps = fps.concat();
         sps = sps.concat();
@@ -536,12 +535,34 @@ class Bezier
                 ps1[pps.length] = nsp;
                 for (let j = pps.length - 1; j >= 0; j--)
                 {
-                    ps1[j] = ps1[j] - (ps1[j] - pps[j]) / (1 - t);
+                    ps1[j] = ps1[j + 1] - (ps1[j + 1] - pps[j]) / (1 - t);
                 }
-                // 合并前后两个方向的计算
-                for (let j = 0, n = ps0.length; j < n; j++)
+                // 拟合合并,合并前后两个方向的计算
+                if (mergeType == 1)
                 {
-                    ps[j] = (ps0[j] * (n - j) + ps1[j] * j) / n;
+                    for (let j = 0, n = ps0.length - 1; j <= n; j++)
+                    {
+                        ps[j] = (ps0[j] * (n - j) + ps1[j] * j) / n;
+                    }
+                } else if (mergeType == 0)
+                {
+                    // 还原合并，前半段使用从前往后计算，后半段使用从后往前计算
+                    for (let j = 0, n = ps0.length - 1; j <= n; j++)
+                    {
+                        if (j < n / 2)
+                        {
+                            ps[j] = ps0[j];
+                        } else if (j > n / 2)
+                        {
+                            ps[j] = ps1[j];
+                        } else
+                        {
+                            ps[j] = (ps0[j] + ps1[j]) / 2;
+                        }
+                    }
+                } else
+                {
+                    throw `合并类型 mergeType ${mergeType} 错误!`;
                 }
             }
         }

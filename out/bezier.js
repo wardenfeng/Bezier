@@ -431,12 +431,12 @@ var Bezier = /** @class */ (function () {
     /**
      * 合并曲线
      *
-     * 该方法会还原被split分割后的曲线
-     *
      * @param fps 第一条曲线点列表
      * @param sps 第二条曲线点列表
+     * @param mergeType 合并方式。mergeType = 0时进行还原合并，还原拆分之前的曲线；mergeType = 1时进行拟合合并，合并后的曲线会经过两条曲线的连接点；
      */
-    Bezier.prototype.merge = function (fps, sps) {
+    Bezier.prototype.merge = function (fps, sps, mergeType) {
+        if (mergeType === void 0) { mergeType = 0; }
         fps = fps.concat();
         sps = sps.concat();
         var processs = [];
@@ -473,11 +473,30 @@ var Bezier = /** @class */ (function () {
                 var ps1 = [];
                 ps1[pps.length] = nsp;
                 for (var j = pps.length - 1; j >= 0; j--) {
-                    ps1[j] = ps1[j] - (ps1[j] - pps[j]) / (1 - t);
+                    ps1[j] = ps1[j + 1] - (ps1[j + 1] - pps[j]) / (1 - t);
                 }
-                // 合并前后两个方向的计算
-                for (var j = 0, n_2 = ps0.length; j < n_2; j++) {
-                    ps[j] = (ps0[j] * (n_2 - j) + ps1[j] * j) / n_2;
+                // 拟合合并,合并前后两个方向的计算
+                if (mergeType == 1) {
+                    for (var j = 0, n_2 = ps0.length - 1; j <= n_2; j++) {
+                        ps[j] = (ps0[j] * (n_2 - j) + ps1[j] * j) / n_2;
+                    }
+                }
+                else if (mergeType == 0) {
+                    // 还原合并，前半段使用从前往后计算，后半段使用从后往前计算
+                    for (var j = 0, n_3 = ps0.length - 1; j <= n_3; j++) {
+                        if (j < n_3 / 2) {
+                            ps[j] = ps0[j];
+                        }
+                        else if (j > n_3 / 2) {
+                            ps[j] = ps1[j];
+                        }
+                        else {
+                            ps[j] = (ps0[j] + ps1[j]) / 2;
+                        }
+                    }
+                }
+                else {
+                    throw "\u5408\u5E76\u7C7B\u578B mergeType " + mergeType + " \u9519\u8BEF!";
                 }
             }
         }

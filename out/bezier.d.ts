@@ -239,12 +239,11 @@ declare class Bezier {
     /**
      * 合并曲线
      *
-     * 该方法会还原被split分割后的曲线
-     *
      * @param fps 第一条曲线点列表
      * @param sps 第二条曲线点列表
+     * @param mergeType 合并方式。mergeType = 0时进行还原合并，还原拆分之前的曲线；mergeType = 1时进行拟合合并，合并后的曲线会经过两条曲线的连接点；
      */
-    merge(fps: number[], sps: number[]): number[];
+    merge(fps: number[], sps: number[], mergeType?: number): number[];
     /**
      * 获取曲线样本数据
      *

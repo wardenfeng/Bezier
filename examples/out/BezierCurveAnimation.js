@@ -1,15 +1,26 @@
 (function () {
     var input = document.getElementById("input");
     var button = document.getElementById("button");
+    var stopBtn = document.getElementById("stopBtn");
     // 创建画布
     var canvas = createCanvas(0, 60, window.innerWidth, window.innerHeight - 60);
     input.value = "" + 64;
     var requestid;
+    var isStop = false;
     draw();
     button.onclick = function () {
         if (requestid)
             cancelAnimationFrame(requestid);
         draw();
+    };
+    stopBtn.onclick = function () {
+        isStop = !isStop;
+        if (isStop) {
+            stopBtn.value = "播放";
+        }
+        else {
+            stopBtn.value = "停止";
+        }
     };
     function draw() {
         var numPoints = Number(input.value) + 1;
@@ -42,7 +53,8 @@
         var usecolors = getColors(xs.length);
         function animation() {
             //
-            t += dir;
+            if (!isStop)
+                t += dir;
             if (t > 100) {
                 t = 100;
                 dir = -1;

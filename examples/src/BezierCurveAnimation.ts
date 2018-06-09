@@ -2,10 +2,12 @@
 {
     var input = <HTMLInputElement>document.getElementById("input");
     var button = document.getElementById("button");
+    var stopBtn = <HTMLInputElement>document.getElementById("stopBtn");
     // 创建画布
     var canvas = createCanvas(0, 60, window.innerWidth, window.innerHeight - 60);
     input.value = "" + 64;
     var requestid;
+    var isStop = false;
 
     draw();
 
@@ -14,6 +16,18 @@
         if (requestid)
             cancelAnimationFrame(requestid);
         draw()
+    }
+
+    stopBtn.onclick = function ()
+    {
+        isStop = !isStop;
+        if (isStop)
+        {
+            stopBtn.value = "播放";
+        } else
+        {
+            stopBtn.value = "停止";
+        }
     }
 
     function draw()
@@ -76,7 +90,8 @@
         function animation()
         {
             //
-            t += dir;
+            if (!isStop)
+                t += dir;
             if (t > 100)
             {
                 t = 100;

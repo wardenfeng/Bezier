@@ -282,6 +282,7 @@
         // 获取当前曲线
         var sxs = xs.slice(curveIndex * 3 - 3, curveIndex * 3 + 1)
         var sys = ys.slice(curveIndex * 3 - 3, curveIndex * 3 + 1)
+        // 获取曲线的动画过程
         var processsx: number[][] = [];
         bezier.bn(t, sxs, processsx);
         var processsy: number[][] = [];
@@ -289,7 +290,7 @@
 
         var nxs: number[] = [];
         var nys: number[] = [];
-        processsx
+        // 使用当前t值进行分割曲线
         for (let i = processsx.length - 1; i >= 0; i--)
         {
             if (i == processsx.length - 1)

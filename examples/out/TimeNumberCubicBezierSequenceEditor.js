@@ -228,13 +228,14 @@
         // 获取当前曲线
         var sxs = xs.slice(curveIndex * 3 - 3, curveIndex * 3 + 1);
         var sys = ys.slice(curveIndex * 3 - 3, curveIndex * 3 + 1);
+        // 获取曲线的动画过程
         var processsx = [];
         bezier.bn(t, sxs, processsx);
         var processsy = [];
         bezier.bn(t, sys, processsy);
         var nxs = [];
         var nys = [];
-        processsx;
+        // 使用当前t值进行分割曲线
         for (var i = processsx.length - 1; i >= 0; i--) {
             if (i == processsx.length - 1) {
                 // 添加关键点

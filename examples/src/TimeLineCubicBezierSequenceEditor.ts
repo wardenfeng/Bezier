@@ -10,47 +10,16 @@ class TimeLineCubicBezierSequence
      */
     maxtan = 1000;
 
-    /**
-     * 点绘制尺寸
-     */
-    pointSize = 16;
-    /**
-     * 控制柄长度
-     */
-    controllerLength = 100;
-
     keys: { x: number, y: number, tan: number }[] = [];
 
-    findPoint(x: number, y: number)
+    findPoint(x: number, y: number, precision: number)
     {
         var keys = this.keys;
         for (let i = 0; i < keys.length; i++)
         {
-            if (Math.abs(keys[i].x - x) < this.pointSize / 2 && Math.abs(keys[i].y - y) < this.pointSize / 2)
+            if (Math.abs(keys[i].x - x) < precision && Math.abs(keys[i].y - y) < precision)
             {
                 return keys[i];
-            }
-        }
-        return null;
-    }
-
-    findControlPoint(x: number, y: number)
-    {
-        var keys = this.keys;
-        var controllerLength = this.controllerLength;
-        var pointSize = this.pointSize;
-        for (let i = 0; i < keys.length; i++)
-        {
-            var key = keys[i];
-            var lcp = { x: key.x - controllerLength * Math.cos(Math.atan(key.tan)), y: key.y - controllerLength * Math.sin(Math.atan(key.tan)) };
-            if (Math.abs(lcp.x - x) < pointSize / 2 && Math.abs(lcp.y - y) < pointSize / 2)
-            {
-                return key;
-            }
-            var rcp = { x: key.x + controllerLength * Math.cos(Math.atan(key.tan)), y: key.y + controllerLength * Math.sin(Math.atan(key.tan)) };
-            if (Math.abs(rcp.x - x) < pointSize / 2 && Math.abs(rcp.y - y) < pointSize / 2)
-            {
-                return key;
             }
         }
         return null;
@@ -61,11 +30,10 @@ class TimeLineCubicBezierSequence
      * @param x x坐标
      * @param y y坐标
      */
-    addPoint(x: number, y: number)
+    addPoint(x: number, y: number, precision: number)
     {
         var keys = this.keys;
         var maxtan = this.maxtan;
-        var pointSize = this.pointSize;
         for (let i = 0, n = keys.length; i < n; i++)
         {
             // 使用 bezierCurve 进行采样曲线点
@@ -84,7 +52,7 @@ class TimeLineCubicBezierSequence
                     var t = (x - prekey.x) / (key.x - prekey.x);
                     var sys = [ystart, ystart + tanstart * (xend - xstart) / 3, yend - tanend * (xend - xstart) / 3, yend];
                     var fy = bezier.getValue(t, sys);
-                    if (Math.abs(fy - y) < pointSize / 2)
+                    if (Math.abs(fy - y) < precision)
                     {
                         var result = { x: x, y: fy, tan: bezier.getDerivative(t, sys) / (xend - xstart) };
                         keys.push(result);
@@ -93,7 +61,7 @@ class TimeLineCubicBezierSequence
                 } else
                 {
                     // 
-                    if (Math.abs(y - prekey.y) < pointSize / 2)
+                    if (Math.abs(y - prekey.y) < precision)
                     {
                         var result = { x: x, y: prekey.y, tan: 0 };
                         keys.push(result);
@@ -101,13 +69,13 @@ class TimeLineCubicBezierSequence
                     }
                 }
             }
-            if (i == 0 && x < key.x && Math.abs(y - key.y) < pointSize / 2)
+            if (i == 0 && x < key.x && Math.abs(y - key.y) < precision)
             {
                 var result = { x: x, y: key.y, tan: 0 };
                 keys.push(result);
                 return result;
             }
-            if (i == n - 1 && x > key.x && Math.abs(y - key.y) < pointSize / 2)
+            if (i == n - 1 && x > key.x && Math.abs(y - key.y) < precision)
             {
                 var result = { x: x, y: key.y, tan: 0 };
                 keys.push(result);
@@ -137,6 +105,15 @@ class TimeLineCubicBezierSequence
     window.addEventListener("dblclick", ondblclick);
 
     var timeline = new TimeLineCubicBezierSequence();
+    /**
+     * 点绘制尺寸
+     */
+    var pointSize = 16;
+
+    /**
+     * 控制柄长度
+     */
+    var controllerLength = 100;
 
     //
     timeline.keys.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, tan: 0 });
@@ -157,10 +134,10 @@ class TimeLineCubicBezierSequence
         mousedownxy.x = x;
         mousedownxy.y = y;
 
-        editKey = timeline.findPoint(x, y);
+        editKey = timeline.findPoint(x, y, pointSize / 2);
         if (editKey == null)
         {
-            controlkey = timeline.findControlPoint(x, y);
+            controlkey = findControlPoint(x, y);
         }
 
         window.addEventListener("mousemove", onMouseMove);
@@ -186,8 +163,16 @@ class TimeLineCubicBezierSequence
         } else if (controlkey)
         {
             var index = timeline.keys.indexOf(controlkey);
-            if (index == 0 && x < controlkey.x) return;
-            if (index == timeline.keys.length - 1 && x > controlkey.x) return;
+            if (index == 0 && x < controlkey.x)
+            {
+                controlkey.tan = y > controlkey.y ? Infinity : -Infinity;
+                return;
+            }
+            if (index == timeline.keys.length - 1 && x > controlkey.x) 
+            {
+                controlkey.tan = y > controlkey.y ? -Infinity : Infinity;
+                return;
+            }
             controlkey.tan = (y - controlkey.y) / (x - controlkey.x);
         }
     }
@@ -202,6 +187,26 @@ class TimeLineCubicBezierSequence
         window.removeEventListener("mouseup", onMouseUp);
     }
 
+    function findControlPoint(x: number, y: number)
+    {
+        var keys = this.keys;
+        for (let i = 0; i < keys.length; i++)
+        {
+            var key = keys[i];
+            var lcp = { x: key.x - controllerLength * Math.cos(Math.atan(key.tan)), y: key.y - controllerLength * Math.sin(Math.atan(key.tan)) };
+            if (Math.abs(lcp.x - x) < pointSize / 2 && Math.abs(lcp.y - y) < pointSize / 2)
+            {
+                return key;
+            }
+            var rcp = { x: key.x + controllerLength * Math.cos(Math.atan(key.tan)), y: key.y + controllerLength * Math.sin(Math.atan(key.tan)) };
+            if (Math.abs(rcp.x - x) < pointSize / 2 && Math.abs(rcp.y - y) < pointSize / 2)
+            {
+                return key;
+            }
+        }
+        return null;
+    }
+
     function ondblclick(ev: MouseEvent)
     {
         editing = false;
@@ -214,14 +219,14 @@ class TimeLineCubicBezierSequence
         var x = ev.clientX - rect.left;
         var y = ev.clientY - rect.top;
 
-        var selectedKey = timeline.findPoint(x, y);
+        var selectedKey = timeline.findPoint(x, y, pointSize / 2);
         if (selectedKey != null)
         {
             timeline.deletePoint(selectedKey);
         } else 
         {
             // 没有选中关键与控制点时，检查是否点击到曲线
-            var result = timeline.addPoint(x, y);
+            var result = timeline.addPoint(x, y, pointSize / 2);
         }
     }
 
@@ -231,8 +236,6 @@ class TimeLineCubicBezierSequence
     {
         clearCanvas(canvas);
 
-        var pointSize = timeline.pointSize;
-        var controllerLength = timeline.controllerLength;
         var keys = timeline.keys;
         keys.sort((a, b) => a.x - b.x);
 

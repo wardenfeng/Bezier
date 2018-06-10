@@ -8,25 +8,12 @@ declare class TimeLineCubicBezierSequence {
      * 最大tan值，超出该值后将会变成分段
      */
     maxtan: number;
-    /**
-     * 点绘制尺寸
-     */
-    pointSize: number;
-    /**
-     * 控制柄长度
-     */
-    controllerLength: number;
     keys: {
         x: number;
         y: number;
         tan: number;
     }[];
-    findPoint(x: number, y: number): {
-        x: number;
-        y: number;
-        tan: number;
-    };
-    findControlPoint(x: number, y: number): {
+    findPoint(x: number, y: number, precision: number): {
         x: number;
         y: number;
         tan: number;
@@ -36,7 +23,7 @@ declare class TimeLineCubicBezierSequence {
      * @param x x坐标
      * @param y y坐标
      */
-    addPoint(x: number, y: number): {
+    addPoint(x: number, y: number, precision: number): {
         x: number;
         y: number;
         tan: number;

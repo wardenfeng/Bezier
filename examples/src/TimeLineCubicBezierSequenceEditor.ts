@@ -1,121 +1,32 @@
-(() =>
+/**
+ * 基于时间轴的连续三阶Bézier曲线
+ * 
+ * @author feng / http://feng3d.com 10/06/2018
+ */
+class TimeLineCubicBezierSequence
 {
-    // 基于时间的连续三阶Bézier曲线编辑，意味着一个x对应唯一的y
-
-    // 创建画布
-    var canvas = createCanvas(0, 60, window.innerWidth, window.innerHeight - 60);
-
-    // window.addEventListener("click", onMouseClick)
-    window.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("dblclick", ondblclick);
+    /**
+     * 最大tan值，超出该值后将会变成分段
+     */
+    maxtan = 1000;
 
     /**
      * 点绘制尺寸
      */
-    var pointSize = 16;
+    pointSize = 16;
     /**
      * 控制柄长度
      */
-    var controllerLength = 100;
-    /**
-     * 最大tan值，超出该值后将会变成分段
-     */
-    var maxtan = 1000;
+    controllerLength = 100;
 
-    // 第一条曲线  [0,3] 
-    // 第二条曲线  [3,6] 
-    var keys: { x: number, y: number, tan: number }[] = [];
-    keys.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, tan: 0 });
+    keys: { x: number, y: number, tan: number }[] = [];
 
-    var editKey: { x: number, y: number, tan: number };
-    var controlkey: { x: number, y: number, tan: number };
-    var editing = false;
-    var mousedownxy = { x: -1, y: -1 }
-
-    function onMouseDown(ev: MouseEvent)
+    findPoint(x: number, y: number)
     {
-        var rect = canvas.getBoundingClientRect();
-        if (!(rect.left < ev.clientX && ev.clientX < rect.right && rect.top < ev.clientY && ev.clientY < rect.bottom))
-            return;
-        var x = ev.clientX - rect.left;
-        var y = ev.clientY - rect.top;
-
-        mousedownxy.x = x;
-        mousedownxy.y = y;
-
-        editKey = findPoint(x, y);
-        if (editKey == null)
-        {
-            controlkey = findControlPoint(x, y);
-        }
-
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", onMouseUp);
-    }
-
-    function onMouseMove(ev: MouseEvent)
-    {
-        if (editKey == null && controlkey == null)
-            return;
-        editing = true;
-
-        var rect = canvas.getBoundingClientRect();
-        if (!(rect.left < ev.clientX && ev.clientX < rect.right && rect.top < ev.clientY && ev.clientY < rect.bottom))
-            return;
-        var x = ev.clientX - rect.left;
-        var y = ev.clientY - rect.top;
-
-        if (editKey)
-        {
-            editKey.x = x;
-            editKey.y = y;
-        } else if (controlkey)
-        {
-            var index = keys.indexOf(controlkey);
-            if (index == 0 && x < controlkey.x) return;
-            if (index == keys.length - 1 && x > controlkey.x) return;
-            controlkey.tan = (y - controlkey.y) / (x - controlkey.x);
-        }
-    }
-
-    function onMouseUp(ev: MouseEvent)
-    {
-        editing = false;
-        editKey = null;
-        controlkey = null;
-
-        window.removeEventListener("mousemove", onMouseMove);
-        window.removeEventListener("mouseup", onMouseUp);
-    }
-
-    function ondblclick(ev: MouseEvent)
-    {
-        editing = false;
-        editKey = null;
-        controlkey = null;
-
-        var rect = canvas.getBoundingClientRect();
-        if (!(rect.left < ev.clientX && ev.clientX < rect.right && rect.top < ev.clientY && ev.clientY < rect.bottom))
-            return;
-        var x = ev.clientX - rect.left;
-        var y = ev.clientY - rect.top;
-
-        var selectedKey = findPoint(x, y);
-        if (selectedKey != null)
-        {
-            deletePoint(selectedKey);
-        } else 
-        {
-            // 没有选中关键与控制点时，检查是否点击到曲线
-            var result = addPoint(x, y);
-        }
-    }
-
-    function findPoint(x: number, y: number)
-    {
+        var keys = this.keys;
         for (let i = 0; i < keys.length; i++)
         {
-            if (Math.abs(keys[i].x - x) < pointSize / 2 && Math.abs(keys[i].y - y) < pointSize / 2)
+            if (Math.abs(keys[i].x - x) < this.pointSize / 2 && Math.abs(keys[i].y - y) < this.pointSize / 2)
             {
                 return keys[i];
             }
@@ -123,8 +34,11 @@
         return null;
     }
 
-    function findControlPoint(x: number, y: number)
+    findControlPoint(x: number, y: number)
     {
+        var keys = this.keys;
+        var controllerLength = this.controllerLength;
+        var pointSize = this.pointSize;
         for (let i = 0; i < keys.length; i++)
         {
             var key = keys[i];
@@ -147,8 +61,11 @@
      * @param x x坐标
      * @param y y坐标
      */
-    function addPoint(x: number, y: number)
+    addPoint(x: number, y: number)
     {
+        var keys = this.keys;
+        var maxtan = this.maxtan;
+        var pointSize = this.pointSize;
         for (let i = 0, n = keys.length; i < n; i++)
         {
             // 使用 bezierCurve 进行采样曲线点
@@ -200,10 +117,112 @@
         return null;
     }
 
-    function deletePoint(key: { x: number, y: number, tan: number })
+    deletePoint(key: { x: number, y: number, tan: number })
     {
+        var keys = this.keys;
         var index = keys.indexOf(key);
         keys.splice(index, 1);
+    }
+}
+
+(() =>
+{
+    // 基于时间的连续三阶Bézier曲线编辑，意味着一个x对应唯一的y
+
+    // 创建画布
+    var canvas = createCanvas(0, 60, window.innerWidth, window.innerHeight - 60);
+
+    // window.addEventListener("click", onMouseClick)
+    window.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("dblclick", ondblclick);
+
+    var timeline = new TimeLineCubicBezierSequence();
+
+    //
+    timeline.keys.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, tan: 0 });
+
+    var editKey: { x: number, y: number, tan: number };
+    var controlkey: { x: number, y: number, tan: number };
+    var editing = false;
+    var mousedownxy = { x: -1, y: -1 }
+
+    function onMouseDown(ev: MouseEvent)
+    {
+        var rect = canvas.getBoundingClientRect();
+        if (!(rect.left < ev.clientX && ev.clientX < rect.right && rect.top < ev.clientY && ev.clientY < rect.bottom))
+            return;
+        var x = ev.clientX - rect.left;
+        var y = ev.clientY - rect.top;
+
+        mousedownxy.x = x;
+        mousedownxy.y = y;
+
+        editKey = timeline.findPoint(x, y);
+        if (editKey == null)
+        {
+            controlkey = timeline.findControlPoint(x, y);
+        }
+
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+    }
+
+    function onMouseMove(ev: MouseEvent)
+    {
+        if (editKey == null && controlkey == null)
+            return;
+        editing = true;
+
+        var rect = canvas.getBoundingClientRect();
+        if (!(rect.left < ev.clientX && ev.clientX < rect.right && rect.top < ev.clientY && ev.clientY < rect.bottom))
+            return;
+        var x = ev.clientX - rect.left;
+        var y = ev.clientY - rect.top;
+
+        if (editKey)
+        {
+            editKey.x = x;
+            editKey.y = y;
+        } else if (controlkey)
+        {
+            var index = timeline.keys.indexOf(controlkey);
+            if (index == 0 && x < controlkey.x) return;
+            if (index == timeline.keys.length - 1 && x > controlkey.x) return;
+            controlkey.tan = (y - controlkey.y) / (x - controlkey.x);
+        }
+    }
+
+    function onMouseUp(ev: MouseEvent)
+    {
+        editing = false;
+        editKey = null;
+        controlkey = null;
+
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+    }
+
+    function ondblclick(ev: MouseEvent)
+    {
+        editing = false;
+        editKey = null;
+        controlkey = null;
+
+        var rect = canvas.getBoundingClientRect();
+        if (!(rect.left < ev.clientX && ev.clientX < rect.right && rect.top < ev.clientY && ev.clientY < rect.bottom))
+            return;
+        var x = ev.clientX - rect.left;
+        var y = ev.clientY - rect.top;
+
+        var selectedKey = timeline.findPoint(x, y);
+        if (selectedKey != null)
+        {
+            timeline.deletePoint(selectedKey);
+        } else 
+        {
+            // 没有选中关键与控制点时，检查是否点击到曲线
+            var result = timeline.addPoint(x, y);
+        }
     }
 
     requestAnimationFrame(draw);
@@ -212,7 +231,10 @@
     {
         clearCanvas(canvas);
 
-        keys.sort((a, b) => a.x - b.x)
+        var pointSize = timeline.pointSize;
+        var controllerLength = timeline.controllerLength;
+        var keys = timeline.keys;
+        keys.sort((a, b) => a.x - b.x);
 
         for (let i = 0, n = keys.length; i < n; i++)
         {
@@ -228,7 +250,7 @@
                 var yend = key.y;
                 var tanend = key.tan;
 
-                if (maxtan > Math.abs(tanstart) && maxtan > Math.abs(tanend))
+                if (timeline.maxtan > Math.abs(tanstart) && timeline.maxtan > Math.abs(tanend))
                 {
                     var sys = [ystart, ystart + tanstart * (xend - xstart) / 3, yend - tanend * (xend - xstart) / 3, yend];
 
@@ -274,5 +296,4 @@
         //
         requestAnimationFrame(draw);
     }
-
 })();

@@ -197,12 +197,22 @@
                 // 左边控制点
                 var lcp = { x: currentx - controllerLength * Math.cos(Math.atan(currenttan)), y: currenty - controllerLength * Math.sin(Math.atan(currenttan)) };
                 drawPoints(canvas, [lcp.x], [lcp.y], "blue", pointSize)
-                drawPointsCurve(canvas, [currentx, lcp.x], [currenty, lcp.y], "yellow", 1)
             }
             if (i < n - 1)
             {
                 var rcp = { x: currentx + controllerLength * Math.cos(Math.atan(currenttan)), y: currenty + controllerLength * Math.sin(Math.atan(currenttan)) };
                 drawPoints(canvas, [rcp.x], [rcp.y], "blue", pointSize)
+            }
+            // 绘制控制点
+            if (i > 0)
+            {
+                // 左边控制点
+                var lcp = { x: currentx - controllerLength * Math.cos(Math.atan(currenttan)), y: currenty - controllerLength * Math.sin(Math.atan(currenttan)) };
+                drawPointsCurve(canvas, [currentx, lcp.x], [currenty, lcp.y], "yellow", 1)
+            }
+            if (i < n - 1)
+            {
+                var rcp = { x: currentx + controllerLength * Math.cos(Math.atan(currenttan)), y: currenty + controllerLength * Math.sin(Math.atan(currenttan)) };
                 drawPointsCurve(canvas, [currentx, rcp.x], [currenty, rcp.y], "yellow", 1)
             }
         }

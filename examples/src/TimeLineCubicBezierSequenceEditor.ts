@@ -136,7 +136,7 @@
         } else 
         {
             // 没有选中关键与控制点时，检查是否点击到曲线
-            var result = timeline.addKeyAtCurve(x / canvaswidth, y / canvasheight, pointSize / 2);
+            var result = timeline.addKeyAtCurve(x / canvaswidth, y / canvasheight, pointSize / canvasheight / 2);
         }
     }
 

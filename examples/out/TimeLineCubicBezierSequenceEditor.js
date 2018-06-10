@@ -109,38 +109,20 @@
     requestAnimationFrame(draw);
     function draw() {
         clearCanvas(canvas);
+        if (timeline.numKeys > 0) {
+            var sameples = timeline.getSamples(canvaswidth);
+            var xSamples = sameples.map(function (value, i) { return canvaswidth * i / (sameples.length - 1); });
+            var ySamples = sameples.map(function (value) { return canvasheight * value; });
+            // 绘制曲线
+            drawPointsCurve(canvas, xSamples, ySamples, 'white', 3);
+        }
         for (var i = 0, n = timeline.numKeys; i < n; i++) {
             var key = timeline.getKey(i);
             var currentx = key.t * canvaswidth;
             var currenty = key.y * canvasheight;
             var currenttan = key.tan * canvasheight / canvaswidth;
-            // 使用 bezierCurve 进行采样曲线点
-            if (i > 0) {
-                var prekey = timeline.getKey(i - 1);
-                var prex = prekey.t * canvaswidth;
-                var prey = prekey.y * canvasheight;
-                var pretan = prekey.tan * canvasheight / canvaswidth;
-                if (timeline.maxtan > Math.abs(pretan) && timeline.maxtan > Math.abs(currenttan)) {
-                    var sys = [prey, prey + pretan * (currentx - prex) / 3, currenty - currenttan * (currentx - prex) / 3, currenty];
-                    var numSamples = 100;
-                    var ySamples = bezier.getSamples(sys, numSamples);
-                    var xSamples = ySamples.map(function (v, i) { return prex + (currentx - prex) * i / numSamples; });
-                    // 绘制曲线
-                    drawPointsCurve(canvas, xSamples, ySamples, 'white', 3);
-                }
-                else {
-                    // 绘制直线
-                    drawPointsCurve(canvas, [prex, currentx, currentx], [prey, prey, currenty], 'white', 3);
-                }
-            }
             // 绘制曲线端点
             drawPoints(canvas, [currentx], [currenty], "red", pointSize);
-            if (i == 0) {
-                drawPointsCurve(canvas, [0, currentx], [currenty, currenty], 'white', 3);
-            }
-            if (i == n - 1) {
-                drawPointsCurve(canvas, [currentx, canvaswidth], [currenty, currenty], 'white', 3);
-            }
             // 绘制控制点
             if (i > 0) {
                 // 左边控制点

@@ -57,10 +57,19 @@ declare class TimeLineCubicBezierSequence {
      */
     indexOfKeys(key: TimeLineCubicBezierKey): number;
     /**
+     * 获取曲线上点信息
+     * @param t 时间轴的位置 [0,1]
+     */
+    getPoint(t: number): {
+        t: number;
+        y: number;
+        tan: number;
+    };
+    /**
      * 获取值
      * @param t 时间轴的位置 [0,1]
      */
-    getValue(t: number): void;
+    getValue(t: number): number;
     /**
      * 查找关键点
      * @param t 时间轴的位置 [0,1]
@@ -73,11 +82,11 @@ declare class TimeLineCubicBezierSequence {
      *
      * 如果该点在曲线上，则添加关键点
      *
-     * @param x x坐标
+     * @param t 时间轴的位置 [0,1]
      * @param y y坐标
      * @param precision 查找进度
      */
-    addKeyAtCurve(x: number, y: number, precision: number): {
+    addKeyAtCurve(t: number, y: number, precision: number): {
         t: number;
         y: number;
         tan: number;
@@ -89,5 +98,5 @@ declare class TimeLineCubicBezierSequence {
      *
      * @param num 采样次数 ，采样点分别为[0,1/num,2/num,....,(num-1)/num,1]
      */
-    getSamples(ps: number[], num?: number): number[];
+    getSamples(num?: number): number[];
 }

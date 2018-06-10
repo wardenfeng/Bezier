@@ -14,7 +14,7 @@ var TimeLineCubicBezierSequence = /** @class */ (function () {
     TimeLineCubicBezierSequence.prototype.findPoint = function (x, y, precision) {
         var keys = this.keys;
         for (var i = 0; i < keys.length; i++) {
-            if (Math.abs(keys[i].x - x) < precision && Math.abs(keys[i].y - y) < precision) {
+            if (Math.abs(keys[i].t - x) < precision && Math.abs(keys[i].y - y) < precision) {
                 return keys[i];
             }
         }
@@ -32,19 +32,19 @@ var TimeLineCubicBezierSequence = /** @class */ (function () {
             // 使用 bezierCurve 进行采样曲线点
             var key = keys[i];
             var prekey = keys[i - 1];
-            if (i > 0 && prekey.x < x && x < key.x) {
-                var xstart = prekey.x;
+            if (i > 0 && prekey.t < x && x < key.t) {
+                var xstart = prekey.t;
                 var ystart = prekey.y;
                 var tanstart = prekey.tan;
-                var xend = key.x;
+                var xend = key.t;
                 var yend = key.y;
                 var tanend = key.tan;
                 if (maxtan > Math.abs(tanstart) && maxtan > Math.abs(tanend)) {
-                    var t = (x - prekey.x) / (key.x - prekey.x);
+                    var t = (x - prekey.t) / (key.t - prekey.t);
                     var sys = [ystart, ystart + tanstart * (xend - xstart) / 3, yend - tanend * (xend - xstart) / 3, yend];
                     var fy = bezier.getValue(t, sys);
                     if (Math.abs(fy - y) < precision) {
-                        var result = { x: x, y: fy, tan: bezier.getDerivative(t, sys) / (xend - xstart) };
+                        var result = { t: x, y: fy, tan: bezier.getDerivative(t, sys) / (xend - xstart) };
                         keys.push(result);
                         return result;
                     }
@@ -52,19 +52,19 @@ var TimeLineCubicBezierSequence = /** @class */ (function () {
                 else {
                     // 
                     if (Math.abs(y - prekey.y) < precision) {
-                        var result = { x: x, y: prekey.y, tan: 0 };
+                        var result = { t: x, y: prekey.y, tan: 0 };
                         keys.push(result);
                         return result;
                     }
                 }
             }
-            if (i == 0 && x < key.x && Math.abs(y - key.y) < precision) {
-                var result = { x: x, y: key.y, tan: 0 };
+            if (i == 0 && x < key.t && Math.abs(y - key.y) < precision) {
+                var result = { t: x, y: key.y, tan: 0 };
                 keys.push(result);
                 return result;
             }
-            if (i == n - 1 && x > key.x && Math.abs(y - key.y) < precision) {
-                var result = { x: x, y: key.y, tan: 0 };
+            if (i == n - 1 && x > key.t && Math.abs(y - key.y) < precision) {
+                var result = { t: x, y: key.y, tan: 0 };
                 keys.push(result);
                 return result;
             }

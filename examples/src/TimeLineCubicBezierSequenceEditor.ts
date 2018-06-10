@@ -23,10 +23,10 @@
     var controllerLength = 100;
 
     //
-    timeline.keys.push({ x: Math.random() * canvaswidth, y: Math.random() * canvasheight, tan: 0 });
+    timeline.keys.push({ t: Math.random(), y: Math.random(), tan: 0 });
 
-    var editKey: { x: number, y: number, tan: number };
-    var controlkey: { x: number, y: number, tan: number };
+    var editKey: TimeLineCubicBezierKey;
+    var controlkey: TimeLineCubicBezierKey;
     var editing = false;
     var mousedownxy = { x: -1, y: -1 }
 
@@ -41,7 +41,7 @@
         mousedownxy.x = x;
         mousedownxy.y = y;
 
-        editKey = timeline.findPoint(x, y, pointSize / 2);
+        editKey = timeline.findPoint(x / canvaswidth, y / canvasheight, pointSize / canvasheight / 2);
         if (editKey == null)
         {
             controlkey = findControlPoint(x, y);
@@ -65,22 +65,22 @@
 
         if (editKey)
         {
-            editKey.x = x;
-            editKey.y = y;
+            editKey.t = x / canvaswidth;
+            editKey.y = y / canvasheight;
         } else if (controlkey)
         {
             var index = timeline.keys.indexOf(controlkey);
-            if (index == 0 && x < controlkey.x)
+            if (index == 0 && x / canvaswidth < controlkey.t)
             {
-                controlkey.tan = y > controlkey.y ? Infinity : -Infinity;
+                controlkey.tan = y / canvasheight > controlkey.y ? Infinity : -Infinity;
                 return;
             }
-            if (index == timeline.keys.length - 1 && x > controlkey.x) 
+            if (index == timeline.keys.length - 1 && x / canvaswidth > controlkey.t) 
             {
-                controlkey.tan = y > controlkey.y ? -Infinity : Infinity;
+                controlkey.tan = y / canvasheight > controlkey.y ? -Infinity : Infinity;
                 return;
             }
-            controlkey.tan = (y - controlkey.y) / (x - controlkey.x);
+            controlkey.tan = (y / canvasheight - controlkey.y) / (x / canvaswidth - controlkey.t);
         }
     }
 
@@ -100,12 +100,15 @@
         for (let i = 0; i < keys.length; i++)
         {
             var key = keys[i];
-            var lcp = { x: key.x - controllerLength * Math.cos(Math.atan(key.tan)), y: key.y - controllerLength * Math.sin(Math.atan(key.tan)) };
+            var currentx = key.t * canvaswidth;
+            var currenty = key.y * canvasheight;
+            var currenttan = key.tan * canvasheight / canvaswidth;
+            var lcp = { x: currentx - controllerLength * Math.cos(Math.atan(currenttan)), y: currenty - controllerLength * Math.sin(Math.atan(currenttan)) };
             if (Math.abs(lcp.x - x) < pointSize / 2 && Math.abs(lcp.y - y) < pointSize / 2)
             {
                 return key;
             }
-            var rcp = { x: key.x + controllerLength * Math.cos(Math.atan(key.tan)), y: key.y + controllerLength * Math.sin(Math.atan(key.tan)) };
+            var rcp = { x: currentx + controllerLength * Math.cos(Math.atan(currenttan)), y: currenty + controllerLength * Math.sin(Math.atan(currenttan)) };
             if (Math.abs(rcp.x - x) < pointSize / 2 && Math.abs(rcp.y - y) < pointSize / 2)
             {
                 return key;
@@ -126,14 +129,14 @@
         var x = ev.clientX - rect.left;
         var y = ev.clientY - rect.top;
 
-        var selectedKey = timeline.findPoint(x, y, pointSize / 2);
+        var selectedKey = timeline.findPoint(x / canvaswidth, y / canvasheight, pointSize / canvasheight / 2);
         if (selectedKey != null)
         {
             timeline.deletePoint(selectedKey);
         } else 
         {
             // 没有选中关键与控制点时，检查是否点击到曲线
-            var result = timeline.addPoint(x, y, pointSize / 2);
+            var result = timeline.addPoint(x / canvaswidth, y / canvasheight, pointSize / 2);
         }
     }
 
@@ -144,63 +147,63 @@
         clearCanvas(canvas);
 
         var keys = timeline.keys;
-        keys.sort((a, b) => a.x - b.x);
+        keys.sort((a, b) => a.t - b.t);
 
         for (let i = 0, n = keys.length; i < n; i++)
         {
             var key = keys[i];
+            var currentx = key.t * canvaswidth;
+            var currenty = key.y * canvasheight;
+            var currenttan = key.tan * canvasheight / canvaswidth;
             // 使用 bezierCurve 进行采样曲线点
             if (i > 0)
             {
                 var prekey = keys[i - 1];
-                var xstart = prekey.x;
-                var ystart = prekey.y;
-                var tanstart = prekey.tan;
-                var xend = key.x;
-                var yend = key.y;
-                var tanend = key.tan;
+                var prex = prekey.t * canvaswidth;
+                var prey = prekey.y * canvasheight;
+                var pretan = prekey.tan * canvasheight / canvaswidth;
 
-                if (timeline.maxtan > Math.abs(tanstart) && timeline.maxtan > Math.abs(tanend))
+                if (timeline.maxtan > Math.abs(pretan) && timeline.maxtan > Math.abs(currenttan))
                 {
-                    var sys = [ystart, ystart + tanstart * (xend - xstart) / 3, yend - tanend * (xend - xstart) / 3, yend];
+                    var sys = [prey, prey + pretan * (currentx - prex) / 3, currenty - currenttan * (currentx - prex) / 3, currenty];
 
                     var numSamples = 100;
                     var ySamples = bezier.getSamples(sys, numSamples);
-                    var xSamples = ySamples.map((v, i) => { return xstart + (xend - xstart) * i / numSamples; });
+                    var xSamples = ySamples.map((v, i) => { return prex + (currentx - prex) * i / numSamples; });
                     // 绘制曲线
                     drawPointsCurve(canvas, xSamples, ySamples, 'white', 3);
                 } else
                 {
                     // 绘制直线
-                    drawPointsCurve(canvas, [xstart, xend, xend], [ystart, ystart, yend], 'white', 3);
+                    drawPointsCurve(canvas, [prex, currentx, currentx], [prey, prey, currenty], 'white', 3);
                 }
             }
 
             // 绘制曲线端点
-            drawPoints(canvas, [key.x], [key.y], "red", pointSize)
+            drawPoints(canvas, [currentx], [currenty], "red", pointSize)
 
             if (i == 0)
             {
-                drawPointsCurve(canvas, [0, key.x], [key.y, key.y], 'white', 3);
+                drawPointsCurve(canvas, [0, currentx], [currenty, currenty], 'white', 3);
             }
             if (i == n - 1)
             {
-                drawPointsCurve(canvas, [key.x, canvaswidth], [key.y, key.y], 'white', 3);
+                drawPointsCurve(canvas, [currentx, canvaswidth], [currenty, currenty], 'white', 3);
             }
 
             // 绘制控制点
             if (i > 0)
             {
                 // 左边控制点
-                var lcp = { x: key.x - controllerLength * Math.cos(Math.atan(key.tan)), y: key.y - controllerLength * Math.sin(Math.atan(key.tan)) };
+                var lcp = { x: currentx - controllerLength * Math.cos(Math.atan(currenttan)), y: currenty - controllerLength * Math.sin(Math.atan(currenttan)) };
                 drawPoints(canvas, [lcp.x], [lcp.y], "blue", pointSize)
-                drawPointsCurve(canvas, [key.x, lcp.x], [key.y, lcp.y], "yellow", 1)
+                drawPointsCurve(canvas, [currentx, lcp.x], [currenty, lcp.y], "yellow", 1)
             }
             if (i < n - 1)
             {
-                var rcp = { x: key.x + controllerLength * Math.cos(Math.atan(key.tan)), y: key.y + controllerLength * Math.sin(Math.atan(key.tan)) };
+                var rcp = { x: currentx + controllerLength * Math.cos(Math.atan(currenttan)), y: currenty + controllerLength * Math.sin(Math.atan(currenttan)) };
                 drawPoints(canvas, [rcp.x], [rcp.y], "blue", pointSize)
-                drawPointsCurve(canvas, [key.x, rcp.x], [key.y, rcp.y], "yellow", 1)
+                drawPointsCurve(canvas, [currentx, rcp.x], [currenty, rcp.y], "yellow", 1)
             }
         }
         //

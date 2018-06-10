@@ -11,21 +11,89 @@ var TimeLineCubicBezierSequence = /** @class */ (function () {
         this.maxtan = 1000;
         this.keys = [];
     }
-    TimeLineCubicBezierSequence.prototype.findPoint = function (x, y, precision) {
+    Object.defineProperty(TimeLineCubicBezierSequence.prototype, "numKeys", {
+        /**
+         * 关键点数量
+         */
+        get: function () {
+            return this.keys.length;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * 添加关键点
+     *
+     * 添加关键点后将会执行按t进行排序
+     *
+     * @param key 关键点
+     */
+    TimeLineCubicBezierSequence.prototype.addKey = function (key) {
+        this.keys.push(key);
+        this.sort();
+    };
+    /**
+     * 关键点排序
+     *
+     * 当移动关键点或者新增关键点时需要再次排序
+     */
+    TimeLineCubicBezierSequence.prototype.sort = function () {
+        this.keys.sort(function (a, b) { return a.t - b.t; });
+    };
+    /**
+     * 删除关键点
+     * @param key 关键点
+     */
+    TimeLineCubicBezierSequence.prototype.deleteKey = function (key) {
+        var index = this.keys.indexOf(key);
+        if (index != -1)
+            this.keys.splice(index, 1);
+    };
+    /**
+     * 获取关键点
+     * @param index 索引
+     */
+    TimeLineCubicBezierSequence.prototype.getKey = function (index) {
+        return this.keys[index];
+    };
+    /**
+     * 获取关键点索引
+     * @param key 关键点
+     */
+    TimeLineCubicBezierSequence.prototype.indexOfKeys = function (key) {
+        return this.keys.indexOf(key);
+    };
+    /**
+     * 获取值
+     * @param t 时间轴的位置 [0,1]
+     */
+    TimeLineCubicBezierSequence.prototype.getValue = function (t) {
+    };
+    /**
+     * 查找关键点
+     * @param t 时间轴的位置 [0,1]
+     * @param y 值
+     * @param precision 查找精度
+     */
+    TimeLineCubicBezierSequence.prototype.findKey = function (t, y, precision) {
         var keys = this.keys;
         for (var i = 0; i < keys.length; i++) {
-            if (Math.abs(keys[i].t - x) < precision && Math.abs(keys[i].y - y) < precision) {
+            if (Math.abs(keys[i].t - t) < precision && Math.abs(keys[i].y - y) < precision) {
                 return keys[i];
             }
         }
         return null;
     };
     /**
-     * 点击曲线添加关键点
+     * 添加曲线上的关键点
+     *
+     * 如果该点在曲线上，则添加关键点
+     *
      * @param x x坐标
      * @param y y坐标
+     * @param precision 查找进度
      */
-    TimeLineCubicBezierSequence.prototype.addPoint = function (x, y, precision) {
+    TimeLineCubicBezierSequence.prototype.addKeyAtCurve = function (x, y, precision) {
         var keys = this.keys;
         var maxtan = this.maxtan;
         for (var i = 0, n = keys.length; i < n; i++) {
@@ -45,7 +113,7 @@ var TimeLineCubicBezierSequence = /** @class */ (function () {
                     var fy = bezier.getValue(t, sys);
                     if (Math.abs(fy - y) < precision) {
                         var result = { t: x, y: fy, tan: bezier.getDerivative(t, sys) / (xend - xstart) };
-                        keys.push(result);
+                        this.addKey(result);
                         return result;
                     }
                 }
@@ -53,28 +121,34 @@ var TimeLineCubicBezierSequence = /** @class */ (function () {
                     // 
                     if (Math.abs(y - prekey.y) < precision) {
                         var result = { t: x, y: prekey.y, tan: 0 };
-                        keys.push(result);
+                        this.addKey(result);
                         return result;
                     }
                 }
             }
             if (i == 0 && x < key.t && Math.abs(y - key.y) < precision) {
                 var result = { t: x, y: key.y, tan: 0 };
-                keys.push(result);
+                this.addKey(result);
                 return result;
             }
             if (i == n - 1 && x > key.t && Math.abs(y - key.y) < precision) {
                 var result = { t: x, y: key.y, tan: 0 };
-                keys.push(result);
+                this.addKey(result);
                 return result;
             }
         }
         return null;
     };
-    TimeLineCubicBezierSequence.prototype.deletePoint = function (key) {
-        var keys = this.keys;
-        var index = keys.indexOf(key);
-        keys.splice(index, 1);
+    /**
+     * 获取曲线样本数据
+     *
+     * 这些点可用于连线来拟合曲线。
+     *
+     * @param num 采样次数 ，采样点分别为[0,1/num,2/num,....,(num-1)/num,1]
+     */
+    TimeLineCubicBezierSequence.prototype.getSamples = function (ps, num) {
+        var result = [];
+        return result;
     };
     return TimeLineCubicBezierSequence;
 }());

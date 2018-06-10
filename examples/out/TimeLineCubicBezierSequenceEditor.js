@@ -17,7 +17,7 @@
      */
     var controllerLength = 100;
     //
-    timeline.keys.push({ t: Math.random(), y: Math.random(), tan: 0 });
+    timeline.addKey({ t: Math.random(), y: Math.random(), tan: 0 });
     var editKey;
     var controlkey;
     var editing = false;
@@ -30,7 +30,7 @@
         var y = ev.clientY - rect.top;
         mousedownxy.x = x;
         mousedownxy.y = y;
-        editKey = timeline.findPoint(x / canvaswidth, y / canvasheight, pointSize / canvasheight / 2);
+        editKey = timeline.findKey(x / canvaswidth, y / canvasheight, pointSize / canvasheight / 2);
         if (editKey == null) {
             controlkey = findControlPoint(x, y);
         }
@@ -49,14 +49,15 @@
         if (editKey) {
             editKey.t = x / canvaswidth;
             editKey.y = y / canvasheight;
+            timeline.sort();
         }
         else if (controlkey) {
-            var index = timeline.keys.indexOf(controlkey);
+            var index = timeline.indexOfKeys(controlkey);
             if (index == 0 && x / canvaswidth < controlkey.t) {
                 controlkey.tan = y / canvasheight > controlkey.y ? Infinity : -Infinity;
                 return;
             }
-            if (index == timeline.keys.length - 1 && x / canvaswidth > controlkey.t) {
+            if (index == timeline.numKeys - 1 && x / canvaswidth > controlkey.t) {
                 controlkey.tan = y / canvasheight > controlkey.y ? -Infinity : Infinity;
                 return;
             }
@@ -71,9 +72,8 @@
         window.removeEventListener("mouseup", onMouseUp);
     }
     function findControlPoint(x, y) {
-        var keys = timeline.keys;
-        for (var i = 0; i < keys.length; i++) {
-            var key = keys[i];
+        for (var i = 0; i < timeline.numKeys; i++) {
+            var key = timeline.getKey(i);
             var currentx = key.t * canvaswidth;
             var currenty = key.y * canvasheight;
             var currenttan = key.tan * canvasheight / canvaswidth;
@@ -97,28 +97,26 @@
             return;
         var x = ev.clientX - rect.left;
         var y = ev.clientY - rect.top;
-        var selectedKey = timeline.findPoint(x / canvaswidth, y / canvasheight, pointSize / canvasheight / 2);
+        var selectedKey = timeline.findKey(x / canvaswidth, y / canvasheight, pointSize / canvasheight / 2);
         if (selectedKey != null) {
-            timeline.deletePoint(selectedKey);
+            timeline.deleteKey(selectedKey);
         }
         else {
             // 没有选中关键与控制点时，检查是否点击到曲线
-            var result = timeline.addPoint(x / canvaswidth, y / canvasheight, pointSize / 2);
+            var result = timeline.addKeyAtCurve(x / canvaswidth, y / canvasheight, pointSize / 2);
         }
     }
     requestAnimationFrame(draw);
     function draw() {
         clearCanvas(canvas);
-        var keys = timeline.keys;
-        keys.sort(function (a, b) { return a.t - b.t; });
-        for (var i = 0, n = keys.length; i < n; i++) {
-            var key = keys[i];
+        for (var i = 0, n = timeline.numKeys; i < n; i++) {
+            var key = timeline.getKey(i);
             var currentx = key.t * canvaswidth;
             var currenty = key.y * canvasheight;
             var currenttan = key.tan * canvasheight / canvaswidth;
             // 使用 bezierCurve 进行采样曲线点
             if (i > 0) {
-                var prekey = keys[i - 1];
+                var prekey = timeline.getKey(i - 1);
                 var prex = prekey.t * canvaswidth;
                 var prey = prekey.y * canvasheight;
                 var pretan = prekey.tan * canvasheight / canvaswidth;

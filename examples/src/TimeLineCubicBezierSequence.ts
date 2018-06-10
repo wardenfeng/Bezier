@@ -26,14 +26,90 @@ class TimeLineCubicBezierSequence
      */
     maxtan = 1000;
 
-    keys: TimeLineCubicBezierKey[] = [];
+    private keys: TimeLineCubicBezierKey[] = [];
 
-    findPoint(x: number, y: number, precision: number)
+    /**
+     * 关键点数量
+     */
+    get numKeys()
+    {
+        return this.keys.length;
+    }
+
+
+    /**
+     * 添加关键点
+     * 
+     * 添加关键点后将会执行按t进行排序
+     * 
+     * @param key 关键点
+     */
+    addKey(key: TimeLineCubicBezierKey)
+    {
+        this.keys.push(key);
+        this.sort();
+    }
+
+    /**
+     * 关键点排序
+     * 
+     * 当移动关键点或者新增关键点时需要再次排序
+     */
+    sort()
+    {
+        this.keys.sort((a, b) => a.t - b.t);
+    }
+
+    /**
+     * 删除关键点
+     * @param key 关键点
+     */
+    deleteKey(key: TimeLineCubicBezierKey)
+    {
+        var index = this.keys.indexOf(key);
+        if (index != -1)
+            this.keys.splice(index, 1);
+    }
+
+    /**
+     * 获取关键点
+     * @param index 索引
+     */
+    getKey(index: number)
+    {
+        return this.keys[index];
+    }
+
+    /**
+     * 获取关键点索引
+     * @param key 关键点
+     */
+    indexOfKeys(key: TimeLineCubicBezierKey)
+    {
+        return this.keys.indexOf(key);
+    }
+
+    /**
+     * 获取值
+     * @param t 时间轴的位置 [0,1]
+     */
+    getValue(t: number)
+    {
+
+    }
+
+    /**
+     * 查找关键点
+     * @param t 时间轴的位置 [0,1]
+     * @param y 值
+     * @param precision 查找精度
+     */
+    findKey(t: number, y: number, precision: number)
     {
         var keys = this.keys;
         for (let i = 0; i < keys.length; i++)
         {
-            if (Math.abs(keys[i].t - x) < precision && Math.abs(keys[i].y - y) < precision)
+            if (Math.abs(keys[i].t - t) < precision && Math.abs(keys[i].y - y) < precision)
             {
                 return keys[i];
             }
@@ -42,11 +118,15 @@ class TimeLineCubicBezierSequence
     }
 
     /**
-     * 点击曲线添加关键点
+     * 添加曲线上的关键点
+     * 
+     * 如果该点在曲线上，则添加关键点
+     * 
      * @param x x坐标
      * @param y y坐标
+     * @param precision 查找进度
      */
-    addPoint(x: number, y: number, precision: number)
+    addKeyAtCurve(x: number, y: number, precision: number)
     {
         var keys = this.keys;
         var maxtan = this.maxtan;
@@ -71,7 +151,7 @@ class TimeLineCubicBezierSequence
                     if (Math.abs(fy - y) < precision)
                     {
                         var result = { t: x, y: fy, tan: bezier.getDerivative(t, sys) / (xend - xstart) };
-                        keys.push(result);
+                        this.addKey(result);
                         return result;
                     }
                 } else
@@ -80,7 +160,7 @@ class TimeLineCubicBezierSequence
                     if (Math.abs(y - prekey.y) < precision)
                     {
                         var result = { t: x, y: prekey.y, tan: 0 };
-                        keys.push(result);
+                        this.addKey(result);
                         return result;
                     }
                 }
@@ -88,23 +168,32 @@ class TimeLineCubicBezierSequence
             if (i == 0 && x < key.t && Math.abs(y - key.y) < precision)
             {
                 var result = { t: x, y: key.y, tan: 0 };
-                keys.push(result);
+                this.addKey(result);
                 return result;
             }
             if (i == n - 1 && x > key.t && Math.abs(y - key.y) < precision)
             {
                 var result = { t: x, y: key.y, tan: 0 };
-                keys.push(result);
+                this.addKey(result);
                 return result;
             }
         }
         return null;
     }
 
-    deletePoint(key: TimeLineCubicBezierKey)
+    /**
+     * 获取曲线样本数据
+     *
+     * 这些点可用于连线来拟合曲线。
+     *
+     * @param num 采样次数 ，采样点分别为[0,1/num,2/num,....,(num-1)/num,1]
+     */
+    getSamples(ps: number[], num?: number)
     {
-        var keys = this.keys;
-        var index = keys.indexOf(key);
-        keys.splice(index, 1);
+        var result: number[] = [];
+
+
+
+        return result;
     }
 }

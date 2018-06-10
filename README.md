@@ -61,6 +61,12 @@ https://wardenfeng.github.io/bezier
 
 [quickstart website](examples/CubicBezierSequenceEditor.html ':include :type=iframe width=100% height=400px')
 
+##### 基于时间轴的连续三阶Bézier曲线编辑
+
+该示例已经满足feng3d中曲线编辑器的需求。
+
+[quickstart website](examples/TimeLineCubicBezierSequenceEditor.html ':include :type=iframe width=100% height=400px')
+
 #### 单元测试
 
 [quickstart website](tests/index.html ':include :type=iframe width=100% height=400px')
